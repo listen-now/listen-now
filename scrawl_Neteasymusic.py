@@ -5,11 +5,9 @@
 import requests, re, json
 import AES
 import time, datetime, base64
-import io, sys
 import urllib.parse
 import redis
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
-
+import config
 class Netmusic(object):
 
     def __init__(self):
@@ -33,7 +31,9 @@ class Netmusic(object):
         }
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
-        self.r            = redis.Redis(host='127.0.0.1', port=6379, decode_responses=True)   
+        host = config.getConfig("database", "dbhost")
+        port = config.getConfig("database", "dbport")
+        self.r       = redis.Redis(host=host, port=int(port), decode_responses=True)  
         self.br           = "128000"
 
     def new_requests_play_url(self, music_id):
@@ -45,15 +45,18 @@ class Netmusic(object):
             self.r.set(Search_Db, play_url)
         else:
             play_url = exist_bool
-        self.requ_date['0'] = {}        
-        self.requ_date['0'].update({"play_url": play_url})
+        try:
+            self.requ_date['0'].update({"play_url": play_url})
+        except:
+            self.requ_date['0'] = {}
+            self.requ_date['0'].update({"play_url": play_url})
 
     def requests_play_url(self, music_id):
         
         self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
         resp           = self.session.post(url = self.play_url, data = self.post_data, headers = self.headers)
         resp           = resp.json()
-        play_url  = resp["data"][0]['url']
+        play_url       = resp["data"][0]['url']
         if play_url == None:
             play_url = self.url_ %(music_id)
         self.requ_date['0'] = {}        
@@ -100,7 +103,6 @@ class Netmusic(object):
                 music_data    = {}
                 music_data.update({"music_id": music_id, "music_name": music_name, "artists": artists})
                 self.requ_date.update({'0' : music_data})
-
             page_end   = page * 10
             page_start = page_end - 9
             if page != 1:
@@ -167,5 +169,5 @@ class Netmusic(object):
 
 if __name__ == '__main__':
     test = Netmusic()
-    print(test.music_id_requests(444706287))
-    # print(test.pre_response_neteasymusic('白金迪斯科'))
+    # print(test.music_id_requests(444706287))
+    print(test.pre_response_neteasymusic('白金迪斯科'))

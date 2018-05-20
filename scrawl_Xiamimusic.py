@@ -50,23 +50,23 @@ class Search_xiami(object):
         # data songs 0-9 song_id (song_name album_logo lyric artist_name) 
     def search_xiami(self, title, page = 1):
         global requ_date, music_data
-        url    = self.get_search_url(title, page)
-        c      = requests.get(url = url, headers = xiami_header)
-        result = c.json()
-        music_id   = result['data']['songs'][0]['song_id']
-        music_name = result['data']['songs'][0]['song_name']
-        artists    = result['data']['songs'][0]['artist_name']
-        lyric_url  = result['data']['songs'][0]['lyric']
-        image_url  = result['data']['songs'][0]['album_logo']
-        play_url   = result['data']['songs'][0]['listen_file']
-        regex      = re.compile('<.*?>')
-        try:lyric  = requests.get(lyric_url)
-        except:lyric  = "本首歌还没有歌词!"
-        else:lyric  = re.sub(regex, '', lyric.text)
-        music_data = {}
+        url          = self.get_search_url(title, page)
+        c            = requests.get(url = url, headers = xiami_header)
+        result       = c.json()
+        music_id     = result['data']['songs'][0]['song_id']
+        music_name   = result['data']['songs'][0]['song_name']
+        artists      = result['data']['songs'][0]['artist_name']
+        lyric_url    = result['data']['songs'][0]['lyric']
+        image_url    = result['data']['songs'][0]['album_logo']
+        play_url     = result['data']['songs'][0]['listen_file']
+        regex        = re.compile('<.*?>')
+        try:lyric    = requests.get(lyric_url)
+        except:lyric = "本首歌还没有歌词!"
+        else:lyric   = re.sub(regex, '', lyric.text)
+        music_data   = {}
         music_data.update({"play_url":play_url, "music_id": music_id, "music_name": music_name, "artists": artists, "image_url":image_url, "lyric":lyric})
         requ_date.update({'0' : music_data})
-        count = 0
+        count        = 0
         for i in range(1, 10):
             music_id   = result['data']['songs'][i]['song_id']
             music_name = result['data']['songs'][i]['song_name']
@@ -84,10 +84,10 @@ class Search_xiami(object):
     
     @staticmethod
     def i(music_id):
-        url = Search_xiami.get_music_id(music_id)
-        c = requests.get(url = url, headers = xiami_header)
-        result = c.content.decode()
-        result = json.loads(result[9:-1])
+        url        = Search_xiami.get_music_id(music_id)
+        c          = requests.get(url = url, headers = xiami_header)
+        result     = c.content.decode()
+        result     = json.loads(result[9:-1])
         music_id   = result['data']['song']['song_id']
         music_name = result['data']['song']['song_name']
         artists    = result['data']['song']['artist_name']
