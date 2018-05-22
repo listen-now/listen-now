@@ -4,10 +4,6 @@
 # Author:Cat.1
 
 import requests, json
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 class Qqmusic(object):
     """
