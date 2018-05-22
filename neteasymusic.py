@@ -11,7 +11,7 @@ import scrawl_Neteasymusic
 import scrawl_Xiamimusic
 import scrawl_QQmusic
 import config
-
+import Hot_Song_List
 """
 引入json网页框架用于开放api接口
 引入json库用于解析前端上传的json文件
@@ -116,6 +116,15 @@ def search_json():
         response.headers.add('Server','python flask')       
         return response
 
+@app.route('/user_song_list', methods = ['POST', 'GET'])
+def Return_User_Song_List():
+
+    global re_dict
+    return_user_song_list = Hot_Song_List.Hot_Song_List()
+    re_dict = return_user_song_list.Random_Return_func()
+    response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+    response.headers.add('Server','python flask')       
+    return response
 
 
 @app.route('/id', methods = ['POST', 'GET'])
