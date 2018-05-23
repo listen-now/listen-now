@@ -86,13 +86,12 @@ class NEM(object):
         Search_Db  = "NEM" + music_id
         exist_bool = self.r.get(Search_Db)
         if not exist_bool:
-            if self.requests_play_url(music_id):
-                self.r.set(Search_Db, self.play_url_)
-                test.r.expire(Search_Db, 1200)
+            # if self.requests_play_url(music_id):
+            self.url_         = "http://music.163.com/song/media/outer\
+                                /url?id=%s.mp3" %music_id
+            self.r.set(Search_Db, self.url_)
                 # 20分钟更新一轮次
-                print("[+]Update!\n")       
-            else:
-                print("[E] Not Exist play_url\n")
+            print("[+]Update!\n")       
         else:
             print('[-]Exist\n')         
 
@@ -118,14 +117,16 @@ class NEM(object):
         这是用于获取用户热门歌单的歌曲地址的方法
         """
         try:
-            connection = requests.get(url = "http://music.163.com" + self.User_List_All[1],
-                                    headers=self.headers,
-                                    )
+            connection = requests.get(url = "http://music.163.com" + \
+                                      self.User_List_All[1],
+                                      headers=self.headers,
+                                      )
         except:
             return 0
         else:
             connection.encoding = 'UTF-8'
-            SongList_Id         = re.findall(r'/playlist\?id=(\d+)', connection.text)
+            SongList_Id         = re.findall(r'/playlist\?id=(\d+)', \
+                                             connection.text)
             Set_SongList_Id     = set(SongList_Id)
             if Set_SongList_Id == []:
                 return 0
@@ -165,6 +166,7 @@ if __name__ == "__main__":
                 test.check(z)
             time.sleep(0.5)
         end = time.time() - start
-        if end//60 < 20:
-            time.sleep(1200 - end)
+        time.sleep(12 * 3600)
+        # if end//60 < 20:
+        #     time.sleep(1200 - end)
         # 休眠一定时间后重新更新数据
