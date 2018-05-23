@@ -156,20 +156,25 @@ def play_id():
     基本内容如上, 如果请求的是网易/虾米则会检测id信息,
     QQ音乐则会检测media_mid、songmid值.
     """
+    # 507
+
     global re_dict
     if request.method == 'POST':
         data      = request.get_data()
-        dict_data = json.loads(data)    
+        dict_data = json.loads(data)   
+        print(dict_data) 
         try:
             music_platform = dict_data['platform']
         except:
             re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
         else:
-            if music_id != '' or music_id != None:
+            if music_platform != '' or music_platform != None:
                 if music_platform == "Neteasymusic":
+                    print(music_platform)
                     neteasymusic_id = scrawl_Neteasymusic.Netmusic()
                     music_id        = dict_data["id"]
                     re_dict         = neteasymusic_id.music_id_requests(music_id)
+                    # print()
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})
                     else:

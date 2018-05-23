@@ -1,6 +1,5 @@
-#coding=utf-8
 #!usr/bin/env python3
-# @File:Scrawl.py
+# @File:Scrawl_Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
 import requests, re, json
@@ -9,16 +8,24 @@ import time, datetime, base64
 import urllib.parse
 import redis
 import config
+
+
+
 class Netmusic(object):
 
     def __init__(self):
         self.requ_date = {}
         self.search_url   = "http://music.163.com/api/search/get/web?csrf_token="
+        # 通过歌曲名称获得歌曲的ID信息(GET请求)
         self.play_url     = "http://music.163.com/weapi/song/enhance/player/url?csrf_token="
+        # 通过加密数据POST请求得到播放地址
         # https://api.imjad.cn/cloudmusic/?type=song&id=%s&br=320000
         self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3"
+        # 网易根据api直接请求到下载音乐地址(%s均为歌曲id)
         self.comment_url  = "https://music.163.com/weapi/v1/resource/comments/R_SO_4_%s?csrf_token="
+        # 通过加密数据POST请求得到评论内容        
         self.lyric_url    = "http://music.163.com/api/song/lyric?id=%s&lv=1&kv=1&tv=-1"      
+        # 通过id获得歌曲的歌词信息(json包) 只需要(GET请求)
         self.session      = requests.session()
         self.headers      = {
         'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:57.0) Gecko/20100101 Firefox/57.0',
@@ -74,9 +81,21 @@ class Netmusic(object):
     def music_id_requests(self, music_id):
         self.new_requests_play_url(music_id)
         # self.requests_play_url(music_id)
+        # 切换到速度较快的备用模式
         # self.requests_comment(music_id)
         self.requests_lyric(music_id)
+        self.music_detail(music_id)
         return self.requ_date
+    
+    def music_detail(self, music_id):
+        url     = "http://music.163.com/api/song/detail?ids=[%s]"
+        resp    = self.session.get(url %music_id, headers = self.headers)
+        content = resp.json()
+        name    = content['songs'][0]["name"]
+        artists = content['songs'][0]["artists"][0]["name"]
+        music_data    = {}
+        music_data.update({"music_name": name, "artists": artists})
+        self.requ_date['0'].update(music_data)
 
     def pre_response_neteasymusic(self, text, page = 1):
         text       = urllib.parse.quote(text)                        
@@ -127,6 +146,7 @@ class Netmusic(object):
             except:
                 print("[-]Platform not The music")
                 return 0
+                # 该平台上没有该音乐任何信息!
             else:
                 self.requ_date.update({"music_id":music_id, "music_name":music_name, "artists":artists, })
                 # 返回首备选歌曲信息.
@@ -135,6 +155,7 @@ class Netmusic(object):
                 # self.requests_comment(music_id)
                 self.requests_lyric(music_id)
                 return self.requ_date
+                # 处理首备选歌曲
         else:
             # result songs 0-5 id name artists
             self.new_requests_play_url(music_id)
@@ -143,6 +164,7 @@ class Netmusic(object):
             self.requests_lyric(music_id)
             return self.requ_date
 
+            # 只返回第一首备选歌曲的详细信息.
 
     def requests_lyric(self, music_id):
         self.lyric_data  = self.session.get(url = self.lyric_url %(music_id), headers = self.headers)
@@ -157,8 +179,9 @@ class Netmusic(object):
                 self.requ_date['0'].update({"tlyric": self.tlyric})
             # print(self.requ_date)
         return 1
+        # 返回请求的信息
 
 if __name__ == '__main__':
     test = Netmusic()
-    # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('白金迪斯科'))
+    print(test.music_id_requests(444706287))
+    # print(test.pre_response_neteasymusic('白金迪斯科'))
