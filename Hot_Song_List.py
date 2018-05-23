@@ -2,11 +2,16 @@
 # @File:Hot_Song_List.py
 # @Date:2018/05/22
 # Author:Cat.1
+# encoding:utf-8
+import io  
+import sys  
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 import requests
 import re, random
 import redis, time
 import config
+import AES
 
 Page_Start_Url = "/discover/playlist/?order=hot&cat=%E5%85%A8%E9%83%A8&limit=35&offset="
 Page_Start     = 35
@@ -23,6 +28,11 @@ class Hot_Song_List(object):
             'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
             'Referer':"http://music.163.com"
         }
+        self.post_headers = {
+                            'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
+                            'Referer':"http://music.163.com", 
+                            'Content-Type':"application/x-www-form-urlencoded"
+                        }
         self.User_List_All = ["用户热门歌单", "/discover/playlist"]
         host               = config.getConfig("database", "dbhost")
         port               = config.getConfig("database", "dbport")
@@ -57,7 +67,7 @@ class Hot_Song_List(object):
 
     def Random_Return_func(self):
         global re_date
-
+        self.requ_date = {}
         Random_Max = self.r.dbsize()
         for i in range(0, 6):
             music_data = {}
@@ -70,8 +80,35 @@ class Hot_Song_List(object):
                                  })
             self.requ_date.update({str(i) : music_data})
         return self.requ_date
+    
+    def top_songlist(self, url):
 
-
+        self.requ_date = {}
+        """
+        这是用来下载top_songlist的热门排行版的方法
+        并向前端返回歌曲的id,歌手, 歌名的信息
+        """
+        date = "{\'id\': %s, \'total\': \'true\',\'csrf_token\
+        \':\"\", \'limit\': 1000, \'n\': 1000, \'offset\': 0}"
+        Song_List_Id = re.findall(r"id=(\d{1,15})", url)
+        date = AES.encrypted_request(date %(Song_List_Id[0]))
+        try:
+            connection = self.session.post(url = "http://music.163.com/weapi/v3/playlist/detail",
+                                       data = date,
+                                       headers=self.post_headers,
+                                       )
+        except:
+            return 0
+        else:
+            try:
+                music_data = {}
+                connection = connection.json()
+                num = len(connection["playlist"]['tracks'])
+                music_data = {"creator":connection["playlist"]['creator'], "Songlist_detail":connection["playlist"]['tracks'], "description":connection["playlist"]['description'], "song_num":num}
+            except:
+                music_data = {"status":"没有该歌单!"}
+            self.requ_date.update(music_data)
+            return self.requ_date
 
 
 if __name__ == "__main__":
@@ -81,3 +118,4 @@ if __name__ == "__main__":
         test.pre_request(test.User_List_All[1])
         time.sleep(3600 * 12)
 
+    # print(test.top_songlist("https://music.163.com/m/playlist?id=2196054076"))

@@ -117,7 +117,7 @@ def search_json():
         return response
 
 @app.route('/user_song_list', methods = ['POST', 'GET'])
-def Return_User_Song_List():
+def Return_Random_User_Song_List():
 
     global re_dict
     return_user_song_list = Hot_Song_List.Hot_Song_List()
@@ -125,6 +125,28 @@ def Return_User_Song_List():
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
+
+@app.route('/song_list_requests', methods = ['POST', 'GET'])
+def Return_User_Song_List_Detail():
+
+    global re_dict
+    data = request.get_data()      # 获得json数据包.
+    try:
+        dict_data = json.loads(data)        # 解析json数据包.
+    except:
+        re_dict = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
+
+    try:
+        song_list_url   = dict_data["url"]
+    except:
+        re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
+    else:
+        return_user_song_list = Hot_Song_List.Hot_Song_List()
+        re_dict = return_user_song_list.top_songlist(song_list_url)
+    response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+    response.headers.add('Server','python flask')       
+    return response
+
 
 
 @app.route('/id', methods = ['POST', 'GET'])
