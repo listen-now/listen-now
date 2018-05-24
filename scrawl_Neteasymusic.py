@@ -8,6 +8,10 @@ import time, datetime, base64
 import urllib.parse
 import redis
 import config
+# encoding:utf-8
+import io  
+import sys  
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 
 
@@ -48,13 +52,13 @@ class Netmusic(object):
             self.r.set(Search_Db, play_url)
         else:
             play_url = exist_bool
-            music_id = re.findall(r"url\?id=\d{1, 20}", exist_bool)
+            music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)
         try:
 
-            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id})
+            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id[0]})
         except:
             self.requ_date['0'] = {}
-            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id})
+            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id[0]})
 
     def requests_play_url(self, music_id):
         
@@ -82,7 +86,7 @@ class Netmusic(object):
             self.requ_date['0'].update({"detail":"本首歌曲还没有评论~"})
     def music_id_requests(self, music_id):
         self.new_requests_play_url(music_id)
-        music_id = self.requ_date["music_id"]
+        music_id = self.requ_date['0']["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
         # self.requests_comment(music_id)
