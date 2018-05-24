@@ -5,18 +5,26 @@
 
 from pymongo import MongoClient
 import requests
+import config
 
 class Sync_Neteasymusic(object):
     """
-    This is a base sarwl , include class, and use requests.session 
-    and requests.get/post
+    这个类是用来同步网易云音乐用户的歌单信息类
+    使用该类，用户可以方便的给出网易云音乐的用户名，
+    系统会检索出他的歌单信息，并更新到数据库中进行储存
     """
+
+
     def __init__(self):
-
-        self.conn = MongoClient('127.0.0.1', 27017)
-        self.db = self.conn.mydb 
+        """
+        预处理包括连接mongodb数据库(利用config方法)，设置用户代理等信息
+        以及self.Sync_NEM_Url 是获得用户歌单的网易API具体地址
+        """
+        host = config.getConfig("mongodb", "mongodbhost")
+        port = config.getConfig("apptest", "mongodbport")
+        self.conn = MongoClient(str(host), port)
+        self.db = self.conn.mydb
         self.my_set = self.db.test_set
-
         self.session = requests.session()
         self.headers = {
             'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
@@ -25,6 +33,16 @@ class Sync_Neteasymusic(object):
         self.Sync_NEM_Url = "http://music.163.com/api/user/playlist/?offset=0&limit=100&uid=%s"
 
     def Get_User_List(self, uid, user_id):
+        """
+        这个类用于根据用户的uid（网易提供的用户唯一标识来寻找用户）
+        根据uid得到用户的歌单信息， 解析返回的json文件，
+        整理后依据用户在我们自己平台上的user_id（可由你自定义），
+        存入mongodb数据库，后期就依据这个远端同步用户的歌单信息
+        但是我们并不详细储存用户歌单数据，针对一个歌单，mongodb中只储存用户的
+        歌单id，歌单封面，歌单名称
+        当用户调取时，通过调用Hot_Song_List.py中的Download_SongList办法来
+        获得歌单中的详细信息
+        """
         resp    = self.session.get(url = self.Sync_NEM_Url %uid, headers = self.headers)
         content = resp.json()
         Playlist_Num = len(content["playlist"])

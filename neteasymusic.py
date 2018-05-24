@@ -118,7 +118,11 @@ def search_json():
 
 @app.route('/user_song_list', methods = ['POST', 'GET'])
 def Return_Random_User_Song_List():
-
+    """
+    用于向前端返回随机的6个歌单信息
+    允许GET、POST任何请求均可
+    返回的数据格式为 {"0":""}
+    """
     global re_dict
     return_user_song_list = Hot_Song_List.Hot_Song_List()
     re_dict = return_user_song_list.Random_Return_func()
@@ -128,7 +132,15 @@ def Return_Random_User_Song_List():
 
 @app.route('/song_list_requests', methods = ['POST', 'GET'])
 def Return_User_Song_List_Detail():
-
+    """
+    用于向前端返回某一个歌单的详细信息（
+                                        包括歌单的名称，
+                                        歌单id，
+                                        每首歌曲id，
+                                        歌曲名称，
+                                        歌曲演唱者
+                                        ）
+    """
     global re_dict
     data = request.get_data()      # 获得json数据包.
     try:
@@ -142,7 +154,7 @@ def Return_User_Song_List_Detail():
         re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
     else:
         return_user_song_list = Hot_Song_List.Hot_Song_List()
-        re_dict = return_user_song_list.top_songlist(song_list_url)
+        re_dict = return_user_song_list.Download_SongList(song_list_url)
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
@@ -156,8 +168,6 @@ def play_id():
     基本内容如上, 如果请求的是网易/虾米则会检测id信息,
     QQ音乐则会检测media_mid、songmid值.
     """
-    # 507
-
     global re_dict
     if request.method == 'POST':
         data      = request.get_data()
