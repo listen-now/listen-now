@@ -8,10 +8,6 @@ import time, datetime, base64
 import urllib.parse
 import redis
 import config
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 
 
@@ -44,25 +40,28 @@ class Netmusic(object):
         self.br           = "128000"
 
     def new_requests_play_url(self, music_id):
+        global music_data
+        new_music_id = []
         # self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
         Search_Db  = "NEM" + str(music_id)
         exist_bool = self.r.get(Search_Db)
         if not exist_bool:
             play_url = self.url_ %(music_id)
-            print(music_id)
             self.r.set(Search_Db, play_url)
         else:
             play_url = exist_bool
-            music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)
+            new_music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)        
+
+        music_data    = {}
         try:
-            # print(play_url)
-            music_data    = {}
             music_data.update({"play_url": play_url, "music_id":music_id[0]})
-            self.requ_date['0'].update(music_data)
-            # print(self.requ_date)
         except:
-            self.requ_date['0'] = {}
-            self.requ_date['0'].update(music_data)
+            music_data.update({"play_url": play_url, "music_id":music_id})            
+        try:            
+            self.requ_date["0"].update(music_data)
+        except:
+            self.requ_date.update({"0":music_data})
+
 
     def requests_play_url(self, music_id):
         
@@ -90,7 +89,6 @@ class Netmusic(object):
             self.requ_date['0'].update({"detail":"本首歌曲还没有评论~"})
     def music_id_requests(self, music_id):
         self.new_requests_play_url(music_id)
-        print(self.requ_date['0'])
         music_id = self.requ_date['0']["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
@@ -100,22 +98,19 @@ class Netmusic(object):
         return self.requ_date
     
     def music_detail(self, music_id):
-        url       = "http://music.163.com/api/song/detail?ids=[%s]"
-        resp      = self.session.get(url %music_id, headers = self.headers)
-        content   = resp.json()
-        name      = content['songs'][0]["name"]
-        artists   = content['songs'][0]["artists"][0]["name"]
-        image_url = content['songs'][0]["album"]["picUrl"]
-        music_data    = {}
-        music_data.update({"music_name": name, "artists": artists, "image_url":image_url})
-        # print(music_data)        
+        url        = "http://music.163.com/api/song/detail?ids=[%s]"
+        resp       = self.session.get(url %music_id, headers = self.headers)
+        content    = resp.json()
+        name       = content['songs'][0]["name"]
+        artists    = content['songs'][0]["artists"][0]["name"]
+        image_url  = content['songs'][0]["album"]["picUrl"]
+        music_data = {}
+        music_data.update({"image_url":image_url, "music_name":name, "artists":artists})
         try:
             self.requ_date['0'].update(music_data)
         except:
             self.requ_date['0'] = {}
             self.requ_date['0'].update(music_data)
-        else:
-            print(self.requ_date)
 
 
     def pre_response_neteasymusic(self, text, page = 1):
@@ -126,12 +121,12 @@ class Netmusic(object):
         try:
             if page == 1:
                 music_id      = result['result']['songs'][0]['id']
-                music_data    = {}
+                # music_data    = {}
                 self.music_detail(music_id)
-                music_name    = result['result']['songs'][0]['name']
-                artists       = result['result']['songs'][0]['artists'][0]['name']
-                music_data.update({"music_id": music_id, "music_name":music_name, "artists":artists})
-                self.requ_date.update({'0' : music_data})
+                # music_name    = result['result']['songs'][0]['name']
+                # artists       = result['result']['songs'][0]['artists'][0]['name']
+                # music_data.update({"music_id": music_id, "music_name":music_name, "artists":artists})
+                # self.requ_date['0'].update(music_data)
             else:
                 music_id      = result['result']['songs'][page * 2 - 9]['id']
                 music_name    = result['result']['songs'][page * 2 - 9]['name']
@@ -151,7 +146,6 @@ class Netmusic(object):
                 artists_2     = result['result']['songs'][i]['artists'][0]['name']
                 Search_Db     = "NEM" + str(music_id_2)
                 exist_bool    = self.r.get(Search_Db)
-                
                 if not exist_bool :
                     play_url = self.url_ %(music_id_2)
                     self.r.set(Search_Db, play_url)
@@ -170,7 +164,7 @@ class Netmusic(object):
                 return 0
                 # 该平台上没有该音乐任何信息!
             else:
-                self.requ_date.update({"music_id":music_id, "music_name":music_name, "artists":artists, })
+                self.requ_date.update({"music_id":music_id, "music_name":music_name, "artists":artists})
                 # 返回首备选歌曲信息.
                 self.new_requests_play_url(music_id)
                 music_id = self.requ_date["music_id"]
@@ -180,7 +174,6 @@ class Netmusic(object):
                 return self.requ_date
                 # 处理首备选歌曲
         else:
-            # result songs 0-5 id name artists
             self.new_requests_play_url(music_id)
             # self.requests_play_url(music_id)
             # self.requests_comment(music_id)
@@ -194,17 +187,22 @@ class Netmusic(object):
         try:self.lyric   = self.lyric_data.json()["lrc"]["lyric"]
         except: self.lyric = {"本首歌还没有歌词!"}
         else:
-            self.requ_date['0'].update({"lyric": self.lyric})
+            music_data = {}
+            music_data.update({"lyric": self.lyric})
+            self.requ_date['0'].update(music_data)
+
             try: self.tlyric = self.lyric_data.json()["tlyric"]["lyric"]
             except: 
                 pass
             else: 
-                self.requ_date['0'].update({"tlyric": self.tlyric})
-            # print(self.requ_date)
+                music_data = {}
+                music_data.update({"tlyric": self.tlyric})
+                self.requ_date['0'].update(music_data)
         return 1
-        # 返回请求的信息
+
 
 if __name__ == '__main__':
     test = Netmusic()
     # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('白金迪斯科'))
+    print(test.pre_response_neteasymusic('大鱼'))
+    # test.pre_response_neteasymusic('大鱼')

@@ -82,21 +82,21 @@ def search_json():
                         neteasymusic_id = scrawl_Neteasymusic.Netmusic()
                         re_dict         = neteasymusic_id.pre_response_neteasymusic(music_title, music_page)
                         if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":page, "next_page":page + 1, "before_page":page - 1})
+                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "Xiamimusic":
                         xiamimusic_id = scrawl_Xiamimusic.Search_xiami()
                         re_dict       = xiamimusic_id.search_xiami(music_title, music_page)                        
                         if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":page, "next_page":page + 1, "before_page":page - 1})
+                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "QQmusic":
                         qqmusic_id = scrawl_QQmusic.Qqmusic()
                         re_dict    = qqmusic_id.qq_music_search(music_title, music_page)                        
                         if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":page, "next_page":page + 1, "before_page":page - 1})
+                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
 
