@@ -87,8 +87,7 @@ class NEM(object):
         exist_bool = self.r.get(Search_Db)
         if not exist_bool:
             # if self.requests_play_url(music_id):
-            self.url_         = "http://music.163.com/song/media/outer\
-                                /url?id=%s.mp3" %music_id
+            self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3" %music_id
             self.r.set(Search_Db, self.url_)
                 # 20分钟更新一轮次
             print("[+]Update!\n")       
