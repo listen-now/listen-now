@@ -49,16 +49,20 @@ class Netmusic(object):
         exist_bool = self.r.get(Search_Db)
         if not exist_bool:
             play_url = self.url_ %(music_id)
+            print(music_id)
             self.r.set(Search_Db, play_url)
         else:
             play_url = exist_bool
             music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)
         try:
-
-            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id[0]})
+            # print(play_url)
+            music_data    = {}
+            music_data.update({"play_url": play_url, "music_id":music_id[0]})
+            self.requ_date['0'].update(music_data)
+            # print(self.requ_date)
         except:
             self.requ_date['0'] = {}
-            self.requ_date['0'].update({"play_url": play_url, "music_id":music_id[0]})
+            self.requ_date['0'].update(music_data)
 
     def requests_play_url(self, music_id):
         
@@ -86,6 +90,7 @@ class Netmusic(object):
             self.requ_date['0'].update({"detail":"本首歌曲还没有评论~"})
     def music_id_requests(self, music_id):
         self.new_requests_play_url(music_id)
+        print(self.requ_date['0'])
         music_id = self.requ_date['0']["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
@@ -103,7 +108,15 @@ class Netmusic(object):
         image_url = content['songs'][0]["album"]["picUrl"]
         music_data    = {}
         music_data.update({"music_name": name, "artists": artists, "image_url":image_url})
-        self.requ_date['0'].update(music_data)
+        # print(music_data)        
+        try:
+            self.requ_date['0'].update(music_data)
+        except:
+            self.requ_date['0'] = {}
+            self.requ_date['0'].update(music_data)
+        else:
+            print(self.requ_date)
+
 
     def pre_response_neteasymusic(self, text, page = 1):
         text       = urllib.parse.quote(text)                        
@@ -115,7 +128,9 @@ class Netmusic(object):
                 music_id      = result['result']['songs'][0]['id']
                 music_data    = {}
                 self.music_detail(music_id)
-                music_data.update({"music_id": music_id})
+                music_name    = result['result']['songs'][0]['name']
+                artists       = result['result']['songs'][0]['artists'][0]['name']
+                music_data.update({"music_id": music_id, "music_name":music_name, "artists":artists})
                 self.requ_date.update({'0' : music_data})
             else:
                 music_id      = result['result']['songs'][page * 2 - 9]['id']
@@ -138,7 +153,7 @@ class Netmusic(object):
                 exist_bool    = self.r.get(Search_Db)
                 
                 if not exist_bool :
-                    play_url = self.url_ %(music_id)
+                    play_url = self.url_ %(music_id_2)
                     self.r.set(Search_Db, play_url)
                 else:
                     play_url = exist_bool
@@ -191,5 +206,5 @@ class Netmusic(object):
 
 if __name__ == '__main__':
     test = Netmusic()
-    print(test.music_id_requests(444706287))
-    # print(test.pre_response_neteasymusic('白金迪斯科'))
+    # print(test.music_id_requests(444706287))
+    print(test.pre_response_neteasymusic('白金迪斯科'))
