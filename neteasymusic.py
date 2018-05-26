@@ -182,8 +182,8 @@ def check_user():
         flag     = user_id_dict["flag"]
     except KeyError:
         flag = 1
-    value    = Neteasymusic_Sync.Neteasymusic_Sync\
-    .Create_Check_User_id(user_id)
+    check_func = Neteasymusic_Sync.Neteasymusic_Sync()
+    value      = check_func.Create_Check_User_id(user_id)
     if int(flag[0]) == 1 and value[0] == 0:
         print(">>>>>")
         re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")

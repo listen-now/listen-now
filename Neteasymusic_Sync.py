@@ -25,11 +25,15 @@ class Neteasymusic_Sync(object):
         以及self.Sync_NEM_Url 是获得用户歌单的网易API具体地址
         连接的数据表时mydb, 然后选择mydb中的test_set集合
         """
-        host = config.getConfig("mongodb", "mongodbhost")
-        port = config.getConfig("mongodb", "mongodbport")
-        self.conn = MongoClient(str(host), int(port))
-        self.db = self.conn.mydb
-        self.my_set = self.db.test_set
+        host         = config.getConfig("database", "dbhost")
+        port         = config.getConfig("database", "dbport")
+        self.r       = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)
+        
+        host         = config.getConfig("mongodb", "mongodbhost")
+        port         = config.getConfig("mongodb", "mongodbport")
+        self.conn    = MongoClient(str(host), int(port))
+        self.db      = self.conn.mydb
+        self.my_set  = self.db.test_set
         self.session = requests.session()
         self.headers = {
                         'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
@@ -74,8 +78,8 @@ class Neteasymusic_Sync(object):
         """
         return Hot_Song_List.Hot_Song_List.Download_SongList(url)
     
-    @staticmethod
-    def Create_Check_User_id(Sign_in_tags, flag = 1):
+
+    def Create_Check_User_id(self, Sign_in_tags, flag = 1):
         """
         由于使用用户注册信息(他的昵称/邮箱)来作为他的user_id太过麻烦, 
         所以不如直接用他的登录信息来生成一个user_id,
@@ -86,18 +90,15 @@ class Neteasymusic_Sync(object):
         如果用户名存在返回(1,该用户名, 用户想注册账户名), 如果用户新创建账户返回(2, 新user_id, 用户注册的账户名)
         否则用户查询得到没有被注册则返回(0, 0, 用户想注册的账户名)
         """
-        host    = config.getConfig("database", "dbhost")
-        port    = config.getConfig("database", "dbport")
-        r       = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)
-        user_id = r.get(Sign_in_tags)
+        user_id = self.r.get(Sign_in_tags)
         print(user_id)
         if user_id:
             return (1, user_id, Sign_in_tags)
         elif user_id == None and flag != 1:
-            cur_value = r.dbsize()
+            cur_value = self.r.dbsize()
             salt = ''.join(random.sample(string.ascii_letters + string.digits, 8))
             new_value = hex(cur_value) + salt
-            r.set(Sign_in_tags, new_value)
+            self.r.set(Sign_in_tags, new_value)
             return (2, new_value, Sign_in_tags)
         else:
             return (0, 0, Sign_in_tags)
@@ -109,4 +110,4 @@ if __name__ == "__main__":
     test = Neteasymusic_Sync()
     # test.Get_User_List(252937215, "000001")
     # print(Sync_Neteasymusic.Get_User_SongList_Detail("328226111"))
-    print(Neteasymusic_Sync.Create_Check_User_id('zhuyuefeng0@gmail.com'))
+    print(test.Create_Check_User_id('zhuyuefeng0@gmail.com'))
