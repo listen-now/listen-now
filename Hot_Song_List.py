@@ -15,6 +15,7 @@ Raw_Page_Sum   = 0
 
 class Hot_Song_List(object):
     requ_date        = {}
+
     """
     这个类用于维护用户热门歌单信息，在redis-1号数据库中，
     储存每一个热门歌单的歌单地址，歌单封面，歌单名称
@@ -92,9 +93,14 @@ class Hot_Song_List(object):
             self.requ_date.update({str(i) : music_data})
         return self.requ_date
     
-    def Download_SongList(self, url):
-
-        self.requ_date = {}
+    @staticmethod
+    def Download_SongList(url):
+        post_headers  = {
+                        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
+                        'Referer':"http://music.163.com", 
+                        'Content-Type':"application/x-www-form-urlencoded"
+                        }
+        requ_date = {}
         """
         这是用来下载用户的歌单的方法
         并向前端返回歌曲的id,歌手, 歌名的信息
@@ -104,13 +110,15 @@ class Hot_Song_List(object):
         date = "{\'id\': %s, \'total\': \'true\',\'csrf_token\
         \':\"\", \'limit\': 1000, \'n\': 1000, \'offset\': 0}"
         Song_List_Id = re.findall(r"id=(\d{1,15})", url)
+        if Song_List_Id == []:
+            Song_List_Id = re.findall(r"(\d{1,15})", url)
         date = AES.encrypted_request(date %(Song_List_Id[0]))
         try:
-            connection = self.session.post(url = "http://music.163.com/weapi/v3/playlist/detail",
-                                       data = date,
-                                       headers=self.post_headers,
-                                       )
-        except:
+            connection = requests.session().post(url="http://music.163.com/weapi/v3/playlist/detail",
+                                           data=date,
+                                           headers=post_headers,
+                                           )
+        except EOFError:
             return 0
         else:
             try:
@@ -120,8 +128,8 @@ class Hot_Song_List(object):
                 music_data = {"creator":connection["playlist"]['creator'], "Songlist_detail":connection["playlist"]['tracks'], "description":connection["playlist"]['description'], "song_num":num}
             except:
                 music_data = {"status":"没有该歌单!"}
-            self.requ_date.update(music_data)
-            return self.requ_date
+            requ_date.update(music_data)
+            return requ_date
 
 
 if __name__ == "__main__":
@@ -129,6 +137,6 @@ if __name__ == "__main__":
     test = Hot_Song_List()
     while 1:
         test.pre_request(test.User_List_All[1])
-        time.sleep(3600 * 10)
+        time.sleep(3600)
 
-    # print(test.Download_SongList("https://music.163.com/m/playlist?id=2196054076"))
+    # print(Hot_Song_List.Download_SongList("2196054076"))

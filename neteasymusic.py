@@ -12,6 +12,8 @@ import scrawl_Xiamimusic
 import scrawl_QQmusic
 import config
 import Hot_Song_List
+import Neteasymusic_Sync
+
 """
 引入json网页框架用于开放api接口
 引入json库用于解析前端上传的json文件
@@ -32,7 +34,7 @@ def hello_world():
     """
     return 'Hello World!  This is ZhuYuefeng\'s test_api.  Thanks your requests.  Cat.1'
 
-def _Return_Error_Post(code, status, detail = ""):
+def _Return_Error_Post(code, status, detail = "", **kw):
     """
     用于向前端反馈错误信息的函数
     包括code参数 错误码
@@ -40,7 +42,7 @@ def _Return_Error_Post(code, status, detail = ""):
     detail 相信信息
     组装数据包成json格式返回
     """
-    return {"code":code, "status":status, "detail":detail}
+    return {"code":code, "status":status, "detail":detail, "other":kw}
 
 
 
@@ -133,18 +135,18 @@ def Return_Random_User_Song_List():
 @app.route('/song_list_requests', methods = ['POST', 'GET'])
 def Return_User_Song_List_Detail():
     """
-    用于向前端返回某一个歌单的详细信息（
-                                        包括歌单的名称，
-                                        歌单id，
-                                        每首歌曲id，
-                                        歌曲名称，
-                                        歌曲演唱者
-                                        ）
+    用于向前端返回某一个歌单的详细信息(
+                                包括歌单的名称，
+                                歌单id，
+                                每首歌曲id，
+                                歌曲名称，
+                                歌曲演唱者
+                                )
     """
     global re_dict
-    data = request.get_data()      # 获得json数据包.
+    data = request.get_data()     
     try:
-        dict_data = json.loads(data)        # 解析json数据包.
+        dict_data = json.loads(data)      
     except:
         re_dict = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
 
@@ -156,6 +158,40 @@ def Return_User_Song_List_Detail():
         return_user_song_list = Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Download_SongList(song_list_url)
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+    response.headers.add('Server','python flask')       
+    return response
+
+@app.route('/check_user', methods = ['GET'])
+def check_user():
+    re_dict = {}
+    """
+    以GET请求方式请求服务器(参数为user_id), 
+    得到用户想要注册的用户名,
+    检测用户名是否已经被注册.
+    如果是返回元祖第一个值为零则表示系统是查询所账户不存在, 可以注册
+    返回1表示账户存在, 返回2表示账户新注册成功注册(均同时返回新的账户user_id)
+    flag = 1时表示查询账户是否存在, flag = 0时表示当前账户不存在并且希望注册新账户
+    value -> 200 表示账户未被注册
+          -> 201 账户已经被他人注册
+          -> 202 账户注册成功
+    """
+
+    user_id_dict = dict(request.args)
+    user_id      = user_id_dict["user_id"]
+    try:
+        flag     = user_id_dict["flag"]
+    except KeyError:
+        flag = 1
+    value    = Neteasymusic_Sync.Neteasymusic_Sync\
+    .Create_Check_User_id(user_id)
+    if int(flag[0]) == 1 and value[0] == 0:
+        print(">>>>>")
+        re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
+    elif value[0] == 1:
+        re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201")
+    elif int(flag[0]) == 0 and value[0] == 2:
+        re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
+    response      = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
 
@@ -184,7 +220,6 @@ def play_id():
                     neteasymusic_id = scrawl_Neteasymusic.Netmusic()
                     music_id        = dict_data["id"]
                     re_dict         = neteasymusic_id.music_id_requests(music_id)
-                    # print()
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})
                     else:

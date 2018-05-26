@@ -10,11 +10,10 @@ import redis
 import config
 
 
-
 class Netmusic(object):
 
     def __init__(self):
-        self.requ_date = {}
+        self.requ_date    = {}
         self.search_url   = "http://music.163.com/api/search/get/web?csrf_token="
         # 通过歌曲名称获得歌曲的ID信息(GET请求)
         self.play_url     = "http://music.163.com/weapi/song/enhance/player/url?csrf_token="
@@ -34,25 +33,25 @@ class Netmusic(object):
         }
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
-        host = config.getConfig("database", "dbhost")
-        port = config.getConfig("database", "dbport")
-        self.r       = redis.Redis(host=host, port=int(port), decode_responses=True)  
+        host              = config.getConfig("database", "dbhost")
+        port              = config.getConfig("database", "dbport")
+        self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
         self.br           = "128000"
 
     def new_requests_play_url(self, music_id):
         global music_data
-        new_music_id = []
+        new_music_id     = []
         # self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
-        Search_Db  = "NEM" + str(music_id)
-        exist_bool = self.r.get(Search_Db)
+        Search_Db        = "NEM" + str(music_id)
+        exist_bool       = self.r.get(Search_Db)
         if not exist_bool:
             play_url = self.url_ %(music_id)
             self.r.set(Search_Db, play_url)
         else:
-            play_url = exist_bool
+            play_url     = exist_bool
             new_music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)        
 
-        music_data    = {}
+        music_data = {}
         try:
             music_data.update({"play_url": play_url, "music_id":music_id[0]})
         except:
@@ -111,7 +110,7 @@ class Netmusic(object):
         except:
             self.requ_date['0'] = {}
             self.requ_date['0'].update(music_data)
-
+        return self.requ_date
 
     def pre_response_neteasymusic(self, text, page = 1):
         text       = urllib.parse.quote(text)                        
@@ -123,6 +122,7 @@ class Netmusic(object):
                 music_id      = result['result']['songs'][0]['id']
                 # music_data    = {}
                 self.music_detail(music_id)
+
                 # music_name    = result['result']['songs'][0]['name']
                 # artists       = result['result']['songs'][0]['artists'][0]['name']
                 # music_data.update({"music_id": music_id, "music_name":music_name, "artists":artists})
@@ -204,5 +204,5 @@ class Netmusic(object):
 if __name__ == '__main__':
     test = Netmusic()
     # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('大鱼'))
+    print(test.pre_response_neteasymusic('成都'))
     # test.pre_response_neteasymusic('大鱼')

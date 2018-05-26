@@ -10,6 +10,7 @@ import AES
 import config
 
 
+
 class NEM(object):
     """
     这是用于维护redis中网易云音乐的音乐地址的可用性的类
@@ -87,7 +88,7 @@ class NEM(object):
         exist_bool = self.r.get(Search_Db)
         if not exist_bool:
             # if self.requests_play_url(music_id):
-            self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3" %music_id
+            self.url_           = "http://music.163.com/song/media/outer/url?id=%s.mp3" %music_id
             self.r.set(Search_Db, self.url_)
                 # 20分钟更新一轮次
             print("[+]Update!\n")       
@@ -154,7 +155,7 @@ if __name__ == "__main__":
             for z in list_:
                 print("Music_Id -> ", z)
                 test.check(z)
-            time.sleep(0.5)
+                time.sleep(0.5)
 
         for i in test.User_SongList():
             url = 'http://music.163.com/playlist?id='
@@ -163,7 +164,7 @@ if __name__ == "__main__":
             for z in test.top_songlist(url):
                 print("Music_Id -> ", z)
                 test.check(z)
-            time.sleep(0.5)
+                time.sleep(0.5)
         end = time.time() - start
         time.sleep(12 * 3600)
         # if end//60 < 20:
