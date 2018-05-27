@@ -2,7 +2,7 @@
 # @File:Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
-# 2018/05.20 代码重构
+# 2018/05/20 代码部分重构
 
 from flask import Flask,request,Response,jsonify
 import json, time
@@ -161,7 +161,7 @@ def Return_User_Song_List_Detail():
     response.headers.add('Server','python flask')       
     return response
 
-@app.route('/check_user', methods = ['GET'])
+@app.route('/check_user', methods = ['GET','POST'])
 def check_user():
     re_dict = {}
     """
@@ -175,25 +175,32 @@ def check_user():
           -> 201 账户已经被他人注册
           -> 202 账户注册成功
     """
+    if request.method == 'GET':
+        user_id_dict = dict(request.args)
+        email      = user_id_dict["email"]
+        try:
+            flag     = user_id_dict["flag"]
+        except KeyError:
+            flag = 1
+        check_func = Neteasymusic_Sync.Neteasymusic_Sync()
+        value      = check_func.Create_Check_User_id(email)
+        if int(flag[0]) == 1 and value[0] == 0:
+            print(">>>>>")
+            re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
+        elif value[0] == 1:
+            re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201")
+        elif int(flag[0]) == 0 and value[0] == 2:
+            re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
+        response      = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        response.headers.add('Server','python flask')       
+        return response
 
-    user_id_dict = dict(request.args)
-    user_id      = user_id_dict["user_id"]
-    try:
-        flag     = user_id_dict["flag"]
-    except KeyError:
-        flag = 1
-    check_func = Neteasymusic_Sync.Neteasymusic_Sync()
-    value      = check_func.Create_Check_User_id(user_id)
-    if int(flag[0]) == 1 and value[0] == 0:
-        print(">>>>>")
-        re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
-    elif value[0] == 1:
-        re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201")
-    elif int(flag[0]) == 0 and value[0] == 2:
-        re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
-    response      = Response(json.dumps(re_dict), mimetype = 'application/json')    
-    response.headers.add('Server','python flask')       
-    return response
+    if request.method == 'POST':
+        data      = request.get_data()
+        dict_data = json.loads(data)   
+        flag      = dict_data["flag"]
+        email     = dict_data["email"]
+        passwd    = dict_data["passwd"]
 
 
 
