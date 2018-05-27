@@ -2,8 +2,10 @@
 # @File:Scrawl_Xiamimusic.py
 # @Date:2018/5/10
 # Author:Cat.1
+import sys
+sys.path.append("..")
+import encrypt.xiami_encrypt
 
-import xiami_encrypt
 import requests, re, json
 
 

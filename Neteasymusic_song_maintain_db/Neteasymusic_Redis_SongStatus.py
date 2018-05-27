@@ -6,7 +6,9 @@
 import redis, time
 import requests, re
 from requests import RequestException
-import AES
+import sys
+sys.path.append("..")
+import encrypt.AES
 import config
 
 

@@ -6,8 +6,11 @@
 import requests
 import re, random
 import redis, time
+import sys
+sys.path.append("..")
+import encrypt.AES
 import config
-import AES
+
 
 Page_Start_Url = "/discover/playlist/?order=hot&cat=%E5%85%A8%E9%83%A8&limit=35&offset="
 Page_Start     = 35

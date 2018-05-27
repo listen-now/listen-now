@@ -3,7 +3,9 @@
 # @Date:2018/5/9
 # Author:Cat.1
 import requests, re, json
-import AES
+import sys
+sys.path.append("..")
+import encrypt.AES
 import time, datetime, base64
 import urllib.parse
 import redis

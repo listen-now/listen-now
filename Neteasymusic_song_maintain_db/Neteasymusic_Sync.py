@@ -5,11 +5,13 @@
 
 from pymongo import MongoClient
 import requests
-import config
-import Hot_Song_List
 import redis
 import random
 import string
+import sys
+sys.path.append("..")
+import Neteasymusic_song_maintain_db.Hot_Song_List
+import config
 
 class Neteasymusic_Sync(object):
     """

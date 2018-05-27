@@ -6,13 +6,13 @@
 
 from flask import Flask,request,Response,jsonify
 import json, time
-import AES
-import scrawl_Neteasymusic
-import scrawl_Xiamimusic
-import scrawl_QQmusic
+import encrypt.AES
+import scrawl.scrawl_Neteasymusic
+import scrawl.scrawl_Xiamimusic
+import scrawl.scrawl_QQmusic
 import config
-import Hot_Song_List
-import Neteasymusic_Sync
+import Neteasymusic_song_maintain_db.Hot_Song_List
+import Neteasymusic_song_maintain_db.Neteasymusic_Sync
 
 """
 引入json网页框架用于开放api接口
