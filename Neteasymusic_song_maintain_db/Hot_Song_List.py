@@ -42,11 +42,12 @@ class Hot_Song_List(object):
                             'Content-Type':"application/x-www-form-urlencoded"
                              }
         self.User_List_All = ["用户热门歌单", "/discover/playlist"]
-        host               = config.getConfig("database", "dbhost")
-        port               = config.getConfig("database", "dbport")
-        self.r             = redis.Redis(host=host, port=int(port), decode_responses=True, db = 1)  
-        # 连接到redis-1号数据库, 用于储存网易云音乐的用户热门歌单信息
-        self.NEMurl        = "http://music.163.com"
+        if int(config.getConfig("open_database", "redis")) == 1:
+            host               = config.getConfig("database", "dbhost")
+            port               = config.getConfig("database", "dbport")
+            self.r             = redis.Redis(host=host, port=int(port), decode_responses=True, db = 1)  
+            # 连接到redis-1号数据库, 用于储存网易云音乐的用户热门歌单信息
+            self.NEMurl        = "http://music.163.com"
 
     def pre_request(self, url):
         """

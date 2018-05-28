@@ -35,24 +35,28 @@ class Netmusic(object):
         }
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
-        host              = config.getConfig("database", "dbhost")
-        port              = config.getConfig("database", "dbport")
-        self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
+        if config.getConfig("open_database", "redis") == 1:
+            host              = config.getConfig("database", "dbhost")
+            port              = config.getConfig("database", "dbport")
+            self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
+
         self.br           = "128000"
 
     def new_requests_play_url(self, music_id):
         global music_data
         new_music_id     = []
         # self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
-        Search_Db        = "NEM" + str(music_id)
-        exist_bool       = self.r.get(Search_Db)
-        if not exist_bool:
-            play_url = self.url_ %(music_id)
-            self.r.set(Search_Db, play_url)
+        if int(config.getConfig("open_database", "redis")) == 1:    
+            Search_Db        = "NEM" + str(music_id)
+            exist_bool       = self.r.get(Search_Db)
+            if not exist_bool:
+                play_url = self.url_ %(music_id)
+                self.r.set(Search_Db, play_url)
+            else:
+                play_url     = exist_bool
+                new_music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)        
         else:
-            play_url     = exist_bool
-            new_music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)        
-
+            play_url = self.url_ %(music_id)
         music_data = {}
         try:
             music_data.update({"play_url": play_url, "music_id":music_id[0]})
