@@ -1,0 +1,10 @@
+
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+
+# Mac:
+.DS_Store
+
