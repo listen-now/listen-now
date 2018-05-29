@@ -12,19 +12,22 @@ data = {
         "platform":None,
         "page":1
         }
-
+n = 0
 
 class test_request(object):
 
 
     def command(self):
-        global data
+        global data, n
 
         parser = argparse.ArgumentParser()        
         parser.add_argument("-t", dest  = "title", help    = "like: 白金迪斯科" )
         parser.add_argument("-p", dest  = "platform", help = "like: 网易(net)/QQ(qq)/虾米(xia)")
         parser.add_argument("-id", dest = "id", help       = "like 123456")
+        parser.add_argument("-n", dest = "num", help       = "like 123456")
+
         args                            = parser.parse_args()
+        n                               = args.num
         title                           = args.title
         platform                        = args.platform
         music_id                        = args.id
@@ -38,9 +41,11 @@ class test_request(object):
 
 
     def send_data(self, p, _send_data, func):
+        global n
+
         if func == "post":
             resp = requests.post(url="http://127.0.0.1:8888/" + p, data=json.dumps(_send_data))
-            os.system('mpg123 "%s"'%(resp.json()["0"]["play_url"]))
+            os.system('mpg123 "%s"'%(resp.json()[n]["play_url"]))
 
         else:
             requests.get(url="http://127.0.0.1:8888/" + p)
