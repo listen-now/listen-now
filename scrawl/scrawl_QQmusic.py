@@ -5,6 +5,8 @@
 
 import requests, json
 
+
+
 class Qqmusic(object):
     """
     QQ音乐目前只返回前二十个搜索结果.

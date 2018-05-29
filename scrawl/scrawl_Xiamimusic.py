@@ -9,6 +9,7 @@ import encrypt.xiami_encrypt
 import requests, re, json
 
 
+
 xiami_search_url_first ='http://api.xiami.com/web?key='
 xiami_search_url_index ='&v=2.0&app_key=1&r=search/songs&page='
 xiami_search_url_last  ='&limit=10'
@@ -49,7 +50,7 @@ class Search_xiami(object):
 
     def get_search_url(self, music_name, page_num):
         return xiami_search_url_first+music_name+xiami_search_url_index+str(page_num)+xiami_search_url_last
-        # data songs 0-9 song_id (song_name album_logo lyric artist_name) 
+
     def search_xiami(self, title, page = 1):
         global requ_date, music_data
         url          = self.get_search_url(title, page)

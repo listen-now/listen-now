@@ -81,21 +81,21 @@ def search_json():
             else:
                 if music_title != '' or music_title != None:
                     if music_platform == "Neteasymusic":
-                        neteasymusic_id = scrawl_Neteasymusic.Netmusic()
+                        neteasymusic_id = scrawl.scrawl_Neteasymusic.Netmusic()
                         re_dict         = neteasymusic_id.pre_response_neteasymusic(music_title, music_page)
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "Xiamimusic":
-                        xiamimusic_id = scrawl_Xiamimusic.Search_xiami()
+                        xiamimusic_id = scrawl.scrawl_Xiamimusic.Search_xiami()
                         re_dict       = xiamimusic_id.search_xiami(music_title, music_page)                        
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "QQmusic":
-                        qqmusic_id = scrawl_QQmusic.Qqmusic()
+                        qqmusic_id = scrawl.scrawl_QQmusic.Qqmusic()
                         re_dict    = qqmusic_id.qq_music_search(music_title, music_page)                        
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
@@ -127,7 +127,7 @@ def Return_Random_User_Song_List():
     """
     global re_dict
     if int(config.getConfig("open_database", "redis")) == 1:
-        return_user_song_list = Hot_Song_List.Hot_Song_List()
+        return_user_song_list = Neteasymusic_song_maintain_db.Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Random_Return_func()
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
@@ -161,7 +161,7 @@ def Return_User_Song_List_Detail():
     except:
         re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
     else:
-        return_user_song_list = Hot_Song_List.Hot_Song_List()
+        return_user_song_list = Neteasymusic_song_maintain_db.Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Download_SongList(song_list_url)
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
@@ -189,10 +189,9 @@ def check_user():
                 flag     = user_id_dict["flag"]
             except KeyError:
                 flag = 1
-            check_func = Neteasymusic_Sync.Neteasymusic_Sync()
+            check_func = Neteasymusic_song_maintain_db.Neteasymusic_Sync.Neteasymusic_Sync()
             value      = check_func.Create_Check_User_id(email)
             if int(flag[0]) == 1 and value[0] == 0:
-                print(">>>>>")
                 re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
             elif value[0] == 1:
                 re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201")
@@ -209,10 +208,10 @@ def check_user():
             email     = dict_data["email"]
             passwd    = dict_data["passwd"]
     else:
-    re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库未启用")
-    response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-    response.headers.add('Server','python flask')       
-    return response
+        re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库未启用")
+        response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        response.headers.add('Server','python flask')       
+        return response
 
 
 
@@ -227,7 +226,6 @@ def play_id():
     if request.method == 'POST':
         data      = request.get_data()
         dict_data = json.loads(data)   
-        print(dict_data) 
         try:
             music_platform = dict_data['platform']
         except:
@@ -235,8 +233,7 @@ def play_id():
         else:
             if music_platform != '' or music_platform != None:
                 if music_platform == "Neteasymusic":
-                    print(music_platform)
-                    neteasymusic_id = scrawl_Neteasymusic.Netmusic()
+                    neteasymusic_id = scrawl.scrawl_Neteasymusic.Netmusic()
                     music_id        = dict_data["id"]
                     re_dict         = neteasymusic_id.music_id_requests(music_id)
                     if re_dict:
@@ -245,16 +242,15 @@ def play_id():
                         re_dict = _Return_Error_Post(code="401", status="Failed", detail = "platform not this music!")
                 elif music_platform == "Xiamimusic":
                     music_id = dict_data["id"]
-                    re_dict  = scrawl_Xiamimusic.id_search(music_id)
+                    re_dict  = scrawl.scrawl_Xiamimusic.id_search(music_id)
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})
                     else:
                         re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
 
                 elif music_platform == "QQmusic":
-                    qqmusic_id = scrawl_QQmusic.Qqmusic()
+                    qqmusic_id = scrawl.scrawl_QQmusic.Qqmusic()
                     re_dict = qqmusic_id.access_resp_text(dict_data["media_mid"], dict_data["songmid"])
-                    # print(re_dict)
                     # 注意检测media_mid、songmid参数的合法情况.
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})

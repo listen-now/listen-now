@@ -9,12 +9,12 @@ class TestDict(unittest.TestCase):
     def post_func(self, my_dict, p):
 
         my_dict = json.dumps(my_dict)
-        url = "http://115.238.228.39/" + p
+        url = "http://127.0.0.1:8888/" + p
         return requests.post(url, data = my_dict)
 
 
     def get_func(self, p):
-        url = "http://115.238.228.39/" + p
+        url = "http://127.0.0.1:8888/" + p
         return requests.post(url)
 
 

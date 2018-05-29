@@ -35,7 +35,8 @@ class Netmusic(object):
         }
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
-        if config.getConfig("open_database", "redis") == 1:
+        if int(config.getConfig("open_database", "redis")) == 1:
+            print(">>>>>>")
             host              = config.getConfig("database", "dbhost")
             port              = config.getConfig("database", "dbport")
             self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
