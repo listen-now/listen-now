@@ -1,7 +1,7 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # @File:Neteasymusic.py
 # @Date:2018/5/9
-# Author:Cat.1
+# Author:Cat.1    
 # 2018/05/20 代码部分重构
 
 from flask import Flask,request,Response,jsonify

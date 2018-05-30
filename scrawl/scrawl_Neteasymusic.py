@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # @File:Scrawl_Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
