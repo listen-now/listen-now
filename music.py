@@ -59,9 +59,7 @@ class test_request(object):
 
         if func == "post":
             resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
-
             try:
-                # print(resp.json())
                 if resp.json()["code"] == "200":
                     for i in range(11):
                         try:

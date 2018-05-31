@@ -2,6 +2,7 @@
 # @File:Config.py
 # @Date:2018/05/19
 # Author:Cat.1
+# encoding:utf-8
 
 try:
     import configparser

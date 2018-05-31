@@ -11,7 +11,13 @@ import time, datetime, base64
 import urllib.parse
 import redis
 import config
+import threading
+import queue
 
+# encoding:utf-8
+import io  
+import sys  
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 class Netmusic(object):
 
@@ -96,16 +102,29 @@ class Netmusic(object):
         except:
             self.requ_date['0'].update({"detail":"本首歌曲还没有评论~"})
     def music_id_requests(self, music_id):
-        self.new_requests_play_url(music_id)
+        t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
+        # self.new_requests_play_url 的异步请求
+        t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
+        # self.requests_lyric        的异步请求
+        t3 = threading.Thread(target=self.music_detail, args=(music_id,))
+
+        t1.start()
+        t2.start()
+        t3.start()
+        t1.join()
+        t2.join()
+        t3.join()
+
+        # self.new_requests_play_url(music_id)
         music_id = self.requ_date['0']["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
         # self.requests_comment(music_id)
-        self.requests_lyric(music_id)
-        self.music_detail(music_id)
+        # self.requests_lyric(music_id)
+        # self.music_detail(music_id)
         return self.requ_date
     
-    def music_detail(self, music_id):
+    def music_detail(self, music_id, _update="0"):
         url        = "http://music.163.com/api/song/detail?ids=[%s]"
         resp       = self.session.get(url %music_id, headers = self.headers)
         content    = resp.json()
@@ -115,13 +134,16 @@ class Netmusic(object):
         music_data = {}
         music_data.update({"image_url":image_url, "music_name":name, "artists":artists})
         try:
-            self.requ_date['0'].update(music_data)
-        except:
-            self.requ_date['0'] = {}
-            self.requ_date['0'].update(music_data)
+            self.requ_date[_update].update(music_data)
+        except:    
+            self.requ_date[_update] = {}
+            self.requ_date[_update].update(music_data)
+
         return self.requ_date
 
     def pre_response_neteasymusic(self, text, page = 1):
+        global count,ta
+
         text       = urllib.parse.quote(text)                        
         data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=0&total=true&limit=100" %(text)
         resp       = self.session.post(url = self.search_url, data = data, headers = self.headers)
@@ -147,22 +169,37 @@ class Netmusic(object):
             page_start = page_end - 9
             if page != 1:
                 page_start = page_end - 8
+            q = queue.Queue()
+
+            def other_content(q, i, page_start, page_end, result, count):
+
+                while(i<page_end):
+                    music_data    = {}
+                    music_id_2    = result['result']['songs'][i]['id']
+                    Search_Db     = "NEM" + str(music_id_2)
+                    exist_bool    = self.r.get(Search_Db)                     
+                    self.music_detail(music_id_2, str(i))
+                    if not exist_bool :
+                        play_url = self.url_ %(music_id_2)
+                        self.r.set(Search_Db, play_url)
+                    else:
+                        play_url = exist_bool
+                    music_data.update({"music_id": music_id_2, "play_url":play_url})
+                    self.requ_date[str(count)].update(music_data)
+                    count += 1
+                    i     += 1
+                    if i==page_end:
+                        q.put(self.requ_date)
+            
             count = 1
-            for i in range(page_start, page_end+1):
-                music_data    = {}
-                music_id_2    = result['result']['songs'][i]['id']
-                music_name_2  = result['result']['songs'][i]['name']
-                artists_2     = result['result']['songs'][i]['artists'][0]['name']
-                Search_Db     = "NEM" + str(music_id_2)
-                exist_bool    = self.r.get(Search_Db)
-                if not exist_bool :
-                    play_url = self.url_ %(music_id_2)
-                    self.r.set(Search_Db, play_url)
-                else:
-                    play_url = exist_bool
-                music_data.update({"music_id": music_id_2, "music_name": music_name_2, "artists": artists_2, "play_url":play_url})
-                self.requ_date.update({str(count) : music_data})
-                count += 1
+            i = page_start
+            threads = []
+            t1 = threading.Thread(target=other_content,args=(q, i, page_start, page_end, result, count))
+            threads.append(t1)
+            for t in threads:
+                t.start()
+            t.join   
+            self.requ_date = q.get()
         except EOFError:
             try:
                 music_id   = result['result']['songs'][0]['id']
@@ -175,26 +212,36 @@ class Netmusic(object):
             else:
                 self.requ_date.update({"music_id":music_id, "music_name":music_name, "artists":artists})
                 # 返回首备选歌曲信息.
-                t1 = threading.Thread(target=run_thread, args=(5,))
-                t2 = threading.Thread(target=run_thread, args=(8,))
+                t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
+                # self.new_requests_play_url 的异步请求
+                t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
+                # self.requests_lyric        的异步请求
                 t1.start()
                 t2.start()
                 t1.join()
                 t2.join()
-                print(balance)
 
-                self.new_requests_play_url(music_id)
+                # self.new_requests_play_url(music_id)
                 music_id = self.requ_date["music_id"]
                 # self.requests_play_url(music_id)
                 # self.requests_comment(music_id)
-                self.requests_lyric(music_id)
+                # self.requests_lyric(music_id)
                 return self.requ_date
                 # 处理首备选歌曲
         else:
-            self.new_requests_play_url(music_id)
+            t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
+            # self.new_requests_play_url 的异步请求
+            t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
+            # self.requests_lyric        的异步请求
+            t1.start()
+            t2.start()
+            t1.join()
+            t2.join()
+
+            # self.new_requests_play_url(music_id)
             # self.requests_play_url(music_id)
             # self.requests_comment(music_id)
-            self.requests_lyric(music_id)
+            # self.requests_lyric(music_id)            
             return self.requ_date
 
             # 只返回第一首备选歌曲的详细信息.
@@ -221,5 +268,5 @@ class Netmusic(object):
 if __name__ == '__main__':
     test = Netmusic()
     # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('成都'))
+    print(test.pre_response_neteasymusic('大鱼'))
     # test.pre_response_neteasymusic('大鱼')
