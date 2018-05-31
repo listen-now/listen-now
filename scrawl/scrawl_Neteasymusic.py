@@ -2,6 +2,7 @@
 # @File:Scrawl_Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
+
 import requests, re, json
 import sys
 sys.path.append("..")
@@ -13,6 +14,7 @@ import config
 
 
 class Netmusic(object):
+
 
     def __init__(self):
         self.requ_date    = {}
@@ -173,6 +175,14 @@ class Netmusic(object):
             else:
                 self.requ_date.update({"music_id":music_id, "music_name":music_name, "artists":artists})
                 # 返回首备选歌曲信息.
+                t1 = threading.Thread(target=run_thread, args=(5,))
+                t2 = threading.Thread(target=run_thread, args=(8,))
+                t1.start()
+                t2.start()
+                t1.join()
+                t2.join()
+                print(balance)
+
                 self.new_requests_play_url(music_id)
                 music_id = self.requ_date["music_id"]
                 # self.requests_play_url(music_id)

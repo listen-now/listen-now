@@ -8,7 +8,8 @@ import argparse
 import json
 import os
 
-data = {"title":None,
+data = {
+        "title":None,
         "platform":None,
         "page":1
         }
@@ -19,7 +20,8 @@ class test_request(object):
 
     def command(self):
         global data, n
-        platform_dict = {"net":"Neteasymusic",
+        platform_dict = {
+                         "net":"Neteasymusic",
                          "qq":"QQmusic",
                          "xia":"Xiamimusic",
                         }
@@ -59,6 +61,7 @@ class test_request(object):
             resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
 
             try:
+                # print(resp.json())
                 if resp.json()["code"] == "200":
                     for i in range(11):
                         try:
@@ -80,13 +83,26 @@ class test_request(object):
                     else:
 
                         if int(keyboard) >= 0 or int(keyboard) <= 10:
+                        # try:
                             os.system('mpg123 "%s"'%(resp.json()[keyboard]["play_url"]))
-            except:
+                        # except KeyboardInterrupt:
+                            print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
+                            try:
+                                title = input(">>>Enter your search music: ")
+                                platform = input(">>>Enter your search platform: ")
+                                if title != None:
+                                    music_page = 1
+                                    _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
+                                    send_data(p, _send_data, func, music_page)
+                            except KeyboardInterrupt:
+                                print("用户主动退出")
+                                print("bye")
+
+            except KeyError:
                 print("\n[~]没有更多关于这首歌的内容\n")
 
         else:
             requests.get(url="http://zlclclc.cn/" + p)
-
 
 if __name__ == "__main__":
     test_user = test_request()
