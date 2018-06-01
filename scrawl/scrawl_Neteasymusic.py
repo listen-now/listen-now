@@ -14,10 +14,6 @@ import config
 import threading
 import queue
 
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 class Netmusic(object):
 
@@ -114,14 +110,10 @@ class Netmusic(object):
         t1.join()
         t2.join()
         t3.join()
-
-        # self.new_requests_play_url(music_id)
         music_id = self.requ_date['0']["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
         # self.requests_comment(music_id)
-        # self.requests_lyric(music_id)
-        # self.music_detail(music_id)
         return self.requ_date
     
     def music_detail(self, music_id, _update="0"):
@@ -142,7 +134,7 @@ class Netmusic(object):
         return self.requ_date
 
     def pre_response_neteasymusic(self, text, page = 1):
-        global count,ta
+        global count, i, lock
 
         text       = urllib.parse.quote(text)                        
         data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=0&total=true&limit=100" %(text)
@@ -170,9 +162,11 @@ class Netmusic(object):
             if page != 1:
                 page_start = page_end - 8
             q = queue.Queue()
+            i = page_start
+            lock = threading.Lock()
 
-            def other_content(q, i, page_start, page_end, result, count):
-
+            def other_content(q, page_start, page_end, result, count):
+                global i
                 while(i<page_end):
                     music_data    = {}
                     music_id_2    = result['result']['songs'][i]['id']
@@ -185,21 +179,32 @@ class Netmusic(object):
                     else:
                         play_url = exist_bool
                     music_data.update({"music_id": music_id_2, "play_url":play_url})
-                    self.requ_date[str(count)].update(music_data)
+                    lock.acquire()
+                    try:
+                        self.requ_date[str(count)].update(music_data)
+                    except KeyError:
+                        self.requ_date[str(count)] = {}
+                        self.requ_date[str(count)].update(music_data)
+                    lock.release()
                     count += 1
                     i     += 1
                     if i==page_end:
                         q.put(self.requ_date)
-            
             count = 1
-            i = page_start
             threads = []
-            t1 = threading.Thread(target=other_content,args=(q, i, page_start, page_end, result, count))
+            t1 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
             threads.append(t1)
+            t2 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
+            threads.append(t2)
+            t3 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
+            threads.append(t3)
+
+
             for t in threads:
                 t.start()
             t.join   
             self.requ_date = q.get()
+
         except EOFError:
             try:
                 music_id   = result['result']['songs'][0]['id']
@@ -221,11 +226,9 @@ class Netmusic(object):
                 t1.join()
                 t2.join()
 
-                # self.new_requests_play_url(music_id)
                 music_id = self.requ_date["music_id"]
                 # self.requests_play_url(music_id)
                 # self.requests_comment(music_id)
-                # self.requests_lyric(music_id)
                 return self.requ_date
                 # 处理首备选歌曲
         else:
@@ -237,11 +240,8 @@ class Netmusic(object):
             t2.start()
             t1.join()
             t2.join()
-
-            # self.new_requests_play_url(music_id)
             # self.requests_play_url(music_id)
             # self.requests_comment(music_id)
-            # self.requests_lyric(music_id)            
             return self.requ_date
 
             # 只返回第一首备选歌曲的详细信息.
@@ -267,6 +267,6 @@ class Netmusic(object):
 
 if __name__ == '__main__':
     test = Netmusic()
-    # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('大鱼'))
+    print(test.music_id_requests(444706287))
+    # print(test.pre_response_neteasymusic('大鱼'))
     # test.pre_response_neteasymusic('大鱼')
