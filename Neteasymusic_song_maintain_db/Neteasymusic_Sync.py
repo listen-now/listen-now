@@ -13,6 +13,7 @@ sys.path.append("..")
 import Neteasymusic_song_maintain_db.Hot_Song_List
 import config
 
+
 class Neteasymusic_Sync(object):
     """
     这个类是用来同步网易云音乐用户的歌单信息类
@@ -78,7 +79,7 @@ class Neteasymusic_Sync(object):
         通过调用Hot_Song_List类中的静态办法Download_SongList来拿到关于这个歌单的
         具体内容, 并返回一个完整的字典.
         """
-        return Hot_Song_List.Hot_Song_List.Download_SongList(url)
+        return Neteasymusic_song_maintain_db.Hot_Song_List.Hot_Song_List.Download_SongList(url)
     
 
     def Create_Check_User_id(self, Sign_in_tags, flag = 1):
@@ -111,5 +112,5 @@ if __name__ == "__main__":
     
     test = Neteasymusic_Sync()
     # test.Get_User_List(252937215, "000001")
-    # print(Sync_Neteasymusic.Get_User_SongList_Detail("328226111"))
-    print(test.Create_Check_User_id('zhuyuefeng0@gmail.com'))
+    print(Neteasymusic_Sync.Get_User_SongList_Detail("328226111"))
+    # print(test.Create_Check_User_id('zhuyuefeng0@gmail.com'))

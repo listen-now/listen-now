@@ -2,10 +2,7 @@
 # @File:Scrawl_Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
+
 
 import requests, re, json
 import sys
@@ -88,9 +85,9 @@ class Netmusic(object):
             host       = config.getConfig("database", "dbhost")
             port       = config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
-            random_int = random.sample(range(0, self.r.dbsize()))
-            proxies    = self.r.get(str(random_int))
-            self.requests_play_url(music_id, proxies)
+            random_int = random.sample(range(0, self.r.dbsize()), 1)
+            proxies    = self.r.get(str(random_int[0]))
+            self.requests_play_url(music_id, eval(proxies))
         play_url       = resp["data"][0]['url']
         if play_url == None:
             play_url = self.url_ %(music_id)
@@ -108,9 +105,9 @@ class Netmusic(object):
             host       = config.getConfig("database", "dbhost")
             port       = config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
-            random_int = random.sample(range(0, self.r.dbsize()))
-            proxies    = self.r.get(str(random_int))
-            self.requests_comment(music_id, proxies)
+            random_int = random.sample(range(0, self.r.dbsize()), 1)
+            proxies    = self.r.get(str(random_int[0]))
+            self.requests_comment(music_id, eval(proxies))
         try:
             self.like              = resp["hotComments"][0]["likedCount"]
             self.username          = resp["hotComments"][0]['user']["nickname"]
@@ -152,9 +149,9 @@ class Netmusic(object):
             host       = config.getConfig("database", "dbhost")
             port       = config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
-            random_int = random.sample(range(0, self.r.dbsize()))
-            proxies    = self.r.get(str(random_int))
-            self.music_detail(music_id, proxies)
+            random_int = random.sample(range(0, self.r.dbsize()), 1)
+            proxies    = self.r.get(str(random_int[0]))
+            self.music_detail(music_id, eval(proxies))
 
         name       = content['songs'][0]["name"]
         artists    = content['songs'][0]["artists"][0]["name"]

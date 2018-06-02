@@ -50,17 +50,32 @@ class Hot_Song_List(object):
             # 连接到redis-1号数据库, 用于储存网易云音乐的用户热门歌单信息
             self.NEMurl        = "http://music.163.com"
 
-    def pre_request(self, url):
+    def pre_request(self, url, proxies=''):
         """
         这个类用于维护redis-1更新
         更新的内容为热门歌单数据
         储存格式范例已经在类的说明中说明
         """
         global Page_Start_Url, Page_Start, Raw_Page_Sum
+        if proxies == '':
+            resp           = self.session.get(url=self.NEMurl + url, headers=self.headers)  
+        else:
+            resp           = self.session.get(url=self.NEMurl + url, headers=self.headers, proxies=proxies)
+        try:
+            regex          = re.compile(r"\<img class=\"[\w0-9\-]+\" src=\"(.+)\"\/>\n<a title=\"([\｜\✞\♪\(\)\？\?\♡\【\¼\】\/\[\]\丨\s\「\」\|\『\』\——\•\★\"\u4e00-\u9fa5\w\d\s\，\.]+)\" href=\"(.+)\" class=")
+            result         = regex.findall(resp.text)
+            regex          = re.compile(r"<a href=\"(.+)\" class=\"zpgi\">\d{1,3}</a>")
+            Page_Url       = regex.findall(resp.text)
 
-        resp           = self.session.get(url = self.NEMurl + url, headers = self.headers)
-        regex          = re.compile(r"\<img class=\"[\w0-9\-]+\" src=\"(.+)\"\/>\n<a title=\"([\｜\✞\♪\(\)\？\?\♡\【\¼\】\/\[\]\丨\s\「\」\|\『\』\——\•\★\"\u4e00-\u9fa5\w\d\s\，\.]+)\" href=\"(.+)\" class=")
-        result         = regex.findall(resp.text)
+            Limit_Max_Page = int(re.findall(r'offset=(\d{2,5})', Page_Url[-1])[0])
+        except:
+            host       = config.getConfig("database", "dbhost")
+            port       = config.getConfig("database", "dbport")
+            self.r     = redis.Redis(host=str(host),port=int(port),db=4)
+            random_int = random.sample(range(0, self.r.dbsize()), 1)
+            proxies    = self.r.get(str(random_int[0]))
+            self.pre_request(url, eval(proxies))
+
         Raw_Page_Sum   = 0
         for i in range(Raw_Page_Sum, Raw_Page_Sum + len(result)):
             self.r.set(str(i), result[i - Raw_Page_Sum][0] + "user_song_list" + result[i - Raw_Page_Sum][1] + "user_song_list" + result[i - Raw_Page_Sum][2])
@@ -117,7 +132,7 @@ class Hot_Song_List(object):
         Song_List_Id = re.findall(r"id=(\d{1,15})", url)
         if Song_List_Id == []:
             Song_List_Id = re.findall(r"(\d{1,15})", url)
-        date = AES.encrypted_request(date %(Song_List_Id[0]))
+        date = encrypt.AES.encrypted_request(date %(Song_List_Id[0]))
         try:
             connection = requests.session().post(url="http://music.163.com/weapi/v3/playlist/detail",
                                            data=date,

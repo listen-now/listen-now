@@ -7,6 +7,7 @@ import requests
 import argparse
 import json
 import os
+import re
 
 data = {
         "title":None,
@@ -36,24 +37,37 @@ class test_request(object):
         parser.add_argument("-id", dest    = "id", help           = "like 123456")
         parser.add_argument("-page", dest  = "page", help         = "like 1")
         parser.add_argument("-uid", dest   = "userid", help       = "like 1")
+        parser.add_argument("-sl", dest   = "songlist", help      = "like 236472")
+        parser.add_argument("-r", dest   = "random_song", help       = "like random")
+
         args       = parser.parse_args()
         title      = args.title
         platform   = args.platform
         music_id   = args.id
         music_page = args.page
         userid     = args.userid
+        songlist   = args.songlist
+        random_song   = args.random_song
 
-        if platform == None and userid == None:
+        if platform == None and userid == None and songlist == None:
             print(os.system("pymusic -h"))
         else:
             platform = self.fix_enter(platform)
-            if music_id == None:
+            if title != None:
                 data["title"], data["page"], data["platform"]= title, 1, platform
                 self.send_data("search", data, "post", music_page)
-            else:
+            elif music_id != None:
                 data["id"], data["page"], data["platform"]= music_id, 1, platform
                 self.send_data("id", data, "post", music_page)
+            elif songlist != None:
+                data = {"url" = songlist}
+                self.send_data("song_list_requests", data, "post", music_page)
 
+
+
+    def regex_func(self, content):
+        if re.findall(r"\w{1,2}\s([\-c]+)", content):
+            return 1
 
     def send_data(self, p, _send_data, func, music_page):
 
@@ -64,21 +78,26 @@ class test_request(object):
             resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
             try:
                 if resp.json()["code"] == "200":
-                    for i in range(11):
+                    for i in range(10):
                         try:
-                            print(str(i), end="    ")
-                            print(resp.json()[str(i)]["music_name"], end="    ")
+                            print(str(i), end="      ")
+                            print(resp.json()[str(i)]["music_name"], end="      ")
                             print(resp.json()[str(i)]["artists"])
                         except KeyError:
                             pass
+                    print('\n')
                     try: 
-                        keyboard = input(">>>Enter your select ")
+                        keyboard = input(">>> Enter your select ")
                     except KeyboardInterrupt:
                         print("\n用户主动退出")
                         print("bye")
                     else:
                         try:
-                            int(keyboard)
+                            if len(keyboard) > 2:
+                                newkeyboard = int(keyboard[:1])
+                            else:
+                                newkeyboard = int(keyboard)
+
                         except:
                             if keyboard == "s" and _send_data["page"] < 10:
                                 _send_data["page"] = int(_send_data["page"]) + 1
@@ -89,8 +108,12 @@ class test_request(object):
                                 music_page        -= 1
                                 return self.send_data(p, _send_data, func, music_page)
                         else:
-                            if int(keyboard) >= 0 or int(keyboard) <= 10:
-                                os.system('mpg123 -q -v "%s"'%(resp.json()[keyboard]["play_url"]))
+                            if int(newkeyboard) >= 0 or int(newkeyboard) <= 10:
+                                # self.regex_func 反馈1表示用户需要单曲循环
+                                if self.regex_func(keyboard) == 1:
+                                    os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
+                                else:
+                                    os.system('mpg123 -q -v "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
 
                                 print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
                                 try:
@@ -111,6 +134,17 @@ class test_request(object):
                                 except KeyboardInterrupt:
                                     print("\n用户主动退出")
                                     print("bye")
+                elif resp.json()["song_num"] != None:
+                    self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3"
+                    result = resp.json()
+                    print(result["description"])
+                    for i in range(int(result["song_num"])):
+                        music_name = result["Songlist_detail"][i]["name"]
+                        music_id   = result["Songlist_detail"][i]["id"]
+                        artists    = result["Songlist_detail"][i]["ar"][0]["name"]
+                        print(music_name, end="      ")
+                        print(artists)
+                        os.system('mpg123 -q -v "%s"'%(self.url_ %(music_id)))
                 else:
                     print(resp.json())
                     print("服务器繁忙!")
@@ -122,3 +156,4 @@ class test_request(object):
 if __name__ == "__main__":
     test_user = test_request()
     test_user.command()
+    # test_user.regex_func('5 -c')
