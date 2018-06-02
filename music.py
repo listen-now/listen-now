@@ -28,22 +28,22 @@ class test_request(object):
         return platform
 
     def command(self):
-        global data, n
+        global data
 
-        parser                                      = argparse.ArgumentParser()        
-        parser.add_argument("-t", "--title", dest   = "title", help     = "like: 白金迪斯科" )
-        parser.add_argument("-p", "--platform",dest = "platform", help  = "like: 网易(net)/QQ(qq)/虾米(xia)")
-        parser.add_argument("-id", "--musicid",dest = "id", help        = "like 123456")
-        parser.add_argument("-n", "--number", dest  = "num", help       = "like 1")
-        parser.add_argument("-page", dest  = "page", help       = "like 1")
-
+        parser                                                    = argparse.ArgumentParser()        
+        parser.add_argument("-t", dest     = "title", help        = "like: 白金迪斯科" )
+        parser.add_argument("-p", dest     = "platform", help     = "like: 网易(net)/QQ(qq)/虾米(xia)")
+        parser.add_argument("-id", dest    = "id", help           = "like 123456")
+        parser.add_argument("-page", dest  = "page", help         = "like 1")
+        parser.add_argument("-uid", dest   = "userid", help       = "like 1")
         args       = parser.parse_args()
-        n          = args.num
         title      = args.title
         platform   = args.platform
         music_id   = args.id
         music_page = args.page
-        if platform == None:
+        userid     = args.userid
+
+        if platform == None and userid == None:
             print(os.system("pymusic -h"))
         else:
             platform = self.fix_enter(platform)
@@ -56,7 +56,7 @@ class test_request(object):
 
 
     def send_data(self, p, _send_data, func, music_page):
-        global n
+
         if music_page != None:
             _send_data["page"] = music_page
 
@@ -71,45 +71,51 @@ class test_request(object):
                             print(resp.json()[str(i)]["artists"])
                         except KeyError:
                             pass
-                    keyboard = input(">>>Enter your select ")
-                    try:
-                        int(keyboard)
-                    except:
-                        if keyboard == "s" and _send_data["page"] < 10:
-                            _send_data["page"] = int(_send_data["page"]) + 1
-                            music_page        += 1
-                            return self.send_data(p, _send_data, func, music_page)
-                        elif keyboard == "w" and _send_data["page"] > 0:
-                            _send_data["page"] = int(_send_data["page"]) - 1
-                            music_page        -= 1
-                            return self.send_data(p, _send_data, func, music_page)
+                    try: 
+                        keyboard = input(">>>Enter your select ")
+                    except KeyboardInterrupt:
+                        print("\n用户主动退出")
+                        print("bye")
                     else:
+                        try:
+                            int(keyboard)
+                        except:
+                            if keyboard == "s" and _send_data["page"] < 10:
+                                _send_data["page"] = int(_send_data["page"]) + 1
+                                music_page        += 1
+                                return self.send_data(p, _send_data, func, music_page)
+                            elif keyboard == "w" and _send_data["page"] > 0:
+                                _send_data["page"] = int(_send_data["page"]) - 1
+                                music_page        -= 1
+                                return self.send_data(p, _send_data, func, music_page)
+                        else:
+                            if int(keyboard) >= 0 or int(keyboard) <= 10:
+                                os.system('mpg123 -q -v "%s"'%(resp.json()[keyboard]["play_url"]))
 
-                        if int(keyboard) >= 0 or int(keyboard) <= 10:
-                            os.system('mpg123 "%s"'%(resp.json()[keyboard]["play_url"]))
-                            print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
-                            try:
-                                title = input(">>>请输入想要搜索的歌曲: ")
-                                if title == "exit()":
+                                print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
+                                try:
+                                    title = input(">>>请输入想要搜索的歌曲: ")
+                                    if title == "exit()":
+                                        print("bye")
+                                        os.system("exit")
+                                    platform = input(">>>请输入想要搜索的平台: ")
+                                    if platform == "exit()":
+                                        print("bye")
+                                        os.system("exit")
+                                    if title != None:
+                                        music_page = 1
+                                        platform = self.fix_enter(platform)
+                                        _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
+                                        self.send_data(p, _send_data, func, music_page)
+
+                                except KeyboardInterrupt:
+                                    print("\n用户主动退出")
                                     print("bye")
-                                    os.system("exit")
-                                platform = input(">>>请输入想要搜索的平台: ")
-                                if platform == "exit()":
-                                    print("bye")
-                                    os.system("exit")
-                                if title != None:
-                                    music_page = 1
-                                    platform = self.fix_enter(platform)
-                                    _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
-                                    self.send_data(p, _send_data, func, music_page)
-
-                            except KeyboardInterrupt:
-                                print("用户主动退出")
-                                print("bye")
-
+                else:
+                    print(resp.json())
+                    print("服务器繁忙!")
             except KeyError:
                 print("\n[~]没有更多关于这首歌的内容\n")
-
         else:
             requests.get(url="http://zlclclc.cn/" + p)
 

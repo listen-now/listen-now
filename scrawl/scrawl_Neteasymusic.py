@@ -53,7 +53,7 @@ class Netmusic(object):
     def new_requests_play_url(self, music_id):
         global music_data
         new_music_id     = []
-        # self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
+
         if int(config.getConfig("open_database", "redis")) == 1:    
             Search_Db        = "NEM" + str(music_id)
             exist_bool       = self.r.get(Search_Db)
@@ -76,20 +76,41 @@ class Netmusic(object):
             self.requ_date.update({"0":music_data})
 
 
-    def requests_play_url(self, music_id):
-        
+    def requests_play_url(self, music_id, proxies=''):
         self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
-        resp           = self.session.post(url = self.play_url, data = self.post_data, headers = self.headers)
-        resp           = resp.json()
+        if proxies == '':
+          resp           = self.session.post(url=self.play_url, data=self.post_data, headers=self.headers)
+        else:
+          resp           = self.session.post(url=self.play_url, data=self.post_data, headers=self.headers, proxies=proxies)
+        try:
+            resp         = resp.json()
+        except:
+            host       = config.getConfig("database", "dbhost")
+            port       = config.getConfig("database", "dbport")
+            self.r     = redis.Redis(host=str(host),port=int(port),db=4)
+            random_int = random.sample(range(0, self.r.dbsize()))
+            proxies    = self.r.get(str(random_int))
+            self.requests_play_url(music_id, proxies)
         play_url       = resp["data"][0]['url']
         if play_url == None:
             play_url = self.url_ %(music_id)
         self.requ_date['0'] = {}        
         self.requ_date['0'].update({"play_url": play_url})
 
-    def requests_comment(self, music_id):
-        resp                   = self.session.post(url = self.comment_url %(music_id), data = self.post_data, headers = self.headers)
-        resp                   = resp.json()
+    def requests_comment(self, music_id, proxies=''):
+        if proxies == '':
+          resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers)
+        else:
+          resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers, proxies=proxies)
+        try:
+            resp       = resp.json()
+        except:
+            host       = config.getConfig("database", "dbhost")
+            port       = config.getConfig("database", "dbport")
+            self.r     = redis.Redis(host=str(host),port=int(port),db=4)
+            random_int = random.sample(range(0, self.r.dbsize()))
+            proxies    = self.r.get(str(random_int))
+            self.requests_comment(music_id, proxies)
         try:
             self.like              = resp["hotComments"][0]["likedCount"]
             self.username          = resp["hotComments"][0]['user']["nickname"]
@@ -119,10 +140,22 @@ class Netmusic(object):
         # self.requests_comment(music_id)
         return self.requ_date
     
-    def music_detail(self, music_id, _update="0"):
+    def music_detail(self, music_id, _update="0", proxies=''):
         url        = "http://music.163.com/api/song/detail?ids=[%s]"
-        resp       = self.session.get(url %music_id, headers = self.headers)
-        content    = resp.json()
+        if proxies == '':
+          resp         = self.session.get(url=url %music_id, headers=self.headers)
+        else:
+          resp         = self.session.get(url=url %music_id, headers=self.headers, proxies=proxies)
+        try:
+            content    = resp.json()
+        except:
+            host       = config.getConfig("database", "dbhost")
+            port       = config.getConfig("database", "dbport")
+            self.r     = redis.Redis(host=str(host),port=int(port),db=4)
+            random_int = random.sample(range(0, self.r.dbsize()))
+            proxies    = self.r.get(str(random_int))
+            self.music_detail(music_id, proxies)
+
         name       = content['songs'][0]["name"]
         artists    = content['songs'][0]["artists"][0]["name"]
         image_url  = content['songs'][0]["album"]["picUrl"]
@@ -252,6 +285,6 @@ class Netmusic(object):
 
 if __name__ == '__main__':
     test = Netmusic()
-    print(test.music_id_requests(444706287))
-    # print(test.pre_response_neteasymusic('大鱼'))
+    # print(test.music_id_requests(444706287))
+    print(test.pre_response_neteasymusic('大鱼'))
     # test.pre_response_neteasymusic('大鱼')

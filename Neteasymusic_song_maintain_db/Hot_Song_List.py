@@ -41,7 +41,8 @@ class Hot_Song_List(object):
                             'Referer':"http://music.163.com", 
                             'Content-Type':"application/x-www-form-urlencoded"
                              }
-        self.User_List_All = ["用户热门歌单", "/discover/playlist"]
+        self.User_List_All = ["用户热门歌单",\
+                             "/discover/playlist"]
         if int(config.getConfig("open_database", "redis")) == 1:
             host               = config.getConfig("database", "dbhost")
             port               = config.getConfig("database", "dbport")
@@ -60,9 +61,9 @@ class Hot_Song_List(object):
         resp           = self.session.get(url = self.NEMurl + url, headers = self.headers)
         regex          = re.compile(r"\<img class=\"[\w0-9\-]+\" src=\"(.+)\"\/>\n<a title=\"([\｜\✞\♪\(\)\？\?\♡\【\¼\】\/\[\]\丨\s\「\」\|\『\』\——\•\★\"\u4e00-\u9fa5\w\d\s\，\.]+)\" href=\"(.+)\" class=")
         result         = regex.findall(resp.text)
+        Raw_Page_Sum   = 0
         for i in range(Raw_Page_Sum, Raw_Page_Sum + len(result)):
             self.r.set(str(i), result[i - Raw_Page_Sum][0] + "user_song_list" + result[i - Raw_Page_Sum][1] + "user_song_list" + result[i - Raw_Page_Sum][2])
-            self.r.expire(str(i), 3600*12)
         print("Update")
         Raw_Page_Sum   += len(result)
         print(Raw_Page_Sum)
@@ -141,5 +142,6 @@ if __name__ == "__main__":
     test = Hot_Song_List()
     while 1:
         test.pre_request(test.User_List_All[1])
-        time.sleep(1)
+        time.sleep(3600 * 2)
+        test.r.flushdb()
     # print(Hot_Song_List.Download_SongList("2196054076"))

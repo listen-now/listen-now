@@ -95,6 +95,7 @@ optional arguments:
 # pymusic -id 123456 -p net
 ```    
 
+如果你选了一首不喜欢的歌曲, 请直接使用Ctrl + c 来选择输入检索新歌曲
 
 
 
