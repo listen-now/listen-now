@@ -2,6 +2,10 @@
 # @File:Scrawl_Neteasymusic.py
 # @Date:2018/5/9
 # Author:Cat.1
+# encoding:utf-8
+import io  
+import sys  
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 import requests, re, json
 import sys
@@ -13,6 +17,7 @@ import redis
 import config
 import threading
 import queue
+
 
 
 class Netmusic(object):
@@ -40,11 +45,9 @@ class Netmusic(object):
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
         if int(config.getConfig("open_database", "redis")) == 1:
-            print(">>>>>>")
             host              = config.getConfig("database", "dbhost")
             port              = config.getConfig("database", "dbport")
             self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
-
         self.br           = "128000"
 
     def new_requests_play_url(self, music_id):
@@ -140,6 +143,7 @@ class Netmusic(object):
         data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=0&total=true&limit=100" %(text)
         resp       = self.session.post(url = self.search_url, data = data, headers = self.headers)
         result     = resp.json()
+
         try:
             if page == 1:
                 music_id      = result['result']['songs'][0]['id']
@@ -163,47 +167,28 @@ class Netmusic(object):
                 page_start = page_end - 8
             q = queue.Queue()
             i = page_start
-            lock = threading.Lock()
-
-            def other_content(q, page_start, page_end, result, count):
-                global i
-                while(i<page_end):
-                    music_data    = {}
-                    music_id_2    = result['result']['songs'][i]['id']
-                    Search_Db     = "NEM" + str(music_id_2)
-                    exist_bool    = self.r.get(Search_Db)                     
-                    self.music_detail(music_id_2, str(i))
-                    if not exist_bool :
-                        play_url = self.url_ %(music_id_2)
-                        self.r.set(Search_Db, play_url)
-                    else:
-                        play_url = exist_bool
-                    music_data.update({"music_id": music_id_2, "play_url":play_url})
-                    lock.acquire()
-                    try:
-                        self.requ_date[str(count)].update(music_data)
-                    except KeyError:
-                        self.requ_date[str(count)] = {}
-                        self.requ_date[str(count)].update(music_data)
-                    lock.release()
-                    count += 1
-                    i     += 1
-                    if i==page_end:
-                        q.put(self.requ_date)
             count = 1
-            threads = []
-            t1 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
-            threads.append(t1)
-            t2 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
-            threads.append(t2)
-            t3 = threading.Thread(target=other_content,args=(q, page_start, page_end, result, count))
-            threads.append(t3)
+            while(i<page_end):
+                music_data    = {}
+                music_id_2    = result['result']['songs'][i]['id']
+                music_name_2  = result['result']['songs'][i]['name']
+                artists_2     = result['result']['songs'][i]['artists'][0]['name']
+                Search_Db     = "NEM" + str(music_id_2)
+                exist_bool    = self.r.get(Search_Db)   
+                if not exist_bool :
+                    play_url = self.url_ %(music_id_2)
+                    self.r.set(Search_Db, play_url)
+                else:
+                    play_url = exist_bool
+                music_data.update({"music_id": music_id_2, "play_url":play_url, "artists":artists_2, "music_name":music_name_2})                    
+                try:
+                    self.requ_date[str(count)].update(music_data)
+                except KeyError:
+                    self.requ_date[str(count)] = {}
+                    self.requ_date[str(count)].update(music_data)
+                count += 1
+                i     += 1
 
-
-            for t in threads:
-                t.start()
-            t.join   
-            self.requ_date = q.get()
 
         except EOFError:
             try:

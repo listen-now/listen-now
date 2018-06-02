@@ -17,14 +17,18 @@ data = {
 
 class test_request(object):
 
+    def fix_enter(self, platform):
+        platform_dict = {
+                 "net":"Neteasymusic",
+                 "qq":"QQmusic",
+                 "xia":"Xiamimusic",
+                }
+        if len(platform) < 4:
+            platform = platform_dict[platform]
+        return platform
 
     def command(self):
         global data, n
-        platform_dict = {
-                         "net":"Neteasymusic",
-                         "qq":"QQmusic",
-                         "xia":"Xiamimusic",
-                        }
 
         parser                                      = argparse.ArgumentParser()        
         parser.add_argument("-t", "--title", dest   = "title", help     = "like: 白金迪斯科" )
@@ -42,8 +46,7 @@ class test_request(object):
         if platform == None:
             print(os.system("pymusic -h"))
         else:
-            if len(platform) < 4:
-                platform = platform_dict[platform]
+            platform = self.fix_enter(platform)
             if music_id == None:
                 data["title"], data["page"], data["platform"]= title, 1, platform
                 self.send_data("search", data, "post", music_page)
@@ -74,24 +77,32 @@ class test_request(object):
                     except:
                         if keyboard == "s" and _send_data["page"] < 10:
                             _send_data["page"] = int(_send_data["page"]) + 1
+                            music_page        += 1
                             return self.send_data(p, _send_data, func, music_page)
                         elif keyboard == "w" and _send_data["page"] > 0:
                             _send_data["page"] = int(_send_data["page"]) - 1
+                            music_page        -= 1
                             return self.send_data(p, _send_data, func, music_page)
                     else:
 
                         if int(keyboard) >= 0 or int(keyboard) <= 10:
-                        # try:
                             os.system('mpg123 "%s"'%(resp.json()[keyboard]["play_url"]))
-                        # except KeyboardInterrupt:
                             print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
                             try:
-                                title = input(">>>Enter your search music: ")
-                                platform = input(">>>Enter your search platform: ")
+                                title = input(">>>请输入想要搜索的歌曲: ")
+                                if title == "exit()":
+                                    print("bye")
+                                    os.system("exit")
+                                platform = input(">>>请输入想要搜索的平台: ")
+                                if platform == "exit()":
+                                    print("bye")
+                                    os.system("exit")
                                 if title != None:
                                     music_page = 1
+                                    platform = self.fix_enter(platform)
                                     _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
-                                    send_data(p, _send_data, func, music_page)
+                                    self.send_data(p, _send_data, func, music_page)
+
                             except KeyboardInterrupt:
                                 print("用户主动退出")
                                 print("bye")

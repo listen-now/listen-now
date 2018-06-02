@@ -2,27 +2,32 @@
 # @File:Scrawl_Xiamimusic.py
 # @Date:2018/5/10
 # Author:Cat.1
+
 import sys
 sys.path.append("..")
 import encrypt.xiami_encrypt
-
+import config, redis
 import requests, re, json
 
 
 
-xiami_search_url_first ='http://api.xiami.com/web?key='
-xiami_search_url_index ='&v=2.0&app_key=1&r=search/songs&page='
-xiami_search_url_last  ='&limit=10'
-xiami_header           = {
-                        'Referer': 'http://m.xiami.com/',
-                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
-                        }
-xiami_list_url         = 'http://api.xiami.com/web?v=2.0&app_key=1&id='
-xiami_id_url           = 'http://api.xiami.com/web?v=2.0&app_key=1&id='
-xiami_dict             = {'hot': 101, 'origin': 103}
+xiami_search_url_first   ='http://api.xiami.com/web?key='
+xiami_search_url_index   ='&v=2.0&app_key=1&r=search/songs&page='
+xiami_search_url_last    ='&limit=10'
+xiami_header             = {
+                           'Referer': 'http://m.xiami.com/',
+                           'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+                           }
+xiami_list_url           = 'http://api.xiami.com/web?v=2.0&app_key=1&id='
+xiami_id_url             = 'http://api.xiami.com/web?v=2.0&app_key=1&id='
+xiami_dict               = {'hot': 101, 'origin': 103}
 
-requ_date, music_data  = [{} for i in range(2)]
+requ_date, music_data    = [{} for i in range(2)]
 
+if int(config.getConfig("open_database", "redis")) == 1:
+    host                 = config.getConfig("database", "dbhost")
+    port                 = config.getConfig("database", "dbport")
+    redis_cli            = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)  
 
 def request_id(music_id):
     url     = "http://www.xiami.com/widget/xml-single/uid/0/sid/%s" %music_id

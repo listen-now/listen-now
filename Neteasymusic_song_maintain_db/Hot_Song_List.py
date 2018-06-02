@@ -141,6 +141,5 @@ if __name__ == "__main__":
     test = Hot_Song_List()
     while 1:
         test.pre_request(test.User_List_All[1])
-        time.sleep(3600)
-
+        time.sleep(1)
     # print(Hot_Song_List.Download_SongList("2196054076"))

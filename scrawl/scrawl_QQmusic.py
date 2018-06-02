@@ -22,18 +22,18 @@ class Qqmusic(object):
 
 
     def qq_music_search(self, title, page = 1):
-        url             = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?&lossless=0&flag_qc=0&p=1&n=20&w=%s"
-        resp_text       = json.loads(requests.get(url = url %(title), headers = self.QQmusic_headers).text[9:-1])
+        url               = "https://c.y.qq.com/soso/fcgi-bin/client_search_cp?&lossless=0&flag_qc=0&p=1&n=20&w=%s"
+        resp_text         = json.loads(requests.get(url = url %(title), headers = self.QQmusic_headers).text[9:-1])
         self.resp_text    = resp_text
         try: c            = resp_text["data"]['song']["list"][0]["media_mid"]
         except: resp_text = resp_text["data"]['song']["list"][1]
         else: resp_text   = resp_text["data"]['song']["list"][0]
-        media_mid        = resp_text["media_mid"]
-        songmid          = resp_text["songmid"]
+        media_mid         = resp_text["media_mid"]
+        songmid           = resp_text["songmid"]
         self.access_resp_text(media_mid, songmid)
         # 调起中值请求爬虫获得vkey数据.
-        self.singer_name = resp_text["singer"][0]["name"]
-        self.song_name   = resp_text["songname"]        
+        self.singer_name  = resp_text["singer"][0]["name"]
+        self.song_name    = resp_text["songname"]        
         self.music_data.update({"artists":self.singer_name, "music_name":self.song_name})
         self.requ_date.update({"0":self.music_data})
 
