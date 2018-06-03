@@ -273,7 +273,7 @@ class Netmusic(object):
             try: self.tlyric = self.lyric_data.json()["tlyric"]["lyric"]
             except: 
                 pass
-            else: 
+            else:
                 music_data = {}
                 music_data.update({"tlyric": self.tlyric})
                 self.requ_date['0'].update(music_data)

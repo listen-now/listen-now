@@ -118,7 +118,7 @@ def search_json():
         response.headers.add('Server','python flask')       
         return response
 
-@app.route('/user_song_list', methods = ['POST', 'GET'])
+@app.route('/Random_song_list', methods = ['POST', 'GET'])
 def Return_Random_User_Song_List():
     """
     用于向前端返回随机的6个歌单信息
@@ -129,6 +129,7 @@ def Return_Random_User_Song_List():
     if int(config.getConfig("open_database", "redis")) == 1:
         return_user_song_list = Neteasymusic_song_maintain_db.Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Random_Return_func()
+        re_dict.update({"code":"200", "status":"Success"})
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response
@@ -137,6 +138,32 @@ def Return_Random_User_Song_List():
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response
+
+@app.route('/user_song_list', methods = ['POST', 'GET'])
+def Return_User_Song_List():
+    global re_dict
+    data            = request.get_data()     
+    try:
+        dict_data   = json.loads(data)      
+    except:
+        re_dict     = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
+
+    try:
+        uid         = dict_data["uid"]
+        try:
+            user_id = dict_data["user_id"]
+        except KeyError:
+            user_id = ''
+    except:
+        re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
+    else:
+        check_func  = Neteasymusic_song_maintain_db.Neteasymusic_Sync.Neteasymusic_Sync()
+        re_dict     = check_func.Get_User_List(uid, user_id)
+        re_dict.update({"code":"202", "status":"Success"})
+    response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+    response.headers.add('Server','python flask')       
+    return response
+
 
 @app.route('/song_list_requests', methods = ['POST', 'GET'])
 def Return_User_Song_List_Detail():
@@ -163,6 +190,7 @@ def Return_User_Song_List_Detail():
     else:
         return_user_song_list = Neteasymusic_song_maintain_db.Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Download_SongList(song_list_url)
+        re_dict.update({"code":"201", "status":"Success"})
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
@@ -184,19 +212,17 @@ def check_user():
     if int(config.getConfig("open_database", "redis")) == 1:
         if request.method == 'GET':
             user_id_dict = dict(request.args)
-            email      = user_id_dict["email"]
+            email      = user_id_dict["user_id"][0]
             try:
-                flag     = user_id_dict["flag"]
+                flag   = user_id_dict["flag"][0]
             except KeyError:
                 flag = 1
             check_func = Neteasymusic_song_maintain_db.Neteasymusic_Sync.Neteasymusic_Sync()
-            value      = check_func.Create_Check_User_id(email)
+            value      = check_func.Create_Check_User_id(email, int(flag))
             if int(flag[0]) == 1 and value[0] == 0:
                 re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
             elif value[0] == 1:
-                re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201")
-            elif int(flag[0]) == 0 and value[0] == 2:
-                re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
+                re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201", user_id=value[1], email=value[2])
             response      = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')       
             return response
@@ -207,6 +233,13 @@ def check_user():
             flag      = dict_data["flag"]
             email     = dict_data["email"]
             passwd    = dict_data["passwd"]
+            # 未完成, 还需要加密过程算法, 存储用户数据到mongodb中
+            check_func = Neteasymusic_song_maintain_db.Neteasymusic_Sync.Neteasymusic_Sync()
+            value      = check_func.Create_Check_User_id(email, int(flag))
+
+            if int(flag[0]) == 0:
+                re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
+
     else:
         re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库未启用")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    

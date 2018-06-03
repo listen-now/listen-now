@@ -44,7 +44,7 @@ class Neteasymusic_Sync(object):
                         }
         self.Sync_NEM_Url = "http://music.163.com/api/user/playlist/?offset=0&limit=100&uid=%s"
 
-    def Get_User_List(self, uid, user_id):
+    def Get_User_List(self, uid, user_id=''):
         """
         这个类用于根据用户的uid(网易提供的用户唯一标识来寻找用户)
         根据uid得到用户的歌单信息， 解析返回的json文件，
@@ -60,18 +60,30 @@ class Neteasymusic_Sync(object):
         resp    = self.session.get(url = self.Sync_NEM_Url %uid, headers = self.headers)
         content = resp.json()
         Playlist_Num = len(content["playlist"])
-        if list(self.my_set.find({"user_id":user_id})) != []:
-            self.my_set.remove({'user_id':user_id})
-            print("update!")                
+        if user_id != '':
+            if list(self.my_set.find({"user_id":user_id})) != []:
+                self.my_set.remove({'user_id':user_id})
+                print("update!")                
+            for i in range(Playlist_Num - 1):
+                Playlist_name  = content["playlist"][i]["name"]
+                Playlist_image = content["playlist"][i]["coverImgUrl"]
+                Playlist_id    = content["playlist"][i]["id"]  
+                Vi_Num = len(list(self.my_set.find({"user_id":user_id})))
+                self.my_set.insert({"user_id":user_id, "Playlist_name":Playlist_name, "Playlist_image":Playlist_image, "Playlist_id":Playlist_id})
+        self.requ_date = {}                
+        music_data     = {}
         for i in range(Playlist_Num - 1):
             Playlist_name  = content["playlist"][i]["name"]
             Playlist_image = content["playlist"][i]["coverImgUrl"]
             Playlist_id    = content["playlist"][i]["id"]  
-            Vi_Num = len(list(self.my_set.find({"user_id":user_id})))
-            self.my_set.insert({"user_id":user_id, "Playlist_name":Playlist_name, "Playlist_image":Playlist_image, "Playlist_id":Playlist_id})
-
-        # for i in self.my_set.find({"user_id":"000001"}):
-        #     print(i)
+            music_data.update({"Playlist_id": Playlist_id, "Playlist_name":Playlist_name, "Playlist_image":Playlist_image})
+            try:
+                self.requ_date[str(i)].update(music_data)
+            except KeyError:
+                self.requ_date[str(i)] = {}
+                self.requ_date[str(i)].update(music_data)
+        self.requ_date['Sum_Song_List'] = i
+        return self.requ_date
     
     @staticmethod
     def Get_User_SongList_Detail(url) -> dict:
@@ -94,7 +106,6 @@ class Neteasymusic_Sync(object):
         否则用户查询得到没有被注册则返回(0, 0, 用户想注册的账户名)
         """
         user_id = self.r.get(Sign_in_tags)
-        print(user_id)
         if user_id:
             return (1, user_id, Sign_in_tags)
         elif user_id == None and flag != 1:
@@ -111,6 +122,7 @@ class Neteasymusic_Sync(object):
 if __name__ == "__main__":
     
     test = Neteasymusic_Sync()
-    # test.Get_User_List(252937215, "000001")
-    print(Neteasymusic_Sync.Get_User_SongList_Detail("328226111"))
-    # print(test.Create_Check_User_id('zhuyuefeng0@gmail.com'))
+    test.Get_User_List(252937215)
+
+    # print(Neteasymusic_Sync.Get_User_SongList_Detail("328226111"))
+    # print(test.Create_Check_User_id("106995477@q.com", 1))

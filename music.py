@@ -60,10 +60,11 @@ class test_request(object):
                 data["id"], data["page"], data["platform"]= music_id, 1, platform
                 self.send_data("id", data, "post", music_page)
             elif songlist != None:
-                data = {"url" = songlist}
+                data = {"url":songlist}
                 self.send_data("song_list_requests", data, "post", music_page)
-
-
+            elif userid != None:
+                data = {"uid":userid}
+                self.send_data("user_song_list", data, "post", music_page)
 
     def regex_func(self, content):
         if re.findall(r"\w{1,2}\s([\-c]+)", content):
@@ -134,10 +135,11 @@ class test_request(object):
                                 except KeyboardInterrupt:
                                     print("\n用户主动退出")
                                     print("bye")
-                elif resp.json()["song_num"] != None:
+                elif resp.json()["code"] == "201":
                     self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3"
                     result = resp.json()
                     print(result["description"])
+                    print("切换下一首歌请输入Ctrl + c\n\n")
                     for i in range(int(result["song_num"])):
                         music_name = result["Songlist_detail"][i]["name"]
                         music_id   = result["Songlist_detail"][i]["id"]
@@ -145,10 +147,30 @@ class test_request(object):
                         print(music_name, end="      ")
                         print(artists)
                         os.system('mpg123 -q -v "%s"'%(self.url_ %(music_id)))
+                elif resp.json()["code"] == "202":
+                    result = resp.json()
+                    for i in range(int(result["Sum_Song_List"])):
+                        print(i, end = "     ")
+                        print(result[str(i)]["Playlist_name"])
+                    try: 
+                        keyboard = input(">>> Enter your select ")
+                    except KeyboardInterrupt:
+                        print("\n用户主动退出")
+                        print("bye")
+                        # else:
+                        #     if keyboard == "s" and _send_data["page"] < 10:
+                        #         _send_data["page"] = int(_send_data["page"]) + 1
+                        #         music_page        += 1
+                        #         return self.send_data(p, _send_data, func, music_page)
+                        #     elif keyboard == "w" and _send_data["page"] > 0:
+                        #         _send_data["page"] = int(_send_data["page"]) - 1
+                        #         music_page        -= 1
+                        #         return self.send_data(p, _send_data, func, music_page)
+                    os.system('pymusic -sl %s -p net'%(result[str(keyboard)]["Playlist_id"]))
                 else:
                     print(resp.json())
                     print("服务器繁忙!")
-            except KeyError:
+            except ImportError:
                 print("\n[~]没有更多关于这首歌的内容\n")
         else:
             requests.get(url="http://zlclclc.cn/" + p)
