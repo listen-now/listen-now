@@ -24,8 +24,8 @@ else:
     if platform == "darwin":
         os.system("brew install mpg123")
     elif platform == "linux":
-        os.system("apt-get install mpg123")
-        os.system("yum install mpg123")
+        os.system("sudo apt-get install mpg123")
+        os.system("sudo yum install mpg123")
     else:
         print("暂时不支持Win平台")
 
