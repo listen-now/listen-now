@@ -8,6 +8,8 @@ import argparse
 import json
 import os
 import re
+import threading
+import subprocess
 
 data = {
         "title":None,
@@ -65,18 +67,32 @@ class test_request(object):
             elif userid != None:
                 data = {"uid":userid}
                 self.send_data("user_song_list", data, "post", music_page)
+            elif random_song != None:
+                self.send_data("user_song_list", data, "get", music_page)
 
     def regex_func(self, content):
         if re.findall(r"\w{1,2}\s([\-c]+)", content):
             return 1
 
-    def send_data(self, p, _send_data, func, music_page):
+    def play_lyric(self, id):
+        subprocess.call("read_lyric -id %s"%(id), shell=True)
+    def player(self, play_url):
+        # subprocess.call('mpg123 -q -v "%s"'%(play_url))
+        os.system('mpg123 -q -v "%s"'%(play_url))
+
+        subprocess.call('mpg123 -q -v "%s"'%(play_url))
+    def send_data(self, p, _send_data, func, music_page, w=""):
 
         if music_page != None:
             _send_data["page"] = music_page
 
         if func == "post":
-            resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
+            try:
+                resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
+            except:
+                print("[-]网络错误!")
+            if w == 1:
+                return resp
             try:
                 if resp.json()["code"] == "200":
                     for i in range(10):
@@ -114,7 +130,13 @@ class test_request(object):
                                 if self.regex_func(keyboard) == 1:
                                     os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
                                 else:
-                                    os.system('mpg123 -q -v "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
+                                    t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"],))
+                                    t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
+                                    t1.start()
+                                    t2.start()
+                                    t1.join()
+                                    t2.join()
+                                    # os.system('mpg123 -q -v "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
 
                                 print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
                                 try:
@@ -173,7 +195,8 @@ class test_request(object):
             except ImportError:
                 print("\n[~]没有更多关于这首歌的内容\n")
         else:
-            requests.get(url="http://zlclclc.cn/" + p)
+            resp = requests.get(url="http://zlclclc.cn/" + p)
+            print(resp.json())
 
 if __name__ == "__main__":
     test_user = test_request()

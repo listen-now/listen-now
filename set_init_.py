@@ -7,7 +7,9 @@ import os
 import sys
 
 
-path = "sudo ln -s " + os.path.abspath('.') + "/music.py " + "/usr/local/bin/pymusic" 
+path1 = "sudo ln -s " + os.path.abspath('.') + "/music.py " + "/usr/local/bin/pymusic" 
+path2 = "sudo ln -s " + os.path.abspath('.') + "/read_lyric.py " + "/usr/local/bin/read_lyric" 
+
 try:
     os.system(path)
 except:
