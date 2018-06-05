@@ -11,7 +11,8 @@ path1 = "sudo ln -s " + os.path.abspath('.') + "/music.py " + "/usr/local/bin/py
 path2 = "sudo ln -s " + os.path.abspath('.') + "/read_lyric.py " + "/usr/local/bin/read_lyric" 
 
 try:
-    os.system(path)
+    os.system(path1)
+    os.system(path2)
 except:
     print("[-]请手动初始化终端命令功能")
     print("参考指令 -> " + path)

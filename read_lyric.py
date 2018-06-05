@@ -25,23 +25,32 @@ resp      = requests.post(url="http://zlclclc.cn/id", data=json.dumps(_send_data
 _lyric    = resp.json()["0"]["lyric"].split("\n")
 
 Time_diff,TimeEnd, TimeStart, TimeSleep= 0, 0, 0, 0
-
 for i in range(len(_lyric)):
     try:
-        lyric    = _lyric[i] + _lyric[i+1]
+        lyric    = _lyric[i] + ", "+ _lyric[i+1]
     except IndexError:
         lyric    = _lyric[i]
-    TimeList = re.findall(r"\d{2}\:\d{2}\.\d{3}", lyric)
-    lyric    = re.sub(r"\d{2}\:\d{2}\.\d{3}", '', lyric)
+    TimeList = re.findall(r"\d{1,3}\:\d{1,3}\.\d{1,3}", lyric)
+    lyric    = re.sub(r"\d{1,3}\:\d{1,3}\.\d{1,3}", '', lyric)
     lyric    = lyric.replace('[]','')
+
     if len(TimeList) > 1:
         TimeEnd   = TimeList[1].split(':')
         TimeStart = TimeList[0].split(':')
         Time_diff = int(TimeEnd[0])-int(TimeStart[0])
         if Time_diff > 0:
             Time_diff = Time_diff * 60
-    if TimeEnd[0] != None:
+
+    if isinstance(TimeEnd, list) and TimeList != []:
         TimeSleep = int(Time_diff + (float(TimeEnd[1]) - float(TimeStart[1])))
     print("{0:_^60}".format(lyric))
-    time.sleep(TimeSleep)
+    time.sleep(TimeSleep+0.5)
     subprocess.call("clear")
+
+    if TimeList == []:
+        print("{0:_^60}".format(lyric))
+        time.sleep(2)
+        subprocess.call("clear")
+
+
+

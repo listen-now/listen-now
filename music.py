@@ -20,6 +20,7 @@ data = {
 
 class test_request(object):
 
+
     def fix_enter(self, platform):
         platform_dict = {
                  "net":"Neteasymusic",
@@ -77,8 +78,8 @@ class test_request(object):
     def play_lyric(self, id):
         subprocess.call("read_lyric -id %s"%(id), shell=True)
     def player(self, play_url):
-        # subprocess.call('mpg123 -q -v "%s"'%(play_url))
-        os.system('mpg123 -q -v "%s"'%(play_url))
+        subprocess.call('mpg123 -q -v "%s"'%(play_url), shell=True)
+        # os.system('mpg123 -q -v "%s"'%(play_url))
 
         subprocess.call('mpg123 -q -v "%s"'%(play_url))
     def send_data(self, p, _send_data, func, music_page, w=""):
