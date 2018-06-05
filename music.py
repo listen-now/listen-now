@@ -18,7 +18,7 @@ data = {
         }
 
 
-class test_request(object):
+class pymusic(object):
 
 
     def fix_enter(self, platform):
@@ -77,11 +77,24 @@ class test_request(object):
 
     def play_lyric(self, id):
         subprocess.call("read_lyric -id %s"%(id), shell=True)
-    def player(self, play_url):
-        subprocess.call('mpg123 -q -v "%s"'%(play_url), shell=True)
-        # os.system('mpg123 -q -v "%s"'%(play_url))
 
-        subprocess.call('mpg123 -q -v "%s"'%(play_url))
+    def player(self, play_url, loop=0):
+        if loop == 0:
+            os.system('mpg123 -q -v "%s"'%(play_url))
+        else:
+            os.system('mpg123 -q -v --loop -1 "%s"'%(play_url))
+
+    def Xia_Qq_Request_Play_Url(self,platform, music_id='', media_mid='', songmid=''):
+        data = {
+                "platform":platform,
+                "id":music_id,
+                "media_mid":media_mid,
+                "songmid":songmid
+                }
+        resp = requests.post(url="http://zlclclc.cn/id", data=json.dumps(data))
+        print(resp.json())
+        return resp
+
     def send_data(self, p, _send_data, func, music_page, w=""):
 
         if music_page != None:
@@ -98,9 +111,10 @@ class test_request(object):
                 if resp.json()["code"] == "200":
                     for i in range(10):
                         try:
-                            print(str(i), end="      ")
-                            print(resp.json()[str(i)]["music_name"], end="      ")
-                            print(resp.json()[str(i)]["artists"])
+                            print("{0}".format(i), end="    ")
+                            z = (50 - len(resp.json()[str(i)]["music_name"])) * " "
+                            print("{0}".format(resp.json()[str(i)]["music_name"]), end=z)
+                            print("{0}".format(resp.json()[str(i)]["artists"]))
                         except KeyError:
                             pass
                     print('\n')
@@ -126,10 +140,24 @@ class test_request(object):
                                 music_page        -= 1
                                 return self.send_data(p, _send_data, func, music_page)
                         else:
+                            if _send_data["platform"] != "Neteasymusic":
+
+                                resp = self.Xia_Qq_Request_Play_Url(
+                                                                    _send_data["platform"],
+                                                                    resp.json()[str(newkeyboard)]["music_id"],
+                                                                    )
+
                             if int(newkeyboard) >= 0 or int(newkeyboard) <= 10:
                                 # self.regex_func 反馈1表示用户需要单曲循环
                                 if self.regex_func(keyboard) == 1:
-                                    os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
+                                    # os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
+                                    t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
+                                    t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
+                                    t1.start()
+                                    t2.start()
+                                    t1.join()
+                                    t2.join()
+
                                 else:
                                     t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"],))
                                     t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
@@ -167,15 +195,21 @@ class test_request(object):
                         music_name = result["Songlist_detail"][i]["name"]
                         music_id   = result["Songlist_detail"][i]["id"]
                         artists    = result["Songlist_detail"][i]["ar"][0]["name"]
-                        print(music_name, end="      ")
-                        print(artists)
-                        os.system('mpg123 -q -v "%s"'%(self.url_ %(music_id)))
+                        print("{0}".format(music_name), end="    ")
+                        print("{0}".format(artists))
+                        t1 = threading.Thread(target=self.player, args=(self.url_ %(music_id),))
+                        t2 = threading.Thread(target=self.play_lyric, args=(music_id,))
+                        t1.start()
+                        t2.start()
+                        t1.join()
+                        # t2.join()
+
                 elif resp.json()["code"] == "202":
                     result = resp.json()
                     for i in range(int(result["Sum_Song_List"])):
-                        print(i, end = "     ")
-                        print(result[str(i)]["Playlist_name"])
-                    try: 
+                        print("{0}".format(i), end = "   ")
+                        print("{0}".format(result[str(i)]["Playlist_name"]))
+                    try:
                         keyboard = input(">>> Enter your select ")
                     except KeyboardInterrupt:
                         print("\n用户主动退出")
@@ -191,7 +225,7 @@ class test_request(object):
                         #         return self.send_data(p, _send_data, func, music_page)
                     os.system('pymusic -sl %s -p net'%(result[str(keyboard)]["Playlist_id"]))
                 else:
-                    print(resp.json())
+                    # print(resp.json())
                     print("服务器繁忙!")
             except ImportError:
                 print("\n[~]没有更多关于这首歌的内容\n")
@@ -200,6 +234,6 @@ class test_request(object):
             print(resp.json())
 
 if __name__ == "__main__":
-    test_user = test_request()
+    test_user = pymusic()
     test_user.command()
     # test_user.regex_func('5 -c')
