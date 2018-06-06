@@ -10,6 +10,8 @@ import os
 import re
 import threading
 import subprocess
+import Logger
+
 
 data = {
         "title":None,
@@ -20,6 +22,9 @@ data = {
 
 class pymusic(object):
 
+    def __init__(self):
+        music_logger = Logger.Logger('music_all.log', 'debug')
+        music_logger.logger.debug('This is a test log.')
 
     def fix_enter(self, platform):
         platform_dict = {
@@ -80,9 +85,11 @@ class pymusic(object):
 
     def player(self, play_url, loop=0):
         if loop == 0:
-            os.system('mpg123 -q -v "%s"'%(play_url))
+            # os.system('mpg123 -q -v "%s"'%(play_url))
+            subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
         else:
-            os.system('mpg123 -q -v --loop -1 "%s"'%(play_url))
+            subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
+            # os.system('mpg123 -q -v --loop -1 "%s"'%(play_url))
 
     def Xia_Qq_Request_Play_Url(self,platform, music_id='', media_mid='', songmid=''):
         data = {
@@ -151,21 +158,23 @@ class pymusic(object):
                                 # self.regex_func 反馈1表示用户需要单曲循环
                                 if self.regex_func(keyboard) == 1:
                                     # os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
+                                    print('[+]如果没有音乐播放提示, 请检查您的网络情况')
                                     t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
-                                    t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
                                     t1.start()
-                                    t2.start()
+                                    if t1.is_alive():
+                                        t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
+                                        t2.start()
                                     t1.join()
                                     t2.join()
 
                                 else:
                                     t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"],))
-                                    t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
                                     t1.start()
-                                    t2.start()
+                                    if t1.is_alive():
+                                        t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
+                                        t2.start()
                                     t1.join()
                                     t2.join()
-                                    # os.system('mpg123 -q -v "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
 
                                 print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
                                 try:
@@ -191,20 +200,18 @@ class pymusic(object):
                     result = resp.json()
                     print(result["description"])
                     print("切换下一首歌请输入Ctrl + c\n\n")
+                    print('[+]如果没有音乐播放提示, 请检查您的网络情况')
                     for i in range(int(result["song_num"])):
                         music_name                          = result["Songlist_detail"][i]["name"]
                         music_id                            = result["Songlist_detail"][i]["id"]
                         artists                             = result["Songlist_detail"][i]["ar"][0]["name"]
                         print("{0}".format(music_name), end ="    ")
                         print("{0}".format(artists))
-                        time_flag                           = 0
                         t1                                  = threading.Thread(target=self.player, args=(self.url_ %(music_id),))
-                        t2                                  = threading.Thread(target=self.play_lyric, args=(music_id,))
-                        time_mid                            = time.time()
-                        time_bef                            = time.time()
-                        time_end                            = time.time()
                         t1.start()
-                        t2.start()
+                        if t1.is_alive():
+                            t2                                  = threading.Thread(target=self.play_lyric, args=(music_id,))
+                            t2.start()
                         t1.join()
                         # t2.join()
 

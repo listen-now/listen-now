@@ -8,6 +8,10 @@ sys.path.append("..")
 import encrypt.xiami_encrypt
 import config, redis
 import requests, re, json
+# encoding:utf-8
+import io  
+import sys  
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
 
 
 
@@ -91,11 +95,12 @@ class Search_xiami(object):
         return xiami_id_url + str(music_id)+'&_ksTS=1519879890812_170&callback=jsonp171&r=song/detail'
     
     @staticmethod
-    def i(music_id):
+    def id_req(music_id):
         url        = Search_xiami.get_music_id(music_id)
         c          = requests.get(url = url, headers = xiami_header)
         result     = c.content.decode()
         result     = json.loads(result[9:-1])
+        print(result)
         music_id   = result['data']['song']['song_id']
         music_name = result['data']['song']['song_name']
         artists    = result['data']['song']['artist_name']
@@ -103,10 +108,11 @@ class Search_xiami(object):
         play_url   = result['data']['song']['listen_file']
         image_url  = result['data']['song']['logo']
         regex      = re.compile('<.*?>')
-        lyric      = requests.get(lyric_url)
-        lyric      = re.sub(regex, '', lyric.text)
+        # print(lyric_url)
+        # lyric      = requests.get(lyric_url)
+        # lyric      = re.sub(regex, '', lyric.text)
         music_data = {}
-        music_data.update({"play_url":play_url, "music_id": music_id, "music_name": music_name, "artists": artists, "image_url":image_url, "lyric":lyric})
+        music_data.update({"play_url":play_url, "music_id": music_id, "music_name": music_name, "artists": artists, "image_url":image_url})
         requ_date.update({'0' : music_data})
         return requ_date
 
@@ -119,5 +125,6 @@ def id_search(music_id):
 if __name__ == '__main__':
     pass
     test = Search_xiami()
-    test.search_xiami('成都', page = 1)
+    # test.search_xiami('成都', page = 1)
+    test.id_req(1795575082)
     print(requ_date)

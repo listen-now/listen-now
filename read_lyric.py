@@ -84,7 +84,7 @@ class Play_Lyric(object):
                 Time_diff = Time_diff * 60
 
         if isinstance(TimeEnd, list) and TimeList != []:
-            TimeSleep = int(Time_diff + (float(TimeEnd[1]) - float(TimeStart[1])))
+            TimeSleep = float(Time_diff + (float(TimeEnd[1]) - float(TimeStart[1])))
         # print("{0:_^60}".format(lyric))
         lyric = "{0:_^60}".format(lyric)
         print(lyric)
@@ -95,7 +95,7 @@ class Play_Lyric(object):
             # time.sleep(TimeSleep%len(lyric))
         # print(TimeSleep/len(lyric))
         # time.sleep(10)
-        time.sleep(TimeSleep+0.5)
+        time.sleep(TimeSleep)
         subprocess.call("clear")
 
         if TimeList == []:
