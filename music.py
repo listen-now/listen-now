@@ -192,13 +192,17 @@ class pymusic(object):
                     print(result["description"])
                     print("切换下一首歌请输入Ctrl + c\n\n")
                     for i in range(int(result["song_num"])):
-                        music_name = result["Songlist_detail"][i]["name"]
-                        music_id   = result["Songlist_detail"][i]["id"]
-                        artists    = result["Songlist_detail"][i]["ar"][0]["name"]
-                        print("{0}".format(music_name), end="    ")
+                        music_name                          = result["Songlist_detail"][i]["name"]
+                        music_id                            = result["Songlist_detail"][i]["id"]
+                        artists                             = result["Songlist_detail"][i]["ar"][0]["name"]
+                        print("{0}".format(music_name), end ="    ")
                         print("{0}".format(artists))
-                        t1 = threading.Thread(target=self.player, args=(self.url_ %(music_id),))
-                        t2 = threading.Thread(target=self.play_lyric, args=(music_id,))
+                        time_flag                           = 0
+                        t1                                  = threading.Thread(target=self.player, args=(self.url_ %(music_id),))
+                        t2                                  = threading.Thread(target=self.play_lyric, args=(music_id,))
+                        time_mid                            = time.time()
+                        time_bef                            = time.time()
+                        time_end                            = time.time()
                         t1.start()
                         t2.start()
                         t1.join()
