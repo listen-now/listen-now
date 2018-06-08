@@ -85,19 +85,19 @@ class pymusic(object):
 
     def player(self, play_url, loop=0):
         if loop == 0:
-            # os.system('mpg123 -q -v "%s"'%(play_url))
             subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
         else:
             subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
-            # os.system('mpg123 -q -v --loop -1 "%s"'%(play_url))
 
     def Xia_Qq_Request_Play_Url(self,platform, music_id='', media_mid='', songmid=''):
         data = {
                 "platform":platform,
-                "id":music_id,
-                "media_mid":media_mid,
-                "songmid":songmid
                 }
+        if music_id != '':
+            data["music_id"]  = music_id
+        else:
+            data["media_mid"] = media_mid
+            data["songmid"]   = songmid
         resp = requests.post(url="http://zlclclc.cn/id", data=json.dumps(data))
         print(resp.json())
         return resp
@@ -147,28 +147,39 @@ class pymusic(object):
                                 music_page        -= 1
                                 return self.send_data(p, _send_data, func, music_page)
                         else:
-                            if _send_data["platform"] != "Neteasymusic":
+                            if  _send_data["platform"] == "Xiamimusic":
 
-                                resp = self.Xia_Qq_Request_Play_Url(
-                                                                    _send_data["platform"],
+                                resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
                                                                     resp.json()[str(newkeyboard)]["music_id"],
                                                                     )
+                                print(resp.json())
+
+
 
                             if int(newkeyboard) >= 0 or int(newkeyboard) <= 10:
                                 # self.regex_func 反馈1表示用户需要单曲循环
                                 if self.regex_func(keyboard) == 1:
                                     # os.system('mpg123 -q -v --loop -1 "%s"'%(resp.json()[str(newkeyboard)]["play_url"]))
                                     print('[+]如果没有音乐播放提示, 请检查您的网络情况')
-                                    t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
+                                    if _send_data["platform"] == "Neteasymusic":
+                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
+                                    elif _send_data["platform"] == "Xiamimusic":
+                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(0)]["play_url"], 1))
                                     t1.start()
-                                    if t1.is_alive():
-                                        t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
-                                        t2.start()
+                                    # if t1.is_alive():
+                                    #     t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
+                                    #     t2.start()
                                     t1.join()
-                                    t2.join()
+                                    # t2.join()
+                                    # 暂时虾米音乐不启用歌词模块
+                                    elif _send_data["platform"] == "QQmusic":
+                                        
 
                                 else:
-                                    t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"],))
+                                    if _send_data["platform"] == "Neteasymusic":
+                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
+                                    elif _send_data["platform"] == "Xiamimusic":
+                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(0)]["play_url"], 1))
                                     t1.start()
                                     if t1.is_alive():
                                         t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))

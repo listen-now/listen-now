@@ -32,9 +32,9 @@ Nginx
 
 * 首先安装Python3, 并做好软连接(各种办法均可)
 
-* 使用git clone https://github.com/import-yuefeng/Listen-now 
+* 使用 git clone https://github.com/import-yuefeng/Listen-now 
 
-* 运行初始化程序 python3 set_init_.py
+* 运行初始化程序 python3 setup.py
 
 * 尝试在终端输入 # pymusic -h 来尝试是否可用
 
@@ -105,7 +105,7 @@ optional arguments:
 
       # pymusic -uid 123456(用户id) -p net
 
-      通过-uid 你可以得到该用户的所有歌单, 并可以选择其中的歌单进行播放
+      通过 -uid 你可以得到该用户的所有歌单, 并可以选择其中的歌单进行播放
       通过 -sl 系统会自动为您播放该歌单的音乐, 听歌过程中想切换下一首歌, 请输入Ctrl + c
 
 ```    
@@ -125,11 +125,11 @@ optional arguments:
 * 用户的信息会被储存在mongodb, 用于同步用户歌单等信息
 
 ### 剩下没提到的文件是什么/用来做什么?
-* 如果初始化set_init.py反馈
+* 如果初始化setup.py反馈
     `ln: /xxx/bin/pymusic:        File exists`
     则可能出现了您重复初始化/该(pymusic)您已经占用.
     
-    可以使用 `sudo rm /xxx/bin/pymusic` 再次初始化, 当初始化成功后您就可以使用pymusic -h 来测试程序是否可用
+    可以使用指令 `sudo rm /xxx/bin/pymusic`后, 再次初始化, 当初始化成功后您就可以使用pymusic -h 来测试程序是否可用
     
 其他例如你看到的
 

@@ -275,7 +275,8 @@ def play_id():
                         re_dict = _Return_Error_Post(code="401", status="Failed", detail = "platform not this music!")
                 elif music_platform == "Xiamimusic":
                     music_id = dict_data["id"]
-                    re_dict  = scrawl.scrawl_Xiamimusic.id_search(music_id)
+                    re_dict  = scrawl.scrawl_Xiamimusic.Search_xiami.id_req(music_id)
+                    print(re_dict)
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})
                     else:

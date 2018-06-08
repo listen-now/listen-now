@@ -52,19 +52,25 @@ class TestDict(unittest.TestCase):
 
 
     def test_id_net_xiami(self):
-        my_dict = {
-                   "id":None,
-                   "platform":"Neteasymusic",
-                   }
+        my_dict       = {
+                         "id":None,
+                         "platform":None,
+                        }
 
-        my_dict["id"] = 444706287
+        my_dict["id"]       = 444706287
+        my_dict["platform"] = "Neteasymusic"
         self.assertEqual(json.loads(self.post_func(my_dict, "id").text)['code'], "200")
+        my_dict["id"]       = 123456
+        my_dict["platform"] = "Xiamimusic"
+        self.assertEqual(json.loads(self.post_func(my_dict, "id").text)['code'], "200")
+
 
     def test_check_user(self):
         pass
 
     def test_Return_Random_User_Song_List(self):
-        self.assertEqual(len(json.loads(self.get_func("user_song_list").text)), 6)
+        self.assertEqual(len(json.loads(self.get_func("Random_song_list").text)), 8)
+
 
 
 

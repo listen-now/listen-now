@@ -89,7 +89,7 @@ class Hot_Song_List(object):
         if Page_Start <= Limit_Max_Page:
             Page_Start += 35
             url = Page_Start_Url + str(Page_Start)
-            time.sleep(1)
+            time.sleep(5)
             test.pre_request(url)
         else:
             return 1
@@ -157,6 +157,6 @@ if __name__ == "__main__":
     test = Hot_Song_List()
     while 1:
         test.pre_request(test.User_List_All[1])
-        time.sleep(3600 * 2)
+        time.sleep(3600 * 24)
         test.r.flushdb()
     # print(Hot_Song_List.Download_SongList("2196054076"))

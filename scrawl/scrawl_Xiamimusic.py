@@ -100,7 +100,6 @@ class Search_xiami(object):
         c          = requests.get(url = url, headers = xiami_header)
         result     = c.content.decode()
         result     = json.loads(result[9:-1])
-        print(result)
         music_id   = result['data']['song']['song_id']
         music_name = result['data']['song']['song_name']
         artists    = result['data']['song']['artist_name']
@@ -126,5 +125,4 @@ if __name__ == '__main__':
     pass
     test = Search_xiami()
     # test.search_xiami('成都', page = 1)
-    test.id_req(1795575082)
-    print(requ_date)
+    print(test.id_req(1795575082))
