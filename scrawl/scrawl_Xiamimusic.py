@@ -8,11 +8,6 @@ sys.path.append("..")
 import encrypt.xiami_encrypt
 import config, redis
 import requests, re, json
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
-
 
 
 xiami_search_url_first   ='http://api.xiami.com/web?key='

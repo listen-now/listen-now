@@ -33,9 +33,23 @@ else:
     else:
         print("暂时不支持Win平台")
 
-try:
-    os.system("pip3 install -r requirement.txt")
-except:
-    print("安装Python依赖环境出现错误")
+# 关于判断用户的Python版本中pip的构建问题
+
+if True:
+    try:
+        os.system("pip3 install -r requirement.txt")
+    except:
+        print("[-]安装Python依赖环境出现错误")
+    else:
+        print("[+]成功安装依赖环境!")
 else:
-    print("[]")
+    try:
+        os.system("pip install -r requirement.txt")
+    except:
+        print("[-]安装Python依赖环境出现错误")
+    else:
+        print("[+]成功安装依赖环境!")
+
+
+
+

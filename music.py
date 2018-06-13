@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # @File:music.py
 # @Date:2018/05/28
+# @Update:2018/06/11
 # Author:Cat.1
 
 import requests
@@ -21,7 +22,16 @@ data = {
 
 
 class pymusic(object):
-
+    """pymusic类
+    
+    包括修正键入的字符方法(fix_enter)
+    command方法用来接受用户的命令请求
+    regex_func方法用来读入用户对歌曲的需求
+    play_lyric方法用来开启异步线程来执行歌词播放
+    player方法用来异步启用一个mpg123线程来播放音乐
+    downloader方法还是一个不完善的办法
+    Xia_Qq_Request_Play_Url用于请求虾米、QQ音乐的播放地址
+    """
     def __init__(self):
         music_logger = Logger.Logger('music_all.log', 'debug')
         music_logger.logger.debug('This is a test log.')
@@ -171,6 +181,7 @@ class pymusic(object):
                                 resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
                                                                     resp.json()[str(newkeyboard)]["music_id"],
                                                                     )
+                                print(resp.json())
 
                             elif _send_data["platform"] == "QQmusic":
 
@@ -206,6 +217,7 @@ class pymusic(object):
                                     else:
                                         t1 = threading.Thread(target=self.downloader, args=(resp.json()[str(0)]["play_url"], 0))
                                     t1.start()
+                                    
                                     if t1.is_alive() and _send_data["platform"] == "Neteasymusic":
                                         t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
                                         t2.start()
@@ -233,6 +245,7 @@ class pymusic(object):
                                     print("bye")
                 elif resp.json()["code"] == "201":
                     self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3"
+                    result = resp.json()
                     print(result["description"])
                     print("切换下一首歌请输入Ctrl + c\n\n")
                     print('[+]如果没有音乐播放提示, 请检查您的网络情况')
@@ -260,21 +273,24 @@ class pymusic(object):
                     except KeyboardInterrupt:
                         print("\n用户主动退出")
                         print("bye")
-                        # else:
-                        #     if keyboard == "s" and _send_data["page"] < 10:
-                        #         _send_data["page"] = int(_send_data["page"]) + 1
-                        #         music_page        += 1
-                        #         return self.send_data(p, _send_data, func, music_page)
-                        #     elif keyboard == "w" and _send_data["page"] > 0:
-                        #         _send_data["page"] = int(_send_data["page"]) - 1
-                        #         music_page        -= 1
-                        #         return self.send_data(p, _send_data, func, music_page)
+                    else:
+                        pass
+                        # if keyboard == "s" and _send_data["page"] < 10:
+                        #     _send_data["page"] = int(_send_data["page"]) + 1
+                        #     music_page        += 1
+                        #     return self.send_data(p, _send_data, func, music_page)
+                        # elif keyboard == "w" and _send_data["page"] > 0:
+                        #     _send_data["page"] = int(_send_data["page"]) - 1
+                        #     music_page        -= 1
+                        #     return self.send_data(p, _send_data, func, music_page)
+                    
                     os.system('pymusic -sl %s -p net'%(result[str(keyboard)]["Playlist_id"]))
                 else:
-                    # print(resp.json())
+                    print(resp.json())
                     print("服务器繁忙!")
-            except ImportError:
-                print("\n[~]没有更多关于这首歌的内容\n")
+            except KeyError:
+                print("\n[-]没有更多关于这首歌的内容\n")
+
         else:
             resp = requests.get(url="http://zlclclc.cn/" + p)
             print(resp.json())
@@ -282,3 +298,4 @@ class pymusic(object):
 if __name__ == "__main__":
     test_user = pymusic()
     test_user.command()
+

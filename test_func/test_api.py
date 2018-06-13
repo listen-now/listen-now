@@ -10,22 +10,47 @@ import time
 
 class TestDict(unittest.TestCase):
     """
+    用于后端整个系统的单元测试脚本
 
     """
     def post_func(self, my_dict, p):
-
+        """发送post请求
+        
+        主要用于抽象出发送post请求的函数 
+        
+        Arguments:
+            my_dict {dict} -- 接收dict封装的json数据包
+            p {str} -- 接受str用于构造url访问地址
+        
+        Returns:
+            返回 -- 返回服务器返回的json数据
+        """
         my_dict = json.dumps(my_dict)
         url = "http://127.0.0.1:8888/" + p
         return requests.post(url, data = my_dict)
 
 
     def get_func(self, p):
+        """发送get请求
+        
+        主要抽象出发送get请求的函数
+        
+        Arguments:
+            p {str} -- 接受p用于构造访问地点
+        
+        Returns:
+            返回 -- get请求数据包
+        """
         url = "http://127.0.0.1:8888/" + p
-        return requests.post(url)
+        return requests.get(url)
 
 
     def test_search(self):
-
+        """单元测试模块(搜索api)
+        
+        搜索api的单元测试模块, 包括Neteasymusic、Xiamimusic、QQmusic
+        以及页数测试
+        """
         my_dict =  {
                     "title":"成都",
                     "platform":None,

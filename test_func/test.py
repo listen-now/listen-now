@@ -6,13 +6,13 @@
 
 
 
-# import qrcode
+import qrcode
 
-# qr = qrcode.QRCode(version = None, error_correction = qrcode.constants.ERROR_CORRECT_L, box_size = 40, border=1);
-# qr.add_data("https://github.com/import-yuefeng/Listen-now")
-# qr.make(fit = True) 
-# img = qr.make_image()
-# img.save("qc.png")
+qr = qrcode.QRCode(version = None, error_correction = qrcode.constants.ERROR_CORRECT_L, box_size = 40, border=1);
+qr.add_data("http://www.itdks.com/eventlist/detail/2269")
+qr.make(fit = True) 
+img = qr.make_image()
+img.save("share.png")
 
 
 # import requests
