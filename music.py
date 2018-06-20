@@ -100,7 +100,7 @@ class pymusic(object):
             else:
                 subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
         except:
-            print("[-]出现技术故障, 请稍厚再试, 或者换一首音乐")
+            print("[-]出现技术故障, 请稍后再试, 或者换一首音乐")
     def downloader(self, play_url, loop=0):
         if loop == 0:
             music_file = requests.get(url=play_url)
@@ -118,11 +118,11 @@ class pymusic(object):
                 "platform":platform,
                 }
         if music_id != '':
-            data["music_id"]  = music_id
+            data["id"]  = music_id
         else:
             data["media_mid"] = media_mid
             data["songmid"]   = songmid
-        resp = requests.post(url="http://zlclclc.cn/id", data=json.dumps(data))
+        resp = requests.post(url="http://127.0.0.1:8888/id", data=json.dumps(data))
         return resp
 
     def send_data(self, p, _send_data, func, music_page, w=""):
@@ -132,9 +132,11 @@ class pymusic(object):
 
         if func == "post":
             try:
-                resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
+                resp = requests.post(url="http://127.0.0.1:8888/" + p, data=json.dumps(_send_data))
             except:
                 print("[-]网络错误!")
+            if p == "id":
+                return resp
             if w == 1:
                 return resp
             try:
@@ -176,30 +178,24 @@ class pymusic(object):
                                 music_page        -= 1
                                 return self.send_data(p, _send_data, func, music_page)
                         else:
-                            if  _send_data["platform"] == "Xiamimusic":
 
-                                resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
-                                                                    resp.json()[str(newkeyboard)]["music_id"],
-                                                                    )
-                                print(resp.json())
-
-                            elif _send_data["platform"] == "QQmusic":
-
-                                resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
-                                                                    media_mid=resp.json()[str(newkeyboard)]["media_mid"],
-                                                                    songmid=resp.json()[str(newkeyboard)]["songmid"],
-                                                                    )
-
-                            if int(newkeyboard) >= 0 or int(newkeyboard) <= 10:
-                                # self.regex_func 反馈1表示用户需要单曲循环
+                            if int(newkeyboard) >= 0 and int(newkeyboard) <= 10:
                                 if self.regex_func(keyboard) == 1:
+                                    # 单曲循环选项
                                     print('[~]如果没有音乐播放提示, 请检查您的网络情况')
                                     if _send_data["platform"] == "Neteasymusic":
                                         t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 1))
                                     elif _send_data["platform"] == "Xiamimusic":
-                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(0)]["play_url"], 1))
+                                        resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
+                                                                            resp.json()[str(newkeyboard)]["music_id"],
+                                                                            )
                                     elif _send_data["platform"] == "QQmusic":
-                                        t1 = threading.Thread(target=self.downloader, args=(resp.json()[str(0)]["play_url"], 1))
+
+                                        resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
+                                                                            media_mid=resp.json()[str(newkeyboard)]["media_mid"],
+                                                                            songmid=resp.json()[str(newkeyboard)]["songmid"],
+                                                                            )
+                                    t1 = threading.Thread(target=self.player, args=(resp.json()["0"]["play_url"], 0))
                                     t1.start()
                                     if t1.is_alive() and _send_data["platform"] == "Neteasymusic":
                                         t2 = threading.Thread(target=self.play_lyric, args=(resp.json()[str(newkeyboard)]["music_id"],))
@@ -210,12 +206,21 @@ class pymusic(object):
                                     # 暂时虾米音乐不启用歌词模块
 
                                 else:
+                                    # 不单曲循环的话
                                     if _send_data["platform"] == "Neteasymusic":
                                         t1 = threading.Thread(target=self.player, args=(resp.json()[str(newkeyboard)]["play_url"], 0))
                                     elif _send_data["platform"] == "Xiamimusic":
-                                        t1 = threading.Thread(target=self.player, args=(resp.json()[str(0)]["play_url"], 0))
-                                    else:
-                                        t1 = threading.Thread(target=self.downloader, args=(resp.json()[str(0)]["play_url"], 0))
+                                        resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
+                                                                            resp.json()[str(newkeyboard)]["music_id"],
+                                                                            )
+
+                                    elif _send_data["platform"] == "QQmusic":
+
+                                        resp = self.Xia_Qq_Request_Play_Url(_send_data["platform"],
+                                                                            media_mid=resp.json()[str(newkeyboard)]["media_mid"],
+                                                                            songmid=resp.json()[str(newkeyboard)]["songmid"],
+                                                                            )
+                                    t1 = threading.Thread(target=self.player, args=(resp.json()["0"]["play_url"], 0))
                                     t1.start()
                                     
                                     if t1.is_alive() and _send_data["platform"] == "Neteasymusic":

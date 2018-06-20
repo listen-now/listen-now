@@ -10,8 +10,7 @@ import time
 
 class TestDict(unittest.TestCase):
     """
-    用于后端整个系统的单元测试脚本
-
+    用于后端整个系统的单元测试脚本    
     """
     def post_func(self, my_dict, p):
         """发送post请求
