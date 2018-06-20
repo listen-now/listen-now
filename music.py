@@ -33,10 +33,19 @@ class pymusic(object):
     Xia_Qq_Request_Play_Url用于请求虾米、QQ音乐的播放地址
     """
     def __init__(self):
+        """
+        初始化日志记录方法
+        测试日志记录是否正常启用
+        """
         music_logger = Logger.Logger('music_all.log', 'debug')
         music_logger.logger.debug('This is a test log.')
 
     def fix_enter(self, platform):
+        """
+        修正输入, 例如当你输入的是xia, net, qq时自动修正为
+        Xiamimusic, Neteasymusic, QQmusic
+        使得用户不需要按照一定的长度、规则去输入-p参数
+        """
         platform_dict = {
                  "net":"Neteasymusic",
                  "qq":"QQmusic",
@@ -47,6 +56,10 @@ class pymusic(object):
         return platform
 
     def command(self):
+        """
+        主命令区, 这里接受用户的参数, 包括使用的-t、-p、-id、-uid等等都是在这里被解析的
+
+        """
         global data
 
         parser                                                    = argparse.ArgumentParser()        
@@ -68,6 +81,10 @@ class pymusic(object):
         random_song   = args.random_song
 
         if platform == None and userid == None and songlist == None:
+            # 这里主要是判断一些参数是否为空, 猜测用户是想要执行什么指令, 根据猜测去构造
+            # 需要的json包然后发送给远端服务器并接受远端服务器的响应
+            # 再对响应进行解析即可播放
+        
             print(os.system("pymusic -h"))
         else:
             platform = self.fix_enter(platform)
@@ -87,13 +104,18 @@ class pymusic(object):
                 self.send_data("user_song_list", data, "get", music_page)
 
     def regex_func(self, content):
+        # 判断用户是否需要单曲循环的方法
+        
         if re.findall(r"\w{1,2}\s([\-c]+)", content):
             return 1
 
     def play_lyric(self, id):
+        # 播放歌词的方法
+
         subprocess.call("read_lyric -id %s"%(id), shell=True)
 
     def player(self, play_url, loop=0):
+        # 播放歌曲的方法
         try:
             if loop == 0:
                 subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
@@ -102,6 +124,9 @@ class pymusic(object):
         except:
             print("[-]出现技术故障, 请稍后再试, 或者换一首音乐")
     def downloader(self, play_url, loop=0):
+        # 测试中的办法, 用来解决qq音乐的无法播放问题
+        # 由于mpg123 bug引起的问题
+
         if loop == 0:
             music_file = requests.get(url=play_url)
             fp = open("mymusic", 'wb')
@@ -114,6 +139,7 @@ class pymusic(object):
             os.system('mpg123 -q -v --loop -1 mymusic')
 
     def Xia_Qq_Request_Play_Url(self,platform, music_id='', media_mid='', songmid=''):
+        # 用于请求虾米, qq音乐的播放地址的方法
         data = {
                 "platform":platform,
                 }
@@ -122,17 +148,17 @@ class pymusic(object):
         else:
             data["media_mid"] = media_mid
             data["songmid"]   = songmid
-        resp = requests.post(url="http://127.0.0.1:8888/id", data=json.dumps(data))
+        resp = requests.post(url="http://zlclclc.cn/id", data=json.dumps(data))
         return resp
 
     def send_data(self, p, _send_data, func, music_page, w=""):
-
+        # 发送数据包并解析数据包播放的方法.
         if music_page != None:
             _send_data["page"] = music_page
 
         if func == "post":
             try:
-                resp = requests.post(url="http://127.0.0.1:8888/" + p, data=json.dumps(_send_data))
+                resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
             except:
                 print("[-]网络错误!")
             if p == "id":
