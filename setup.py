@@ -16,7 +16,9 @@ try:
 
 except:
     print("[-]请手动初始化终端命令功能")
-    print("参考指令 -> " + path)
+    print("参考指令 -> " + path2)
+    print("参考指令 -> " + path1)
+
 else:
     print("[+]终端命令初始化成功!")
 
@@ -37,6 +39,7 @@ else:
 
 if True:
     try:
+        os.system("pip3 install --upgrade pip")
         os.system("pip3 install -r requirement.txt")
     except:
         print("[-]安装Python依赖环境出现错误")

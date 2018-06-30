@@ -4,11 +4,14 @@
 
   * 首先请先git clone Listen-Now
 
+  * 再次请fork listen-now
+
   * 接着请尝试修复该问题
   
-  * 再请尝试使用test_func中的test_api.py进行单元测试
+  * 再请尝试使用test_func中的test_api.py进行单元测试， 确认修复成功
   
   * 确认后请直接提起pull requets
+  
   
 ## 关于参与新功能开发
 
