@@ -33,7 +33,7 @@ uwsgi
 Nginx
 ```
 
-[1. pymusic（terminal听歌) 使用](https://github.com/listen-now/listen-now/blob/master/pymusic-readme.md)
+[1. pymusic 使用指南](https://github.com/listen-now/listen-now/blob/master/pymusic-readme.md)
 
 [2. API搭建版本](https://github.com/listen-now/listen-now/blob/master/API-readme.md)
 
