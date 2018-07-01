@@ -37,7 +37,7 @@ Nginx
 
 [2. API搭建版本](https://github.com/listen-now/listen-now/blob/master/README/API-readme.md)
 
-[3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/README/docker-readme.md)
+[3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/README/docker-readme)
 
 ## 如何参与贡献？
 
