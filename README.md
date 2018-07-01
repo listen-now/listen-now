@@ -18,20 +18,20 @@
 ## 简要说明
 
 这是一个能够解析三大(网易、虾米、QQ)音乐平台的Python脚本, 它可以被部署在服务器上, 接受post请求, 返回相应音乐的地址、歌词、演唱者等更多信息.
-目前他提供两个版本，1.部署于服务器上的后端API，直接在terminal使用的终端听歌版本。
+目前他提供两个版本，1. 部署于服务器上的后端API，2. 直接在terminal使用的终端听歌版本。
 
-## 快速开始!
-
-
-本项目在以下环境中编写并成功运行
+本项目在以下环境中编写并成功运行。
+请注意，暂时不提供Windows版本。
 
 ```
-Python 3.6.3
+Python 3.6.4
 CentOS 7.0/Mac OS 10.13.4
 Redis
 uwsgi
 Nginx
 ```
+
+## 使用指南
 
 [1. pymusic 使用指南](https://github.com/listen-now/listen-now/blob/master/pymusic-readme.md)
 
@@ -39,8 +39,9 @@ Nginx
 
 [3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/docker-readme.md)
 
+## 如何参与贡献？
 
-
+[参与贡献指南](https://github.com/listen-now/listen-now/blob/master/CONTRIBUTING.md)
 
 
 
