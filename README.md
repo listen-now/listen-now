@@ -33,11 +33,11 @@ Nginx
 
 ## 使用指南
 
-[1. pymusic 使用指南](https://github.com/listen-now/listen-now/blob/master/pymusic-readme.md)
+[1. pymusic 使用指南](https://github.com/listen-now/listen-now/blob/master/README/pymusic-readme.md)
 
-[2. API搭建版本](https://github.com/listen-now/listen-now/blob/master/API-readme.md)
+[2. API搭建版本](https://github.com/listen-now/listen-now/blob/master/README/API-readme.md)
 
-[3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/docker-readme.md)
+[3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/README/docker-readme.md)
 
 ## 如何参与贡献？
 
