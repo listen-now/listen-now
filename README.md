@@ -1,15 +1,15 @@
 # Listen-now
-[](https://img.shields.io/badge/Python-3.6.4-green.svg)
-[](https://img.shields.io/badge/Listen--now-0.5.2-red.svg)
+[Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
+[Listen-now](https://img.shields.io/badge/Listen--now-0.5.2-red.svg)
 版本升级历史
 
 ```
-    * 0.0.1   上线网易云播放(搜索, id播放)
-    * 0.0.2   上线QQ音乐、虾米音乐(搜索, id播放)
-    * 0.0.3   上线README.md 详细说明, 启用Redis 一级缓存加快服务器响应
-    * 0.0.5   上线测试终端版Listen-now(pymusic), 启用mongodb储存用户信息, 同步歌单
-    * 0.0.5.1 优化后台响应, 启用异步IO设计, 启用代理ip设置
-    * 0.0.5.2 终端版本支持单曲循环功能, 支持播放歌单, 支持随机播放热门歌曲(手气不错)
+    * 0.1.0   上线网易云播放(搜索, id播放)
+    * 0.2.0   上线QQ音乐、虾米音乐(搜索, id播放)
+    * 0.3.0   上线README.md 详细说明, 启用Redis 一级缓存加快服务器响应
+    * 0.5.0   上线测试终端版Listen-now(pymusic), 启用mongodb储存用户信息, 同步歌单
+    * 0.5.1   优化后台响应, 启用异步IO设计, 启用代理ip设置
+    * 0.5.3   终端版本支持单曲循环功能, 支持播放歌单, 支持随机播放热门歌曲(手气不错)
 
     * 下一个版本计划优化redis缓存设置, 防止出现缓存穿透、缓存雪崩情况
 
