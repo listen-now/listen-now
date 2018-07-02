@@ -1,6 +1,6 @@
 # Listen-now
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
-![Listen-now](https://img.shields.io/badge/Listen--now-0.5.2-red.svg)
+![Listen-now](https://img.shields.io/badge/Listen--now-0.5.3-red.svg)
 
 版本升级历史
 
