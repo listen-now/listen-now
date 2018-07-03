@@ -2,7 +2,11 @@
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
 ![Listen-now](https://img.shields.io/badge/Listen--now-0.5.3-red.svg)
 
-版本升级历史
+## 邮件列表
+Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegroups.com
+欢迎将你遇到的问题直接反馈到该地址。你的邮件将很快会得到回复。
+
+## 版本升级历史
 
 ```
     * 0.1.0   上线网易云播放(搜索, id播放)
