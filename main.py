@@ -11,8 +11,8 @@ import scrawl.scrawl_Neteasymusic
 import scrawl.scrawl_Xiamimusic
 import scrawl.scrawl_QQmusic
 import config
-import Neteasymusic_song_maintain_db.Hot_Song_List
-import Neteasymusic_song_maintain_db.Neteasymusic_Sync
+import Neteasymusic_sycn.Hot_Song_List
+import Neteasymusic_sycn.Neteasymusic_Sync
 
 """
 引入json网页框架用于开放api接口
