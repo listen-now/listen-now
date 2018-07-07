@@ -6,7 +6,8 @@
 # Author:Cat.1
 
 import re, random, requests, time
-import redis,config
+import redis
+import config.config
 
 class Proxy_ip(object):
 
@@ -16,9 +17,9 @@ class Proxy_ip(object):
                         'Referer': 'http://www.66ip.cn/areaindex_11/1.html'
                         }
         self.flag = 1
-        if int(config.getConfig("open_database", "redis")) == 1:
-            host              = config.getConfig("database", "dbhost")
-            port              = config.getConfig("database", "dbport")
+        if int(config.config.getConfig("open_database", "redis")) == 1:
+            host              = config.config.getConfig("database", "dbhost")
+            port              = config.config.getConfig("database", "dbport")
             self.r            = redis.Redis(host=host, port=int(port), decode_responses=True, db=4)  
 
     def download(self):

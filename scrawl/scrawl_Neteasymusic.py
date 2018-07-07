@@ -11,7 +11,7 @@ import encrypt.AES
 import time, datetime, base64
 import urllib.parse
 import redis
-import config
+import config.config
 import threading
 import queue
 
@@ -41,9 +41,9 @@ class Netmusic(object):
         }
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
-        if int(config.getConfig("open_database", "redis")) == 1:
-            host              = config.getConfig("database", "dbhost")
-            port              = config.getConfig("database", "dbport")
+        if int(config.config.getConfig("open_database", "redis")) == 1:
+            host              = config.config.getConfig("database", "dbhost")
+            port              = config.config.getConfig("database", "dbport")
             self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
         self.br           = "128000"
 
@@ -51,7 +51,7 @@ class Netmusic(object):
         global music_data
         new_music_id     = []
 
-        if int(config.getConfig("open_database", "redis")) == 1:    
+        if int(config.config.getConfig("open_database", "redis")) == 1:    
             Search_Db        = "NEM" + str(music_id)
             exist_bool       = self.r.get(Search_Db)
             if not exist_bool:
@@ -82,8 +82,8 @@ class Netmusic(object):
         try:
             resp         = resp.json()
         except:
-            host       = config.getConfig("database", "dbhost")
-            port       = config.getConfig("database", "dbport")
+            host       = config.config.getConfig("database", "dbhost")
+            port       = config.config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
@@ -102,8 +102,8 @@ class Netmusic(object):
         try:
             resp       = resp.json()
         except:
-            host       = config.getConfig("database", "dbhost")
-            port       = config.getConfig("database", "dbport")
+            host       = config.config.getConfig("database", "dbhost")
+            port       = config.config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
@@ -146,8 +146,8 @@ class Netmusic(object):
         try:
             content    = resp.json()
         except:
-            host       = config.getConfig("database", "dbhost")
-            port       = config.getConfig("database", "dbport")
+            host       = config.config.getConfig("database", "dbhost")
+            port       = config.config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))

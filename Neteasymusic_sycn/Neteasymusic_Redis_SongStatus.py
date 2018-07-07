@@ -9,7 +9,7 @@ from requests import RequestException
 import sys
 sys.path.append("..")
 import encrypt.AES
-import config
+import config.config
 
 
 
@@ -45,8 +45,8 @@ class NEM(object):
                         21: ['Beatport全球电子舞曲榜', '/discover/toplist?id=3812895']
                         }
         self.User_List_All = ["用户热门歌单", "/discover/playlist"]
-        host = config.getConfig("database", "dbhost")
-        port = config.getConfig("database", "dbport")
+        host = config.config.getConfig("database", "dbhost")
+        port = config.config.getConfig("database", "dbport")
         self.r       = redis.Redis(host=host, port=int(port), decode_responses=True)  
         self.session = requests.session()
         self.headers = {

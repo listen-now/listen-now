@@ -6,7 +6,7 @@
 import sys
 sys.path.append("..")
 import encrypt.xiami_encrypt
-import config, redis
+import config.config, redis
 import requests, re, json
 
 
@@ -23,9 +23,9 @@ xiami_dict               = {'hot': 101, 'origin': 103}
 
 requ_date, music_data    = [{} for i in range(2)]
 
-if int(config.getConfig("open_database", "redis")) == 1:
-    host                 = config.getConfig("database", "dbhost")
-    port                 = config.getConfig("database", "dbport")
+if int(config.config.getConfig("open_database", "redis")) == 1:
+    host                 = config.config.getConfig("database", "dbhost")
+    port                 = config.config.getConfig("database", "dbport")
     redis_cli            = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)  
 
 def request_id(music_id):

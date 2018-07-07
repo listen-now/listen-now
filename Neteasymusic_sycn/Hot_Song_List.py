@@ -9,7 +9,7 @@ import redis, time
 import sys
 sys.path.append("..")
 import encrypt.AES
-import config
+import config.config
 
 
 Page_Start_Url = "/discover/playlist/?order=hot&cat=%E5%85%A8%E9%83%A8&limit=35&offset="
@@ -43,9 +43,9 @@ class Hot_Song_List(object):
                              }
         self.User_List_All = ["用户热门歌单",\
                              "/discover/playlist"]
-        if int(config.getConfig("open_database", "redis")) == 1:
-            host               = config.getConfig("database", "dbhost")
-            port               = config.getConfig("database", "dbport")
+        if int(config.config.getConfig("open_database", "redis")) == 1:
+            host               = config.config.getConfig("database", "dbhost")
+            port               = config.config.getConfig("database", "dbport")
             self.r             = redis.Redis(host=host, port=int(port), decode_responses=True, db = 1)  
             # 连接到redis-1号数据库, 用于储存网易云音乐的用户热门歌单信息
             self.NEMurl        = "http://music.163.com"
@@ -69,8 +69,8 @@ class Hot_Song_List(object):
 
             Limit_Max_Page = int(re.findall(r'offset=(\d{2,5})', Page_Url[-1])[0])
         except:
-            host       = config.getConfig("database", "dbhost")
-            port       = config.getConfig("database", "dbport")
+            host       = config.config.getConfig("database", "dbhost")
+            port       = config.config.getConfig("database", "dbport")
             self.r     = redis.Redis(host=str(host),port=int(port),db=4)
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))

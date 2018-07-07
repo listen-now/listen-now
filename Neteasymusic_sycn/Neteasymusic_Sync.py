@@ -10,8 +10,8 @@ import random
 import string
 import sys
 sys.path.append("..")
-import Neteasymusic_song_maintain_db.Hot_Song_List
-import config
+import Neteasymusic_sycn.Hot_Song_List
+import config.config
 
 
 class Neteasymusic_Sync(object):
@@ -28,12 +28,12 @@ class Neteasymusic_Sync(object):
         以及self.Sync_NEM_Url 是获得用户歌单的网易API具体地址
         连接的数据表时mydb, 然后选择mydb中的test_set集合
         """
-        host         = config.getConfig("database", "dbhost")
-        port         = config.getConfig("database", "dbport")
+        host         = config.config.getConfig("database", "dbhost")
+        port         = config.config.getConfig("database", "dbport")
         self.r       = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)
         
-        host         = config.getConfig("mongodb", "mongodbhost")
-        port         = config.getConfig("mongodb", "mongodbport")
+        host         = config.config.getConfig("mongodb", "mongodbhost")
+        port         = config.config.getConfig("mongodb", "mongodbport")
         self.conn    = MongoClient(str(host), int(port))
         self.db      = self.conn.mydb
         self.my_set  = self.db.test_set

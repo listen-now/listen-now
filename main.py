@@ -10,7 +10,7 @@ import encrypt.AES
 import scrawl.scrawl_Neteasymusic
 import scrawl.scrawl_Xiamimusic
 import scrawl.scrawl_QQmusic
-import config
+import config.config
 import Neteasymusic_sycn.Hot_Song_List
 import Neteasymusic_sycn.Neteasymusic_Sync
 
@@ -108,7 +108,7 @@ def search_json():
                 else:
                     re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
         finally:
-            if not re_dict:
+            if re_dict == "":
                 re_dict = _Return_Error_Post(code="409", status="Failed", detail = "Unknown Error!")
 
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
@@ -129,7 +129,7 @@ def Return_Random_User_Song_List():
     返回的数据格式为 {"0":""}
     """
     global re_dict
-    if int(config.getConfig("open_database", "redis")) == 1:
+    if int(config.config.getConfig("open_database", "redis")) == 1:
         return_user_song_list = Neteasymusic_sycn.Hot_Song_List.Hot_Song_List()
         re_dict = return_user_song_list.Random_Return_func()
         if re_dict:
@@ -234,7 +234,7 @@ def check_user():
           -> 201 账户已经被他人注册
           -> 202 账户注册成功
     """
-    if int(config.getConfig("open_database", "redis")) == 1:
+    if int(config.config.getConfig("open_database", "redis")) == 1:
         if request.method == 'GET':
             user_id_dict = dict(request.args)
             email      = user_id_dict["user_id"][0]
@@ -336,7 +336,7 @@ if __name__ == '__main__':
     利用configparser库实现读取配置文件的功能
     这里是启用flask的debug模式
     """
-    host = config.getConfig("apptest", "apphost")
-    port = config.getConfig("apptest", "appport")
+    host = config.config.getConfig("apptest", "apphost")
+    port = config.config.getConfig("apptest", "appport")
     app.run(host=host, port=int(port), debug = True)
     # test
