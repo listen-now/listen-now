@@ -29,12 +29,12 @@ else:
         os.system("brew install mpg123")
         os.system("brew install ffmpeg")
     elif platform == "linux":
-        platform = {"1":"centos", "2":"ubuntu"}
-        platform = platform[input("请选择你的linux版本\n1.)centos\n2.)ubuntu\n->")]
+        platform = {"1":"centos", "2":"debian及基于debian的发行版"}
+        platform = platform[input("请选择你的linux版本\n1.)centos\n2.)debian及基于debian的发行版\n->")]
         if platform == "centos":
             os.system("sudo yum install mpg123")
             os.system("sudo yum install ffmpeg")
-        elif platform == "ubuntu": 
+        elif platform == "debian及基于debian的发行版": 
             os.system("sudo apt-get install mpg123")
             os.system("sudo apt-get install ffmpeg")
     else:
