@@ -99,9 +99,10 @@ def search_json():
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "Xiamimusic":
-                        
-                        xiamimusic_search = xiami_scrawl.XiamiMusic.Search_xiami()
+                        print(">>>>")
+                        xiamimusic_search = xiami_scrawl.Search_xiami()
                         re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
+                        print(re_dict)
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
