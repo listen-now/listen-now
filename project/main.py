@@ -100,16 +100,16 @@ def search_json():
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "Xiamimusic":
                         
-                        xiamimusic_id = xiami_scrawl.XiamiMusic.Search_xiami()
-                        re_dict       = xiamimusic_id.search_xiami(music_title, music_page)                        
+                        xiamimusic_search = xiami_scrawl.XiamiMusic.Search_xiami()
+                        re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "QQmusic":
                         
-                        qqmusic_id = qq_scrawl.QQMusic()
-                        re_dict    = qqmusic_id.serach_songs(music_title, music_page)                        
+                        qqmusic_search = qq_scrawl.QQMusic()
+                        re_dict        = qqmusic_search.search_by_keyword(music_title, music_page)                        
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
@@ -183,7 +183,7 @@ def Return_User_Song_List():
         try:
             user_id = dict_data["user_id"]
         except KeyError:
-            user_id = ''
+            user_id = uid
     except:
         re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
     else:
@@ -314,17 +314,21 @@ def play_id():
                     else:
                         re_dict = _Return_Error_Post(code="401", status="Failed", detail = "platform not this music!")
                 elif music_platform == "Xiamimusic":
-                    music_id = dict_data["id"]
-                    re_dict  = xiami_scrawl.Search_xiami.id_req(music_id)
-                    print(re_dict)
-                    if re_dict:
-                        re_dict.update({"code":"200", "status":"Success"})
+                    try:
+                        music_id = dict_data["id"]
+                    except KeyError:
+                        re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
                     else:
-                        re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
+                        re_dict  = xiami_scrawl.Search_xiami.id_req(music_id)
+                        print(re_dict)
+                        if re_dict:
+                            re_dict.update({"code":"200", "status":"Success"})
+                        else:
+                            re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
 
                 elif music_platform == "QQmusic":
                     qqmusic_id = qq_scrawl.QQMusic()
-                    re_dict = qqmusic_id.access_resp_text(dict_data["media_mid"], dict_data["songmid"])
+                    re_dict = qqmusic_id.search_by_id(dict_data["songmid"])
                     # 注意检测media_mid、songmid参数的合法情况.
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})

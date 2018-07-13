@@ -116,7 +116,7 @@ def id_search(music_id):
         return requ_date
 
 if __name__ == '__main__':
-    pass
+
     test = Search_xiami()
     # test.search_xiami('成都', page = 1)
     print(test.id_req(1795575082))

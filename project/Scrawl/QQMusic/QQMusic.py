@@ -337,7 +337,7 @@ class QQMusic(object):
 if __name__ == '__main__':
 	app = QQMusic()
 	#qquin = '447231743' #qq登陆即为qq号
-	#print(app.search_by_keyword('纸短情长'))
+	print(app.search_by_keyword('纸短情长'))
 	#print(app.search_by_id('0015H75B1NvYzl'))
 	#print(app.get_user_profile_dissidlist(qquin))
 	#print(app.get_hot_itemidlist())
