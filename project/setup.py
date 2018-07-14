@@ -72,8 +72,8 @@ try:
         server {
             listen 80;     
             server_name 115.238.228.39;  
-            access_log  /root/Listen-now/access.log;   
-            error_log  /root/Listen-now/error.log;     
+            access_log  /root/listen-now/project/access.log;   
+            error_log  /root/listen-now/project/error.log;     
 
             location / {
 
@@ -82,15 +82,38 @@ try:
                 uwsgi_pass     127.0.0.1:5051;  
 
 
-                uwsgi_param UWSGI_PYHOME /root/Listen-now/venv;   
+                uwsgi_param UWSGI_PYHOME /root/listen-now/venv;   
 
-                uwsgi_param UWSGI_CHDIR  /root/Listen-now/;  
+                uwsgi_param UWSGI_CHDIR  /root/listen-now/;  
 
                 uwsgi_param UWSGI_SCRIPT app:app;    
-                                                        
-
             }
         }
+        server {
+        listen 443;
+        server_name www.zlclclc.cn; 
+        ssl on;
+        ssl_certificate 1_www.zlclclc.cn_bundle.crt;
+        ssl_certificate_key 2_www.zlclclc.cn.key;
+        ssl_session_timeout 5m;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2; 
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+        ssl_prefer_server_ciphers on;
+        location / {
+
+            include        uwsgi_params;  
+
+            uwsgi_pass     127.0.0.1:5051;  
+
+
+            uwsgi_param UWSGI_PYHOME /root/listen-now/venv;   
+
+            uwsgi_param UWSGI_CHDIR  /root/listen-now/;  
+
+            uwsgi_param UWSGI_SCRIPT app:app;    
+        }
+    }
+
     }
     """
     fp = open("nginx.conf", "w+")
