@@ -24,6 +24,7 @@ Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegr
               重构返回统一的json数据格式
               重新上线网易、QQ、虾米音乐(支持关键字搜索和id获取)
               优化redis缓存
+              更新SDK-开发者文档
     
 ```
 ## 简要说明
