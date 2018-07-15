@@ -45,9 +45,7 @@ platform 请求音乐平台，目前提供如下：
 # API请求说明详情:
 
 * API [A]
-```
 请求地址:
-```
 ```
 http://zlclclc.cn/search
 ```
@@ -68,9 +66,7 @@ page	    是	  搜索页，不加入该参数默认返回第一页10首，通过
 					
 		
 * API [B]
-```
 请求地址: 
-```
 ```
 http://zlclclc.cn/id
 ```
@@ -88,9 +84,7 @@ platform      否	   音乐平台，通用参数
 }
 ```
 * API [C]
-```
 请求地址:
-```
 ```
 http://zlclclc.cn/song_list_requests
 ```
@@ -100,9 +94,7 @@ http://zlclclc.cn/song_list_requests
 
 
 * API [D]
-```
 请求地址:
-```
 ```
 http://zlclclc.cn/user_song_list
 ```
