@@ -44,7 +44,7 @@ platform 请求音乐平台，目前提供如下：
 
 # API请求说明详情:
 
-* API [A]
+* API [A]<br>
 	请求地址:
 ```
 http://zlclclc.cn/search
@@ -65,7 +65,7 @@ page	    是	  搜索页，不加入该参数默认返回第一页10首，通过
 ```
 					
 		
-* API [B]
+* API [B]<br>
 	请求地址: 
 ```
 http://zlclclc.cn/id
@@ -83,7 +83,7 @@ platform      否	   音乐平台，通用参数
 	"platform":"QQmusic"
 }
 ```
-* API [C]
+* API [C]<br>
 	请求地址:
 ```
 http://zlclclc.cn/song_list_requests
@@ -93,7 +93,7 @@ http://zlclclc.cn/song_list_requests
 ```
 
 
-* API [D]
+* API [D]<br>
 	请求地址:
 ```
 http://zlclclc.cn/user_song_list
@@ -104,7 +104,8 @@ http://zlclclc.cn/user_song_list
 url	    否	    歌单地址，目前只支持网易
 ```
 
-# 成功请求示例:
+# 成功请求
+* 请求示例:
 ```
 {
 	"title":"纸短情长",
@@ -112,7 +113,7 @@ url	    否	    歌单地址，目前只支持网易
 	“page”: 1
 }
 ```
-# 返回值:
+* 返回值:
 ```
 {
 	"song": {
