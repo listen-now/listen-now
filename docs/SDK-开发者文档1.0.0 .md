@@ -45,7 +45,11 @@ platform 请求音乐平台，目前提供如下：
 # API请求说明详情:
 
 ## API [A]
-	请求地址: http://zlclclc.cn/search
+
+	请求地址:
+```
+http://zlclclc.cn/search
+```
 	请求参数说明:
 ```
 参数	  可选	                    描述
