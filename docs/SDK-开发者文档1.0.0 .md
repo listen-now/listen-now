@@ -19,10 +19,11 @@
 
 @请求方式说明
 -----------
+```
 	暂时提供post方式请求
 	以raw格式进行数据提交
 	提交主机地址：http://zlclclc.cn/
-
+```
 
 @API接口地址
 ----------
@@ -34,10 +35,12 @@
   D	        http://zlclclc.cn/user_song_list	      	通过用户识别码[uid/uin]获取用户详情，目前开放网易
 ```
 #通用参数说明:
+```
 	platform 请求音乐平台，目前提供如下：
             。Neteasymusic
             。Xiamimusic
             。QQmusic
+```
 
 #API请求说明详情:
 
@@ -45,17 +48,17 @@
 	请求地址: http://zlclclc.cn/search
 	请求参数说明:
 ```
-    参数	    可选	                    描述
-    title	    否	  关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
-    platform	否	  音乐平台，为通用参数platform列出字段
-    page	    是	  搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
- ```
+参数	  可选	                    描述
+title	    否	  关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
+platform.   否	  音乐平台，为通用参数platform列出字段
+page	    是	  搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
+```
 	请求示例:
 ```
-		{
-  			"title":"成都",
-			"platform":"Neteasymusic"
-		}
+{
+	"title":"成都",
+	"platform":"Neteasymusic"
+}
 ```
 					
 		
@@ -63,16 +66,16 @@
 	请求地址: http://zlclclc.cn/id
 	请求参数说明:
 ```
-    参数	    可选	            描述
-    id	      否	   歌曲识别码，各平台的歌曲识别码格式不一样，需要请求获取
-    platform	否	   音乐平台，通用参数
+参数	    可选	            描述
+id	      否	   歌曲识别码，各平台的歌曲识别码格式不一样，需要请求获取
+platform      否	   音乐平台，通用参数
 ```
 	请求示例:
 ```
-		{
-			"songmid":"0015H75B1NvYzl",
-			"platform":"QQmusic"
-		}
+{
+	"songmid":"0015H75B1NvYzl",
+	"platform":"QQmusic"
+}
 ```
 ##API [C]
 	请求地址:http://zlclclc.cn/song_list_requests
@@ -85,8 +88,8 @@
 	请求地址:http://zlclclc.cn/user_song_list
 	请求参数说明:
 ```
-    参数	  可选	  描述
-    url	    否	    歌单地址，目前只支持网易
+参数	  可选	  描述
+url	    否	    歌单地址，目前只支持网易
 ```
 
 ###成功请求示例:
