@@ -1,6 +1,8 @@
 [listen-now开发者文档说明]
 =======================
+
 @状态码说明
+---------
 ```
 	200 #成功请求数据, 服务器处理成功
 	400 #应该为POST请求却使用了GET请求
@@ -16,75 +18,87 @@
 ```
 
 @请求方式说明
+-----------
 	暂时提供post方式请求
 	以raw格式进行数据提交
 	提交主机地址：http://zlclclc.cn/
 
 
 @API接口地址
-  查询索引	 接口地址	                                              描述
-  A	        http://zlclclc.cn/search	              通过关键字搜索歌曲,QQ音乐会返回所有详情
-  B	        http://zlclclc.cn/id	                  通过id获取歌曲相详情
-  C	        http://zlclclc.cn/song_list_requests	  通过用户识别码[uid/uin]获取歌单详情，目前开放了网易
-  D	        http://zlclclc.cn/user_song_list	      通过用户识别码[uid/uin]获取用户详情，目前开放网易
-
-通用参数说明:	
-	#platform 请求音乐平台，目前提供如下：
+----------
+```
+  查询索引	 	接口地址	                                              描述
+  A	        http://zlclclc.cn/search	              	通过关键字搜索歌曲,QQ音乐会返回所有详情
+  B	        http://zlclclc.cn/id	                  	通过id获取歌曲相详情
+  C	        http://zlclclc.cn/song_list_requests	  	通过用户识别码[uid/uin]获取歌单详情，目前开放了网易
+  D	        http://zlclclc.cn/user_song_list	      	通过用户识别码[uid/uin]获取用户详情，目前开放网易
+```
+#通用参数说明:
+	platform 请求音乐平台，目前提供如下：
             。Neteasymusic
             。Xiamimusic
             。QQmusic
-	#==========================>
 
-API请求说明详情:
+#API请求说明详情:
 
-API [A]
+##API [A]
 	请求地址: http://zlclclc.cn/search
 	请求参数说明:
+```
     参数	    可选	                    描述
     title	    否	  关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
     platform	否	  音乐平台，为通用参数platform列出字段
     page	    是	  搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
+ ```
 	请求示例:
+```
 		{
   			"title":"成都",
 			"platform":"Neteasymusic"
 		}
+```
 					
 		
-API [B]
+##API [B]
 	请求地址: http://zlclclc.cn/id
 	请求参数说明:
+```
     参数	    可选	            描述
     id	      否	   歌曲识别码，各平台的歌曲识别码格式不一样，需要请求获取
     platform	否	   音乐平台，通用参数
+```
 	请求示例:
+```
 		{
 			"songmid":"0015H75B1NvYzl",
 			"platform":"QQmusic"
 		}
-
-API [C]
+```
+##API [C]
 	请求地址:http://zlclclc.cn/song_list_requests
 	请求参数说明:
 
 
 
 
-API [D]
+##API [D]
 	请求地址:http://zlclclc.cn/user_song_list
-	请求参数说明;
+	请求参数说明:
+```
     参数	  可选	  描述
     url	    否	    歌单地址，目前只支持网易
-    
+```
 
-成功请求示例:
+###成功请求示例:
+```
   {
     "title":"纸短情长",
     “platform”:”Neteasymusic”,
     “page”: 1
   }
-
-返回值:
+```
+###返回值:
+```
   {
       "song": {
           "totalnum": 10,
@@ -159,3 +173,4 @@ API [D]
       "next_page": 2,
       "before_page": 0
   }
+```
