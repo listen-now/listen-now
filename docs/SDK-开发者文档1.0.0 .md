@@ -24,9 +24,11 @@
 
 # @请求方式说明
 ```
-暂时提供post方式请求
+暂时提供POST、GET方式请求
 以raw格式进行数据提交
-提交主机地址：http://zlclclc.cn/
+提交主机地址：https://www.zlclclc.cn/
+或者        http://zlclclc.cn
+测试服务器地址：http://118.126.93.123
 ```
 
 # @API接口地址
@@ -58,7 +60,7 @@ http://zlclclc.cn/search
 ```
 参数	  可选	                    描述
 title	    否	  关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
-platform.   否	  音乐平台，为通用参数platform列出字段
+platform    否	  音乐平台，为通用参数platform列出字段
 page	    是	  搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
 ```
 >请求示例:
@@ -84,7 +86,7 @@ platform      否	   音乐平台，通用参数
 >请求示例:
 ```
 {
-	"songmid":"0015H75B1NvYzl",
+	"id":"0015H75B1NvYzl",
 	"platform":"QQmusic"
 }
 ```
@@ -97,7 +99,7 @@ http://zlclclc.cn/song_list_requests
 ```
 参数	  可选	  	描述
 url	    否	    歌单地址，目前只支持网易，QQ
-platform    否       歌单平台选择
+platform    否       音乐平台，通用参数
 ```
 
 
