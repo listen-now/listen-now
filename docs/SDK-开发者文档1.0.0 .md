@@ -44,21 +44,20 @@ platform 请求音乐平台，目前提供如下：
 
 # API请求说明详情:
 
-## API [A]<br>
-
-	请求地址:<br>
+## API [A]
 ```
+	请求地址:
 http://zlclclc.cn/search
 ```
-	请求参数说明:
 ```
+	请求参数说明:
 参数	  可选	                    描述
 title	    否	  关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
 platform.   否	  音乐平台，为通用参数platform列出字段
 page	    是	  搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
 ```
-	请求示例:
 ```
+	请求示例:
 {
 	"title":"成都",
 	"platform":"Neteasymusic"
