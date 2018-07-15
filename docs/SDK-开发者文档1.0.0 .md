@@ -89,6 +89,8 @@ http://zlclclc.cn/song_list_requests
 ```
 >请求参数说明:
 ```
+参数	  可选	  	描述
+url	    否	    歌单地址，目前只支持网易
 ```
 
 
@@ -100,7 +102,7 @@ http://zlclclc.cn/user_song_list
 >请求参数说明:
 ```
 参数	  可选	  	描述
-url	    否	    歌单地址，目前只支持网易
+uid	    否	    用户识别码，目前只支持网易
 ```
 
 成功请求
