@@ -17,13 +17,6 @@ import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
 
-#import Scrawl.NeteasyMusic.NeteasyHelper.AES
-#import Scrawl.NeteasyMusic.NeteasyMusic
-#import Scrawl.XiamiMusic.XiamiMusic
-#import Scrawl.QQMusic.QQMusic
-#import Config.config
-#import Sync.NeteasySync.Hot_Song_List
-#import Sync.NeteasySync.Neteasymusic_Sync
 
 """
 引入json网页框架用于开放api接口
