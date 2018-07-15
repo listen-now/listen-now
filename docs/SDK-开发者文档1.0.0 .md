@@ -36,10 +36,10 @@
 ```
 #通用参数说明:
 ```
-	platform 请求音乐平台，目前提供如下：
-            。Neteasymusic
-            。Xiamimusic
-            。QQmusic
+platform 请求音乐平台，目前提供如下：
+    。Neteasymusic
+    。Xiamimusic
+    。QQmusic
 ```
 
 #API请求说明详情:
