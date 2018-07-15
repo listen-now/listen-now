@@ -13,7 +13,7 @@
 400 #应该为POST请求却使用了GET请求
 402 #没有该歌曲的更多结果啦
 403 #请求页数过大
-404 #传的参数不能被正确解析
+404 #传的参数不能被正确解析，或者缺失参数
 405 #请求的数据不是以json格式封装
 406 #目前不支持的音乐平台
 407 #未知错误
@@ -32,10 +32,10 @@
 # @API接口地址
 ```
   查询索引	 	接口地址	                                              描述
-  A	        http://zlclclc.cn/search	              	通过关键字搜索歌曲,QQ音乐会返回所有详情
-  B	        http://zlclclc.cn/id	                  	通过id获取歌曲相详情
-  C	        http://zlclclc.cn/song_list_requests	  	通过用户识别码[uid/uin]获取歌单详情，目前开放了网易
-  D	        http://zlclclc.cn/user_song_list	      	通过用户识别码[uid/uin]获取用户详情，目前开放网易
+  A	        http://zlclclc.cn/search	              	通过关键字搜索歌曲,后端会返回歌曲搜索详情，不包括播放地址，歌词，评论。开放网易，QQ，虾米
+  B	        http://zlclclc.cn/id	                  	通过id获取某一首歌曲的详细信息，包括播放地址，歌词，评论，发放网易，QQ，虾米
+  C	        http://zlclclc.cn/song_list_requests	  	通过歌单地址，歌单id来获取某一个歌单详情，目前开放了网易，QQ音乐，即将开发虾米
+  D	        http://zlclclc.cn/user_song_list	      	通过用户识别码[uid/uin]获取用户详情，目前开放网易，QQ音乐
 ```
 通用参数说明:
 -----------
@@ -96,7 +96,8 @@ http://zlclclc.cn/song_list_requests
 >请求参数说明:
 ```
 参数	  可选	  	描述
-url	    否	    歌单地址，目前只支持网易
+url	    否	    歌单地址，目前只支持网易，QQ
+platform    否       歌单平台选择
 ```
 
 
@@ -108,7 +109,8 @@ http://zlclclc.cn/user_song_list
 >请求参数说明:
 ```
 参数	  可选	  	描述
-uid	    否	    用户识别码，目前只支持网易
+uid	    否	    用户识别码，目前只支持网易，QQ
+platform    否       确认用户同步的平台选择
 ```
 
 成功请求
