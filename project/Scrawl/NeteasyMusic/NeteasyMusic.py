@@ -115,6 +115,7 @@ class Netmusic(object):
             proxies    = self.r.get(str(random_int[0]))
             self.requests_comment(music_id, eval(proxies))
         try:
+            print(resp)
             self.like              = resp["hotComments"][0]["likedCount"]
             self.username          = resp["hotComments"][0]['user']["nickname"]
             self.comment_content   = resp["hotComments"][0]["content"]
@@ -124,7 +125,7 @@ class Netmusic(object):
             self.requ_date["song"]["list"][0].update({"comment_time": self.comment_time, "comment_content":self.comment_content, "likecount":self.like, "username":self.username})
         except:
             self.requ_date["song"]["list"][0].update({"detail":"本首歌曲还没有评论~"})
-    
+        print(self.requ_date)
     def music_id_requests(self, music_id):
         t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
         # self.new_requests_play_url 的异步请求
@@ -296,6 +297,6 @@ class Netmusic(object):
 
 if __name__ == '__main__':
     test = Netmusic()
-    # print(test.music_id_requests(444706287))
-    print(test.pre_response_neteasymusic('大鱼'))
+    print(test.music_id_requests(444706287))
+    # print(test.pre_response_neteasymusic('大鱼'))
     # test.pre_response_neteasymusic('大鱼')

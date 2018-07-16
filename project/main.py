@@ -92,7 +92,6 @@ def search_json():
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "Xiamimusic":
-                        print(">>>>")
                         xiamimusic_search = xiami_scrawl.Search_xiami()
                         re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
                         print(re_dict)
