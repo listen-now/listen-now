@@ -3,9 +3,9 @@
 # @Date:2018/5/9
 # Author:Cat.1    
 # 2018/05/20 代码部分重构
-
+# 2018/07/15 重构系统
 import sys
-sys.path.append('..') #必须要, 设置project为源程序的包顶
+sys.path.append('..') # 必须要, 设置project为源程序的包顶
 
 from flask import Flask,request,Response,jsonify
 import json, time
@@ -118,7 +118,7 @@ def search_json():
                 re_dict = _Return_Error_Post(code="409", status="Failed", detail = "Unknown Error!")
 
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
+            response.headers.add('Server','python flask')
             return response
 
     else:
@@ -283,9 +283,8 @@ def check_user():
 @app.route('/id', methods = ['POST', 'GET'])
 def play_id():
     """
-    用于前端请求歌曲id/media_mid、songmid 时服务器针对性的反馈方法
-    基本内容如上, 如果请求的是网易/虾米则会检测id信息,
-    QQ音乐则会检测media_mid、songmid值.
+    用于前端请求歌曲id时服务器针对性的反馈方法
+    基本内容如上.
     """
     global re_dict
     if request.method == 'POST':
@@ -321,8 +320,8 @@ def play_id():
 
                 elif music_platform == "QQmusic":
                     qqmusic_id = qq_scrawl.QQMusic()
-                    re_dict = qqmusic_id.search_by_id(dict_data["songmid"])
-                    # 注意检测media_mid、songmid参数的合法情况.
+                    re_dict = qqmusic_id.search_by_id(dict_data["id"])
+
                     if re_dict:
                         re_dict.update({"code":"200", "status":"Success"})
                     else:
