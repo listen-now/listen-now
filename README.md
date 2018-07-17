@@ -1,6 +1,6 @@
 # Listen-now
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
-![Listen-now](https://img.shields.io/badge/Listen--now-0.5.3-red.svg)
+![Listen-now](https://img.shields.io/badge/Listen--now-1.0.0-red.svg)
 
 ## 邮件列表
 Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegroups.com
@@ -15,9 +15,8 @@ Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegr
     * 0.5.0   上线测试终端版Listen-now(pymusic), 启用mongodb储存用户信息, 同步歌单
     * 0.5.1   优化后台响应, 启用异步IO设计, 启用代理ip设置
     * 0.5.3   终端版本支持单曲循环功能, 支持播放歌单, 支持随机播放热门歌曲(手气不错)
-
-    * 下一个版本计划优化redis缓存设置, 防止出现缓存穿透、缓存雪崩情况
-
+    
+    * 1.0.0   [大版本更新日志在这](https://github.com/listen-now/listen-now/docs/SDK-%E5%BC%80%E5%8F%91%E8%80%85%E6%96%87%E6%A1%A31.0.0%20.md)
 ```
 ## 简要说明
 
