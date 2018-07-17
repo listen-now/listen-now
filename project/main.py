@@ -16,6 +16,7 @@ from Scrawl.QQMusic import QQMusic as qq_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
+from Sync.xiamiSync import XiamiMusic as xiami_Song_List
 
 #import Scrawl.NeteasyMusic.NeteasyHelper.AES
 #import Scrawl.NeteasyMusic.NeteasyMusic
@@ -225,9 +226,10 @@ def Return_User_Song_List_Detail():
             return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
             re_dict = return_user_song_list.Download_SongList(song_list_url)
         
-        else:
-            # 其他平台暂时不支持
-            pass
+        else song_list_platform == "Xiamimusic":
+            return_song_list = xiami_Song_List.XiamiApi()
+            re_dict = retrun_song_list.getPlaylist(song_list_url)
+
         if re_dict:
             re_dict.update({"code":"201", "status":"Success"})
 
