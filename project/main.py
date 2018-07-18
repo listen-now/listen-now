@@ -9,7 +9,7 @@ sys.path.append('..') # 必须要, 设置project为源程序的包顶
 
 from flask import Flask,request,Response,jsonify
 import json, time
-
+import re
 from Scrawl.NeteasyMusic import NeteasyMusic as neteasy_scrawl
 from Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
 from Scrawl.QQMusic import QQMusic as qq_scrawl
@@ -94,7 +94,6 @@ def search_json():
                     elif music_platform == "Xiamimusic":
                         xiamimusic_search = xiami_scrawl.Search_xiami()
                         re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
-                        print(re_dict)
                         if re_dict:
                             re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
@@ -165,6 +164,23 @@ def Return_User_Song_List():
         dict -- 返回给前端的是一个json包文件，里面含有用户的所有歌单信息。
     """
     global re_dict
+
+    if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
+        try:
+            user_id = dict_data["open_id"]
+        except:
+            re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
+
+
+    else:  # 用户来自其他平台
+        try:
+            user_id = dict_data["user_id"]
+        except:
+            _Return_Error_Post(code="500", status="Failed", detail = "用户未注册")
+        else:
+            pass
+
+
     data            = request.get_data()     
     try:
         dict_data   = json.loads(data)      
@@ -173,16 +189,17 @@ def Return_User_Song_List():
 
     try:
         uid         = dict_data["uid"]
-        try:
-            user_id = dict_data["user_id"]
-        except KeyError:
-            user_id = uid
+        platform    = dict_data["platform"]
     except:
         re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
     else:
-        
-        check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
-        re_dict     = check_func.Get_User_List(uid, user_id)
+        if platform == "Neteasymusic":
+            check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
+            re_dict     = check_func.Get_User_List(uid, user_id)
+        elif platform == "QQmusic":
+            check_func = qq_scrawl.QQMusic()
+            re_dict    = check_func.Get_User_List(uid, user_id)
+
         re_dict.update({"code":"202", "status":"Success"})
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
@@ -208,21 +225,26 @@ def Return_User_Song_List_Detail():
         re_dict = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
 
     try:
-        song_list_url      = dict_data["url"]
         song_list_platform = dict_data["platform"]
     except:
         re_dict = _Return_Error_Post(code="404", status="Failed", detail = "")
     else:
         if song_list_platform == "Neteasymusic":
+            song_list_url         = dict_data["url"]
             return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
-            re_dict = return_user_song_list.Download_SongList(song_list_url)
-        
-        else:
-            # 其他平台暂时不支持
-            pass
-        if re_dict:
-            re_dict.update({"code":"201", "status":"Success"})
+            re_dict               = return_user_song_list.Download_SongList(song_list_url)
+        elif song_list_platform == "QQmusic":
+            song_list_id          = dict_data["id"]
+            return_user_song_list = qq_scrawl.QQMusic()
+            re_dict               = return_user_song_list.get_cdlist(disstid=song_list_id)
+        elif song_list_platform == "Xiamimusic":
+            pass            
 
+        if re_dict:
+            re_dict.update(_Return_Error_Post(code="201", status="Success", detail="None"))
+        else:
+            re_dict.update(_Return_Error_Post(code="410", status="Failed", detail="没有更多数据或服务器发生错误"))
+    
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response

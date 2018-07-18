@@ -13,8 +13,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 from project.Scrawl.QQMusic import QQMusic
 app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
-print(app1.get_user_profile_dissidlist("1069954477"))
-print(app1.get_cdlist(uin = '1069954477', disstid = "2738653988"))
+# print(app1.get_user_profile_dissidlist("1069954477"))
+print(app1.get_cdlist(disstid = "3531843793"))
+# print(app1.get_hot_playlist('71'))
+# print(app1.get_hot_itemidlist())
 
 
 # from project.Scrawl.NeteasyMusic import NeteasyMusic

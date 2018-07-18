@@ -334,6 +334,24 @@ class QQMusic(object):
         except:
             return ReturnStatus.ERROR_UNKNOWN
 
+    def SycnQQmusic(self, uin, user_id):
+        """
+        这个类用于根据用户的uin(QQ提供的用户唯一标识来寻找用户)
+        根据uin得到用户的歌单信息， 解析返回的json文件，
+        整理后依据用户在我们自己平台上的user_id(可由你自定义),
+        存入mongodb数据库，后期就依据这个远端同步用户的歌单信息
+        但是我们并不详细储存用户歌单数据，针对一个歌单，mongodb中只储存用户的歌单id，歌单封面，歌单名称
+        当用户调取时，通过调用QQmusic.get_cdlist办法来
+        获得歌单中的详细信息
+        用户的user_id来检测用户是否是已经同步过歌单, 如果是的话, 则删除其原本歌单.
+        再次更新他的新歌单.
+        """
+
+        re_dict = self.get_user_profile_dissidlist(uin) # 请求获得
+
+
+
+
 if __name__ == '__main__':
     app = QQMusic()
     #qquin = '447231743' #qq登陆即为qq号

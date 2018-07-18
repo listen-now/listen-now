@@ -1,3 +1,4 @@
+pymongo==3.7.1
 asn1crypto==0.24.0
 certifi==2018.4.16
 cffi==1.11.5
