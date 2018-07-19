@@ -18,7 +18,7 @@ from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
-
+from project.Helper import bcrypt_hash
 
 """
 引入json网页框架用于开放api接口
@@ -92,7 +92,7 @@ def search_json():
                         try: re_dict["code"]
                         except KeyError:
                             if re_dict:
-                                re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
                             else:
                                 re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                         else:
@@ -102,7 +102,7 @@ def search_json():
                         xiamimusic_search = xiami_scrawl.Search_xiami()
                         re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
                         if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                     elif music_platform == "QQmusic":
@@ -112,7 +112,7 @@ def search_json():
                         try: re_dict["code"]
                         except KeyError:                        
                             if re_dict:
-                                re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                             else:
                                 re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                         else:
@@ -131,7 +131,7 @@ def search_json():
             return response
 
     else:
-        re_dict = _Return_Error_Post(code="400", status="Failed", detail = "")
+        re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response
@@ -156,7 +156,7 @@ def Return_Random_User_Song_List():
                 return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
                 re_dict = return_user_song_list.Random_Return_func()
                 if re_dict:
-                    re_dict.update({"code":"200", "status":"Success"})
+                    re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                 else:
                     re_dict = _Return_Error_Post(code="409", status="Failed", detail="Unknown Error!")
                 response = Response(json.dumps(re_dict), mimetype = 'application/json')    
@@ -203,12 +203,13 @@ def Return_User_Song_List():
         except:
             re_dict = _Return_Error_Post(code="404", status="Failed", detail="")
 
-
-    else:  # 用户来自其他平台，则需检测他是否注册，如果没有则返回请求注册消息，否则自动同步
+    # 用户来自其他平台，则需检测他是否注册，如果没有则返回请求注册消息，否则自动同步
+    # 如果注册，则请求登录
+    else:  
         try:
             user_id = dict_data["user_id"]
         except:
-            re_dict = _Return_Error_Post(code="500", status="Failed", detail="用户未注册")
+            re_dict = _Return_Error_Post(code=ReturnStatus.USER_NOT_SIGN_IN, status="Failed", detail="用户未注册")
         else:
             pass
     if user_id != None:
@@ -268,7 +269,7 @@ def Return_User_Song_List_Detail():
             pass            
 
         if re_dict:
-            re_dict.update(_Return_Error_Post(code="201", status="Success", detail="None"))
+            re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
         else:
             re_dict.update(_Return_Error_Post(code="410", status="Failed", detail="没有更多数据或服务器发生错误"))
     
@@ -290,39 +291,41 @@ def check_user():
           -> 201 账户已经被他人注册
           -> 202 账户注册成功
     """
-    if int(Config.config.getConfig("open_database", "redis")) == 1:
-        if request.method == 'GET':
-            user_id_dict = dict(request.args)
-            email      = user_id_dict["user_id"][0]
-            try:
-                flag   = user_id_dict["flag"][0]
-            except KeyError:
-                flag = 1
-            check_func = Neteasymusic_Sync.Neteasymusic_Sync()
-            value      = check_func.Create_Check_User_id(email, int(flag))
-            if int(flag[0]) == 1 and value[0] == 0:
-                re_dict   = _Return_Error_Post("200", "success", "账户未被注册", value="200")
-            elif value[0] == 1:
-                re_dict   = _Return_Error_Post("200", "success", "账户已经被他人注册", value="201", user_id=value[1], email=value[2])
-            response      = Response(json.dumps(re_dict), mimetype = 'application/json')    
+    if request.method == "POST":
+        data = request.get_data()  
+
+        try:
+            dict_data = json.loads(data)      
+        except:
+            re_dict = _Return_Error_Post(code="405", status="Failed", detail = "POST not json_data!")
+            response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')       
             return response
 
-        if request.method == 'POST':
-            data      = request.get_data()
-            dict_data = json.loads(data)   
-            flag      = dict_data["flag"]
-            email     = dict_data["email"]
-            passwd    = dict_data["passwd"]
-            # 未完成, 还需要加密过程算法, 存储用户数据到mongodb中
-            check_func = Neteasymusic_Sync.Neteasymusic_Sync()
-            value      = check_func.Create_Check_User_id(email, int(flag))
+        if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
+            try:
+                user_id = dict_data["open_id"]
+                passwd  = "Wechat_Mini_Program"
+            except:
+                re_dict = _Return_Error_Post(code="404", status="Failed", detail="")
 
-            if int(flag[0]) == 0:
-                re_dict   = _Return_Error_Post("200", "success", "账户注册成功", value="202", user_id=value[1], email=value[2])
-
+        else:
+            user_id = dict_data["user_id"]
+            passwd  = dict_data["passwd"]
+        try:
+            flag = dict_data["flag"]
+        except:flag = 1 # 默认flag为登录的意思，而不是注册
+        if flag:
+            status = bcrypt_hash.Sign_In_Check(user_id, passwd)
+        if status["code"] = ReturnStatus.USER_SUCCESS_SIGN_IN or status["code"] = ReturnStatus.USER_WECHAT_SIGN:
+            # 如果用户登录成功则请求同步歌单
+            pass
+    
+    elif request.method == "GET":
+        pass
+    
     else:
-        re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库未启用")
+        re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库繁忙或遇到技术障碍")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response
@@ -351,7 +354,7 @@ def play_id():
                     music_id        = dict_data["id"]
                     re_dict         = neteasymusic_id.music_id_requests(music_id)
                     if re_dict:
-                        re_dict.update({"code":"200", "status":"Success"})
+                        re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                     else:
                         re_dict = _Return_Error_Post(code="401", status="Failed", detail = "platform not this music!")
                 elif music_platform == "Xiamimusic":
@@ -363,7 +366,7 @@ def play_id():
                         re_dict  = xiami_scrawl.Search_xiami.id_req(music_id)
                         print(re_dict)
                         if re_dict:
-                            re_dict.update({"code":"200", "status":"Success"})
+                            re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                         else:
                             re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
 
@@ -372,7 +375,7 @@ def play_id():
                     re_dict = qqmusic_id.search_by_id(dict_data["id"])
 
                     if re_dict:
-                        re_dict.update({"code":"200", "status":"Success"})
+                        re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                     else:
                         re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                 else:
@@ -383,7 +386,7 @@ def play_id():
                 return response
 
     else:
-        re_dict = _Return_Error_Post(code="400", status="Failed", detail = "")
+        re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response

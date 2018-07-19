@@ -29,3 +29,12 @@ print(app2.music_id_requests(413812448))
 # from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
 # app3 = Search_xiami()
 # print(app3.search_xiami('纸短情长'))
+
+
+# from project.Helper import bcrypt_hash
+# # 登录/注册模块的测试，现已可用
+# app4 = bcrypt_hash.loginer()
+# print(app4.Sign_Up_Encrypt("The powder toy", "passwd"))
+# print(app4.Sign_In_Check("The powder toy", "passwd"))
+
+

@@ -7,8 +7,8 @@ import os
 import sys
 import platform
 
-path1 = "sudo ln -s " + os.path.abspath('.') + "/Pymusic/music.py " + "/usr/local/bin/pymusic" 
-path2 = "sudo ln -s " + os.path.abspath('.') + "/Pymusic/read_lyric.py " + "/usr/local/bin/read_lyric" 
+path1 = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/music.py " + "/usr/local/bin/pymusic" 
+path2 = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/read_lyric.py " + "/usr/local/bin/read_lyric" 
 
 try:
     os.system(path1)

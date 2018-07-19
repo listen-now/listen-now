@@ -95,7 +95,7 @@ class Neteasymusic_Sync(object):
 
     def Create_Check_User_id(self, Sign_in_tags, flag = 1):
         """
-        由于使用用户注册信息(他的昵称/邮箱)来作为他的user_id太过麻烦, 
+        由于使用用户注册信息(他的昵称/邮箱)来作为他的user_id太过不可靠, 
         所以不如直接用他的登录信息来生成一个user_id,
         来储存在redis-2中.
         用redis的dbsize方法来获得目前注册人数, 新注册人的user_id基础信息就是在这个基础上

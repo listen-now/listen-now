@@ -61,3 +61,11 @@ mod_hot_dissid_list = {
     'totaldiss' : 0,
     'idlist' : []
 } #推荐主题歌单id列表json模板
+
+mod_sign = {
+    'code' : '200',
+    'status' : 'Success',
+    'user_id' : 0,    
+} #注册登录信息模板
+
+

@@ -18,8 +18,6 @@
 # import threading
 # from time import ctime,sleep
 
-
-
 # def loop(name):
 #     global i, a
 #     global lock
