@@ -11,6 +11,8 @@ import redis
 from project.Config import config #从项目包顶导入
 import threading
 import queue
+from project.Module import ReturnStatus
+from project.Module import RetDataModule
 
 
 # encoding:utf-8
@@ -45,10 +47,10 @@ class Netmusic(object):
         self.play_default = "{\"ids\":\"[%s]\",\"br\":%s\
         ,\"csrf_token\":\"\"}"
         if int(config.getConfig("open_database", "redis")) == 1:
-            host              = config.getConfig("database", "dbhost")
-            port              = config.getConfig("database", "dbport")
-            self.r            = redis.Redis(host=host, port=int(port), decode_responses=True)  
-        self.br           = "128000"
+            host   = config.getConfig("database", "dbhost")
+            port   = config.getConfig("database", "dbport")
+            self.r = redis.Redis(host=host, port=int(port), decode_responses=True)  
+        self.br    = "128000"
 
     def new_requests_play_url(self, music_id):
         global music_data
@@ -70,11 +72,12 @@ class Netmusic(object):
             music_data.update({"play_url": play_url, "music_id":music_id[0]})
         except:
             music_data.update({"play_url": play_url, "music_id":music_id}) 
-        try:
-            self.requ_date["song"]["list"][0].update(music_data)
-        except IndexError:
-            self.requ_date["song"]["list"][0] = {}
-            self.requ_date["song"]["list"][0].update(music_data)
+        print(type(self.requ_date["song"]["list"]))
+        # try:
+        self.requ_date["song"]["list"][0].update(music_data)
+        # except IndexError:
+        #     self.requ_date["song"]["list"][0] = {}
+        #     self.requ_date["song"]["list"][0].update(music_data)
 
 
 
@@ -102,9 +105,10 @@ class Netmusic(object):
 
     def requests_comment(self, music_id, proxies=''):
         if proxies == '':
-          resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers)
+            self.post_data = AES.encrypted_request(self.play_default %(music_id, self.br))
+            resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers)
         else:
-          resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers, proxies=proxies)
+            resp         = self.session.post(url=self.comment_url %(music_id), data=self.post_data, headers=self.headers, proxies=proxies)
         try:
             resp       = resp.json()
         except:
@@ -114,18 +118,17 @@ class Netmusic(object):
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
             self.requests_comment(music_id, eval(proxies))
-        try:
-            print(resp)
-            self.like              = resp["hotComments"][0]["likedCount"]
-            self.username          = resp["hotComments"][0]['user']["nickname"]
-            self.comment_content   = resp["hotComments"][0]["content"]
-            self.comment_timestamp = int(str(resp["hotComments"][0]["time"])[:-3])
-            dateArray              = datetime.datetime.utcfromtimestamp(self.comment_timestamp)
-            self.comment_time      = dateArray.strftime("%Y--%m--%d %H:%M:%S")
-            self.requ_date["song"]["list"][0].update({"comment_time": self.comment_time, "comment_content":self.comment_content, "likecount":self.like, "username":self.username})
-        except:
-            self.requ_date["song"]["list"][0].update({"detail":"本首歌曲还没有评论~"})
-        print(self.requ_date)
+        self.requ_date["song"]["comments"] = [{} for i in range(len(resp["hotComments"]))]
+        for num in range(len(resp["hotComments"])):
+            like              = resp["hotComments"][num]["likedCount"]
+            username          = resp["hotComments"][num]['user']["nickname"]
+            comment_content   = resp["hotComments"][num]["content"]
+            comment_timestamp = int(str(resp["hotComments"][num]["time"])[:-3])
+            dateArray         = datetime.datetime.utcfromtimestamp(comment_timestamp)
+            comment_time      = dateArray.strftime("%Y--%m--%d %H:%M:%S")
+            self.requ_date["song"]["comments"][num].update({"comment_time":comment_time, "comment_content":comment_content, "likecount":like, "username":username})
+        # print(self.requ_date)
+
     def music_id_requests(self, music_id):
         t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
         # self.new_requests_play_url 的异步请求
@@ -133,13 +136,18 @@ class Netmusic(object):
         # self.requests_lyric        的异步请求
         id_flag = 1
         t3 = threading.Thread(target=self.music_detail, args=(music_id, id_flag))
-
+        # self.comment(music_id)     的异步请求
+        t4 = threading.Thread(target=self.requests_comment, args=(music_id,))
+        
         t1.start()
         t2.start()
         t3.start()
+        t4.start()
         t1.join()
         t2.join()
         t3.join()
+        t4.join()
+
         music_id = self.requ_date["song"]["list"][0]["music_id"]
         # self.requests_play_url(music_id)
         # 切换到速度较快的备用模式
@@ -149,7 +157,7 @@ class Netmusic(object):
         return self.requ_date
     
     def music_detail(self, music_id, id_flag=0, proxies=''):
-
+        music_data = {}
         url        = "http://music.163.com/api/song/detail?ids=[%s]"
         if proxies == '':
           resp         = self.session.get(url=url %music_id, headers=self.headers)
@@ -164,25 +172,27 @@ class Netmusic(object):
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
             self.music_detail(music_id, eval(proxies))
-
-        name       = content['songs'][0]["name"]
-        artists    = content['songs'][0]["artists"][0]["name"]
-        image_url  = content['songs'][0]["album"]["picUrl"]
-        music_data = {}
-        music_data.update({"image_url":image_url, "music_name":name, "artists":artists})
         try:
-            if id_flag == 1:
-                self.requ_date["song"]["list"][0].update(music_data)
-            try:
-                self.requ_date["song"]["list"][0]["image_url"]
-            except KeyError:
-                self.requ_date["song"]["list"][0].update(music_data)
-            else:
-                self.requ_date["song"]["list"].append(music_data)
+            name       = content['songs'][0]["name"]
+            artists    = content['songs'][0]["artists"][0]["name"]
+            image_url  = content['songs'][0]["album"]["picUrl"]
         except:
-            self.requ_date["song"]["list"] = {}
-            self.requ_date["song"]["list"].append(music_data)
-
+            music_data['code'] = ReturnStatus.ERROR_SEVER
+        else:
+            
+            music_data.update({"image_url":image_url, "music_name":name, "artists":artists})
+            try:
+                if id_flag == 1:
+                    self.requ_date["song"]["list"][0].update(music_data)
+                try:
+                    self.requ_date["song"]["list"][0]["image_url"]
+                except KeyError:
+                    self.requ_date["song"]["list"][0].update(music_data)
+                else:
+                    self.requ_date["song"]["list"].append(music_data)
+            except:
+                self.requ_date["song"]["list"] = {}
+                self.requ_date["song"]["list"].append(music_data)
         return self.requ_date
 
     def pre_response_neteasymusic(self, text, page = 1):
@@ -241,7 +251,7 @@ class Netmusic(object):
                 music_name = result['result']['songs'][0]['name']
                 artists    = result['result']['songs'][0]['artists'][0]['name']
             except:
-                print("[-]Platform not The music")
+                # print("[-]Platform not The music")
                 return 0
                 # 该平台上没有该音乐任何信息!
             else:

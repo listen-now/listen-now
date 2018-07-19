@@ -16,6 +16,8 @@ from Scrawl.QQMusic import QQMusic as qq_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
+from project.Module import ReturnStatus
+from project.Module import RetDataModule
 
 
 """
@@ -87,10 +89,15 @@ def search_json():
                     if music_platform == "Neteasymusic":
                         neteasymusic_id = neteasy_scrawl.Netmusic()
                         re_dict         = neteasymusic_id.pre_response_neteasymusic(music_title, music_page)
-                        if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
+                        try: re_dict["code"]
+                        except KeyError:
+                            if re_dict:
+                                re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})                            
+                            else:
+                                re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                         else:
-                            re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
+                            re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail = "")
+
                     elif music_platform == "Xiamimusic":
                         xiamimusic_search = xiami_scrawl.Search_xiami()
                         re_dict       = xiamimusic_search.search_xiami(music_title, music_page)                        
@@ -102,11 +109,14 @@ def search_json():
                         
                         qqmusic_search = qq_scrawl.QQMusic()
                         re_dict        = qqmusic_search.search_by_keyword(music_title, music_page)                        
-                        if re_dict:
-                            re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                        try: re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":"200", "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
                         else:
-                            re_dict = _Return_Error_Post(code="403", status="Failed", detail = "")
-
+                            re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail = "")
                     else:
                         re_dict = _Return_Error_Post(code="406", status="Failed", detail = "Not know platform!")
 
@@ -126,7 +136,7 @@ def search_json():
         response.headers.add('Server','python flask')       
         return response
 
-@app.route('/Random_song_list', methods = ['POST', 'GET'])
+@app.route('/Random_song_list', methods = ['POST'])
 def Return_Random_User_Song_List():
     """
     用于向前端返回随机的6个歌单信息
@@ -134,21 +144,38 @@ def Return_Random_User_Song_List():
     返回的数据格式为 {"0":""}
     """
     global re_dict
-    if int(Config.config.getConfig("open_database", "redis")) == 1:
-        return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
-        re_dict = return_user_song_list.Random_Return_func()
-        if re_dict:
-            re_dict.update({"code":"200", "status":"Success"})
+    if request.method == "POST":
+        data    = request.get_data()      # 获得json数据包.
+        try:
+            dict_data = json.loads(data)        # 解析json数据包.
+        except:
+            re_dict = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
+        platform = dict_data["platform"]
+        if platform == "Neteasymusic":
+            if int(Config.config.getConfig("open_database", "redis")) == 1:
+                return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
+                re_dict = return_user_song_list.Random_Return_func()
+                if re_dict:
+                    re_dict.update({"code":"200", "status":"Success"})
+                else:
+                    re_dict = _Return_Error_Post(code="409", status="Failed", detail="Unknown Error!")
+                response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+                response.headers.add('Server','python flask')       
+                return response
+            else:
+                re_dict = _Return_Error_Post(code="408", status="Failed", detail="数据库未启用")
+                response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+                response.headers.add('Server','python flask')       
+            return response
         else:
-            re_dict = _Return_Error_Post(code="409", status="Failed", detail = "Unknown Error!")
-        response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
-        return response
+            # 其他平台热门歌单维护
+            pass
     else:
-        re_dict = _Return_Error_Post(code="408", status="Failed", detail = "数据库未启用")
+        re_dict = _Return_Error_Post(code="400", status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
         return response
+
 
 @app.route('/user_song_list', methods = ['POST', 'GET'])
 def Return_User_Song_List():
@@ -164,43 +191,43 @@ def Return_User_Song_List():
         dict -- 返回给前端的是一个json包文件，里面含有用户的所有歌单信息。
     """
     global re_dict
+    data            = request.get_data()     
+    try:
+        dict_data   = json.loads(data)      
+    except:
+        re_dict     = _Return_Error_Post(code="405", status="Failed", detail="post not json_data!")
 
     if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
         try:
             user_id = dict_data["open_id"]
         except:
-            re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
+            re_dict = _Return_Error_Post(code="404", status="Failed", detail="")
 
 
-    else:  # 用户来自其他平台
+    else:  # 用户来自其他平台，则需检测他是否注册，如果没有则返回请求注册消息，否则自动同步
         try:
             user_id = dict_data["user_id"]
         except:
-            _Return_Error_Post(code="500", status="Failed", detail = "用户未注册")
+            re_dict = _Return_Error_Post(code="500", status="Failed", detail="用户未注册")
         else:
             pass
-
-
-    data            = request.get_data()     
-    try:
-        dict_data   = json.loads(data)      
-    except:
-        re_dict     = _Return_Error_Post(code="405", status="Failed", detail = "post not json_data!")
-
-    try:
-        uid         = dict_data["uid"]
-        platform    = dict_data["platform"]
-    except:
-        re_dict     = _Return_Error_Post(code="404", status="Failed", detail = "")
-    else:
-        if platform == "Neteasymusic":
-            check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
-            re_dict     = check_func.Get_User_List(uid, user_id)
-        elif platform == "QQmusic":
-            check_func = qq_scrawl.QQMusic()
-            re_dict    = check_func.Get_User_List(uid, user_id)
-
-        re_dict.update({"code":"202", "status":"Success"})
+    if user_id != None:
+        try:
+            uid         = dict_data["uid"]
+            platform    = dict_data["platform"]
+        except:
+            re_dict     = _Return_Error_Post(code="404", status="Failed", detail="")
+        else:
+            if platform == "Neteasymusic":
+                check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
+                re_dict     = check_func.Get_User_List(uid, user_id)
+            elif platform == "QQmusic":
+                check_func = qq_scrawl.QQMusic()
+                re_dict    = check_func.Get_User_List(uid, user_id)
+        if re_dict:
+            re_dict.update({"code":"202", "status":"Success"})
+        else:
+            re_dict = _Return_Error_Post(code="410", status="Failed", detail=)
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
