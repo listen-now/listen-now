@@ -194,44 +194,49 @@ def Return_User_Song_List():
         dict -- 返回给前端的是一个json包文件，里面含有用户的所有歌单信息。
     """
     global re_dict
-    data            = request.get_data()     
-    try:
-        dict_data   = json.loads(data)      
-    except:
-        re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="post not json_data!")
+    if request.method == "POST":
+        user_id         = None
+        data            = request.get_data()     
+        try:
+            dict_data   = json.loads(data)      
+        except:
+            re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="post not json_data!")
 
-    if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
-        try:
-            user_id = dict_data["open_id"]
-        except:
-            re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="")
+        if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
+            try:
+                user_id = dict_data["open_id"]
+            except:
+                re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="")
 
-    # 用户来自其他平台，则需检测他是否注册，如果没有则返回请求注册消息，否则自动同步
-    # 如果注册，则请求登录
-    else:  
-        try:
-            user_id = dict_data["user_id"]
-        except:
-            re_dict = _Return_Error_Post(code=ReturnStatus.USER_NOT_SIGN_IN, status="Failed", detail="用户未注册")
-        else:
-            pass
-    if user_id != None:
-        try:
-            uid         = dict_data["uid"]
-            platform    = dict_data["platform"]
-        except:
-            re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="")
-        else:
-            if platform == "Neteasymusic":
-                check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
-                re_dict     = check_func.Get_User_List(uid, user_id)
-            elif platform == "QQmusic":
-                check_func = qq_scrawl.QQMusic()
-                re_dict    = check_func.Get_User_List(uid, user_id)
-        if re_dict:
-            re_dict.update({"code":"202", "status":"Success"})
-        else:
-            re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="")
+        # 用户来自其他平台，则需检测他是否注册，如果没有则返回请求注册消息，否则自动同步
+        # 如果注册，则请求登录
+        else:  
+            try:
+                user_id = dict_data["user_id"]
+            except:
+                re_dict = _Return_Error_Post(code=ReturnStatus.USER_NOT_SIGN_UP, status="Failed", detail="用户未注册")
+            else:
+                pass
+        if user_id != None:
+            try:
+                uid         = dict_data["uid"]
+                platform    = dict_data["platform"]
+            except:
+                re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="")
+            else:
+                if platform == "Neteasymusic":
+                    check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
+                    re_dict     = check_func.Get_User_List(uid, user_id)
+                elif platform == "QQmusic":
+                    check_func = qq_scrawl.QQMusic()
+                    re_dict    = check_func.Get_User_List(uid, user_id)
+            if re_dict:
+                re_dict.update({"code":"202", "status":"Success"})
+            else:
+                re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="")
+    else:
+        re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
+
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
@@ -239,15 +244,11 @@ def Return_User_Song_List():
 
 @app.route('/song_list_requests', methods = ['POST', 'GET'])
 def Return_User_Song_List_Detail():
-    """
-    用于向前端返回某一个歌单的详细信息(
-                                包括歌单的名称，
-                                歌单id，
-                                每首歌曲id，
-                                歌曲名称，
-                                歌曲演唱者
-                                )
-    """
+    """用于向前端返回某一个歌单的详细信息(包括歌单的名称，
+                                     歌单id，
+                                     每首歌曲id，
+                                     歌曲名称，
+                                     歌曲演唱者)"""
     global re_dict
     data = request.get_data()     
     try:
