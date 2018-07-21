@@ -5,6 +5,7 @@
 
 SUCCESS              = 200 # 成功请求数据, 服务器处理成功
 ERROR_METHOD         = 400 # 应该为POST请求却使用了GET请求
+NO_MUSIC_DETAIL      = 401 # 该平台没有该歌曲
 NO_EXISTS            = 402 # 没有该歌曲的更多结果啦
 OVER_MAXPAGE         = 403 # 请求页数过大
 ERROR_PARAMS         = 404 # 上传的参数不能被正确解析

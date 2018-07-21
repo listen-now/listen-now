@@ -24,6 +24,8 @@ Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegr
               优化redis缓存
               更新SDK-开发者文档
     
+    * 1.1.0   启用登录注册模块，修复部分bug并返回歌曲热门评论
+
 ```
 ## 简要说明
 
