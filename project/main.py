@@ -16,6 +16,7 @@ from Scrawl.QQMusic import QQMusic as qq_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
+from Sync.XiamiSync import XiamiMusic as xiami_Song_List
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
 from project.Helper import bcrypt_hash
@@ -269,7 +270,9 @@ def Return_User_Song_List_Detail():
             return_user_song_list = qq_scrawl.QQMusic()
             re_dict               = return_user_song_list.get_cdlist(disstid=song_list_id)
         elif song_list_platform == "Xiamimusic":
-            pass            
+            song_list_id = dict_data["id"]
+            return_song_list = xiami_Song_List.XiamiApi()
+            re_dict = return_user_song_list.getPlaylist(song_list_id)               
 
         if re_dict:
             re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
