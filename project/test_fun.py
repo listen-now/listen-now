@@ -21,8 +21,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 from project.Scrawl.NeteasyMusic import NeteasyMusic
 app2 = NeteasyMusic.Netmusic()
-# print(app2.pre_response_neteasymusic('大鱼'))
-print(app2.music_id_requests(413812448))
+# print(app2.pre_response_neteasymusic('浮夸'))
+print(app2.music_id_requests(66282))
 # print(app2.requests_comment("413812448"))
 
 

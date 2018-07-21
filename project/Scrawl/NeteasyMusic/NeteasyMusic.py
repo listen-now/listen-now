@@ -92,7 +92,7 @@ class Netmusic(object):
         except:
             host       = config.getConfig("database", "dbhost")
             port       = config.getConfig("database", "dbport")
-            self.r     = redis.Redis(host=str(host),port=int(port),db=4)
+            self.r     = redis.Redis(host=str(host),port=int(port),db=5)
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
             self.requests_play_url(music_id, eval(proxies))

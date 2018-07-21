@@ -228,7 +228,7 @@ def Return_User_Song_List():
         if re_dict:
             re_dict.update({"code":"202", "status":"Success"})
         else:
-            re_dict = _Return_Error_Post(code="410", status="Failed", detail=)
+            re_dict = _Return_Error_Post(code="410", status="Failed", detail="")
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')       
     return response
@@ -317,10 +317,10 @@ def check_user():
         except:flag = 1 # 默认flag为登录的意思，而不是注册
         if flag:
             status = bcrypt_hash.Sign_In_Check(user_id, passwd)
-        if status["code"] = ReturnStatus.USER_SUCCESS_SIGN_IN or status["code"] = ReturnStatus.USER_WECHAT_SIGN:
-            # 如果用户登录成功则请求同步歌单
-            pass
-    
+            if status["code"] == ReturnStatus.USER_SUCCESS_SIGN_IN or status["code"] == ReturnStatus.USER_WECHAT_SIGN:
+                # 如果用户登录成功则请求同步歌单
+                pass
+        
     elif request.method == "GET":
         pass
     

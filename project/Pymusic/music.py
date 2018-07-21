@@ -166,7 +166,7 @@ class pymusic(object):
             if w == 1:
                 return resp
             try:
-                if resp.json()["code"] == "200":
+                if resp.json()["code"] == 200:
                     for i in range(10):
                         try:
                             print("{0}".format(i), end="    ")
