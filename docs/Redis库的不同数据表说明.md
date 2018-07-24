@@ -37,13 +37,30 @@ Key-Value 类型(Str)
 
 格式如下:
 
-参数  	  是否必须  描述
+参数        是否必须  描述
 
-user_id   是 	  用户名
+user_id   是       用户名
 
-Salt	  是 	  盐值
+Salt      是       盐值
 
 形成Key-Value类型储存，持久化储存将后续使用MySQL实现
 
 ## 5号表用于维护代理ip
+    
+    计划中
+
+## 6号表用于维护用户的Cookies-token信息
+
+格式如下:
+
+参数        是否必须  描述
+
+user_id    是       用户名
+
+token      是       token值
+
+该表内数据具有一定的时效性
+
+
+
 
