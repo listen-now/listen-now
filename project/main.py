@@ -110,6 +110,12 @@ def search_json():
                     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
                     response.headers.add('Server','python flask')       
                     return response
+                except:
+                    re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "")
+                    response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+                    response.headers.add('Server','python flask')       
+                    return response
+
                 if music_title != '' or music_title != None:
                     if music_platform == "Neteasymusic":
                         neteasymusic_id = neteasy_scrawl.Netmusic()
