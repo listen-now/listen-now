@@ -76,7 +76,7 @@ user_id       否     用户在平台上的用户名，微信端为open_id，web
 {
     "user_id":"Listen-now-user"
 }
-
+```
 
 * API [B]
 >请求地址:
