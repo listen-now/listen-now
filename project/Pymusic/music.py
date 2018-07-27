@@ -3,8 +3,9 @@
 # @Date:2018/05/28
 # @Update:2018/06/11
 # Author:Cat.1
-# 2018.7.20 update json
- 
+# 2018/7/20 适应升级后的json版本
+# 2018/7/27 添加token验证
+
 import requests
 import argparse
 import json
@@ -13,12 +14,25 @@ import re
 import threading
 import subprocess
 import Logger
+import random
+import rsa
+import base64
+from valid_token import valid_token
+    
+global token_message
+token_message = valid_token()
 
+def check_token():
+    try :
+        token_message
+    except:
+        valid_token()
 
 data = {
         "title":None,
         "platform":None,
-        "page":1
+        "page":1,
+        "token":None
         }
 
 
@@ -33,6 +47,9 @@ class pymusic(object):
     downloader方法还是一个不完善的办法
     Xia_Qq_Request_Play_Url用于请求虾米、QQ音乐的播放地址
     """
+
+    check_token()
+
     def __init__(self):
         """
         初始化日志记录方法
@@ -85,29 +102,29 @@ class pymusic(object):
             # 这里主要是判断一些参数是否为空, 猜测用户是想要执行什么指令, 根据猜测去构造
             # 需要的json包然后发送给远端服务器并接受远端服务器的响应
             # 再对响应进行解析即可播放
-        
             print(os.system("pymusic -h"))
+        
         else:
             platform = self.fix_enter(platform)
             if title != None:
-                data["title"], data["page"], data["platform"]= title, 1, platform
-                self.send_data("search", data, "post", music_page)
+                data["title"], data["page"], data["platform"],data["token"] = title, 1, platform,token_message
+                self.send_data("search", "0", data, "post", music_page)
             elif music_id != None:
-                data["id"], data["page"], data["platform"]= music_id, 1, platform
-                self.send_data("id", data, "post", music_page)
+                data["id"], data["page"], data["platform"], data["token"] = music_id, 1, platform,token_message
+                self.send_data("id", "1", data, "post", music_page)
             elif songlist != None:
-                data = {"url":songlist}
-                self.send_data("song_list_requests", data, "post", music_page)
+                data = {"url":songlist, "page":1,"platform":platform,"token":token_message}
+                self.send_data("song_list_requests", "2", data, "post", music_page)
             elif userid != None:
-                data = {"uid":userid}
-                self.send_data("user_song_list", data, "post", music_page)
-            elif random_song != None:
-                self.send_data("user_song_list", data, "get", music_page)
+                data = {"uid":userid, "token":token_message}
+                self.send_data("user_song_list","3" , data, "post", music_page)
+
 
     def regex_func(self, content):
         # 判断用户是否需要单曲循环的方法
         
         if re.findall(r"\w{1,2}\s([\-c]+)", content):
+            print(re.findall)
             return 1
 
     def play_lyric(self, id):
@@ -117,10 +134,10 @@ class pymusic(object):
     def player(self, play_url, loop=0):
         # 播放歌曲的方法
         try:
-            if loop == "0":
+            if loop == 0:
                 subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
             else:
-                subprocess.call('mpg123 -q -v %s'%(play_url), shell=True)
+                subprocess.call('mpg123 -q -ev %s'%(play_url), shell=True)
         except:
             print("[-]出现技术故障, 请稍后再试, 或者换一首音乐")
     def downloader(self, play_url, loop=0):
@@ -138,21 +155,8 @@ class pymusic(object):
             fp.write(music_file.content)
             os.system('mpg123 -q -v --loop -1 mymusic')
 
-#    def Xia_Qq_Request_Play_Url(self,platform, music_id='', media_mid='', songmid=''):
-#        # 用于请求虾米, qq音乐的播放地址的方法
-#        data = {
-#                "platform":platform,
-#                }
-#        if music_id != '':
-#            data["id"]  = music_id
-#        else:
-#            data["media_mid"] = media_mid
-#            data["songmid"]   = songmid
-#        resp = requests.post(url="http://zlclclc.cn/id", data=json.dumps(data))
-#        return resp
-
-    def send_data(self, p, _send_data, func, music_page, w=""):
-        # 发送数据包并解析数据包播放的方法.
+    def send_data(self, p, f, _send_data, func, music_page, w=""):
+        # 发送数据包并解析数据包播放的方法
         if music_page != None:
             _send_data["page"] = music_page
 
@@ -166,7 +170,7 @@ class pymusic(object):
                 t1 = threading.Thread(target=self.player, args=(resp.json()["song"]["list"]["play_url"],0))
                 t1.start()
 
-                if t1.is_alive() and _send_data["platform"] == "Neteasymusic":                    
+                if t1.is_alive():                    
                     ip = resp.json()["song"]["list"]["play_url"]
                     t2 = threading.Thread(target=self.play_lyric, args=(ip[ip.find("id=")+3:ip.find(".mp3")],))
                     t2.start()
@@ -174,133 +178,162 @@ class pymusic(object):
                 else:
                     pass
 
-   
-            if w == "1":                #The if item has jumped to next try
+
+            if w == "1":
                 return resp
             try:
                 if resp.json()["code"] == 200:
-                    for i in range(10):
-                        #print(resp.json()["song"]["list"][i]["music_name"])
-                        try:                   
-                            print("{0}".format(i), end="    ")
-                            z = (50 - len(resp.json()["song"]["list"][i]["music_name"])) * " "                            
-                            print("{0}".format(resp.json()["song"]["list"][i]["music_name"]), end=z)
-                            print("{0}".format(resp.json()["song"]["list"][i]["artists"]))
-                        except KeyError:
-                            pass
-                    print('\n')
-                    try: 
-                        keyboard = input(">>> Enter your select ")
-                    except KeyboardInterrupt:
-                        print("\n用户主动退出")
-                        print("bye")
-                    else:
-                        try:
-                            if len(keyboard) > 2:
-                                newkeyboard = int(keyboard[:1])
-                            else:
-                                newkeyboard = int(keyboard)
-
-                        except:
+                #display songs and play
+                    if f == "0":
+                        for i in range(10):
                             try:
-                                music_page += 1
-                                music_page -= 1
-                            except TypeError:
-                                music_page = 1
+                                print("{0}".format(i), end="    ")
+                                z = (50 - len(resp.json()["song"]["list"][i]["music_name"])) * " "                            
+                                print("{0}".format(resp.json()["song"]["list"][i]["music_name"]), end=z)
+                                print("{0}".format(resp.json()["song"]["list"][i]["artists"]))
+                            except KeyError:
+                                pass
 
-                            if keyboard == "s" and _send_data["page"] < 10:
-                                _send_data["page"] = int(_send_data["page"]) + 1
-                                music_page        += 1
-                                return self.send_data(p, _send_data, func, music_page)
-                            elif keyboard == "w" and _send_data["page"] > 0:
-                                _send_data["page"] = int(_send_data["page"]) - 1
-                                music_page        -= 1
-                                return self.send_data(p, _send_data, func, music_page)
+                        print('\n')
+                        try: 
+                            keyboard = input(">>> Enter your select ")
+                        except KeyboardInterrupt:
+                            print("\n用户主动退出")
+                            print("bye")
                         else:
-
-                            if int(newkeyboard) >= 0 and int(newkeyboard) <= 10:
-                                if self.regex_func(keyboard) == 1:
-                                    # 单曲循环选项
-                                    print('[~]如果没有音乐播放提示, 请检查您的网络情况')
-                                    if _send_data["platform"] == "Neteasymusic":                                        
-                                        t1 = threading.Thread(target=self.player, args=(resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"],))
-                                    elif _send_data["platform"] == "Xiamimusic":
-                                        t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"]))
-                                    elif _send_data["platform"] == "QQmusic":
-                                        t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"]))
-                                    t1.start()
-                                    if t1.is_alive():
-                                        ip = resp.json()["song"]["list"]["play_url"]
-                                        t2 = threading.Thread(target=self.play_lyric, args=(ip[ip.find("id=")+3:ip.find(".mp3")],))
-                                        t2.start()
-                                        t2.join()
-
-                                    t1.join()
-                                    # 暂时虾米音乐不启用歌词模块
-
+                            try:
+                                if len(keyboard) > 2:
+                                    newkeyboard = int(keyboard[:1])
                                 else:
-                                    # 不单曲循环的话
-                                    if _send_data["platform"] == "Neteasymusic":
-                                        t1 = threading.Thread(target=self.player, args=(resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"],))
-                                    elif _send_data["platform"] == "Xiamimusic":
-                                        resp = self.t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"]))
+                                    newkeyboard = int(keyboard) 
 
-                                    elif _send_data["platform"] == "QQmusic":
-                                        t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
-                                                                                        ["play_url"]))
-
-                                    t1.start()
-                                    
-                                    if t1.is_alive():
-                                        t2 = threading.Thread(target=self.play_lyric, args=(resp.json()["song"]["list"]
-                                                                                            [int(newkeyboard)]["music_id"],))
-                                        t2.start()
-                                        t2.join()
-                                    t1.join()
-
-                                print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
+                            except:
                                 try:
-                                    title = input(">>>请输入想要搜索的歌曲: ")
-                                    if title == "exit()":
-                                        print("bye")
-                                        os.system("exit")
-                                    platform = input(">>>请输入想要搜索的平台: ")
-                                    if platform == "exit()":
-                                        print("bye")
-                                        os.system("exit")
-                                    if title != None:
-                                        music_page = 1
-                                        platform = self.fix_enter(platform)
-                                        _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
-                                        self.send_data(p, _send_data, func, music_page)
+                                    music_page += 1
+                                    music_page -= 1
+                                except TypeError:
+                                    music_page = 1  
 
-                                except KeyboardInterrupt:
-                                    print("\n用户主动退出")
-                                    print("bye")
-                elif resp.json()["code"] == "201":
-                    self.url_         = "http://music.163.com/song/media/outer/url?id=%s.mp3"
-                    result = resp.json()
-                    print(result["description"])
-                    print("切换下一首歌请输入Ctrl + c\n\n")
-                    print('[+]如果没有音乐播放提示, 请检查您的网络情况')
-                    for i in range(int(result["song_num"])):
-                        music_name                          = result["Songlist_detail"][i]["name"]
-                        music_id                            = result["Songlist_detail"][i]["id"]
-                        artists                             = result["Songlist_detail"][i]["ar"][0]["name"]
-                        print("{0}".format(music_name), end ="    ")
-                        print("{0}".format(artists))
-                        t1                                  = threading.Thread(target=self.player, args=(self.url_ %(music_id),))
-                        t1.start()
-                        if t1.is_alive():
-                            t2                              = threading.Thread(target=self.play_lyric, args=(music_id,))
-                            t2.start()
-                        t1.join()
-                        # t2.join()
+                                if keyboard == "s" and _send_data["page"] < 10:
+                                    _send_data["page"] = int(_send_data["page"]) + 1
+                                    music_page        += 1
+                                    return self.send_data(p, f, _send_data, func, music_page)
+                                elif keyboard == "w" and _send_data["page"] > 0:
+                                    _send_data["page"] = int(_send_data["page"]) - 1
+                                    music_page        -= 1
+                                    return self.send_data(p, f, _send_data, func, music_page)
+
+                            else:
+                                if int(newkeyboard) >= 0 and int(newkeyboard) <= 10:
+                                    if self.regex_func(keyboard) == 1:
+                                            #单曲循环
+                                        print('[~]如果没有音乐播放提示, 请检查您的网络情况')
+                                        t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
+                                                                                            ["play_url"],1))
+                                        t1.start()
+                                        
+                                        if t1.is_alive():
+                                            t2 = threading.Thread(target=self.play_lyric, args=(resp.json()["song"]["list"]
+                                                                                            [int(newkeyboard)]["music_id"],))
+                                            t2.start()
+                                            t2.join()
+                                        t1.join()
+                                    
+                                    else:
+                                        print('[~]如果没有音乐播放提示, 请检查您的网络情况')
+                                        t1 = threading.Thread(target=self.player, args = (resp.json()["song"]["list"][int(newkeyboard)]
+                                                                                            ["play_url"],0))
+                                        t1.start()
+                                        
+                                        if t1.is_alive():
+                                            t2 = threading.Thread(target=self.play_lyric, args=(resp.json()["song"]["list"]
+                                                                                            [int(newkeyboard)]["music_id"],))
+                                            t2.start()
+                                            t2.join()
+                                        t1.join()
+
+
+                        print("[+]请选择新歌曲\n如果想要退出请按住Ctrl + c")
+                        try:
+                            title = input(">>>请输入想要搜索的歌曲: ")
+                            if title == "exit()":
+                                print("bye")
+                                os.system("exit")
+                            platform = input(">>>请输入想要搜索的平台: ")
+                            if platform == "exit()":
+                                print("bye")
+                                os.system("exit")
+                            if title != None:
+                                music_page = 1
+                                platform = self.fix_enter(platform)
+                                _send_data["title"], _send_data["page"], _send_data["platform"]= title, 1, platform
+                                self.send_data(p, _send_data, func, music_page) 
+
+                        except KeyboardInterrupt:
+                            print("\n用户主动退出")
+                            print("bye")
+
+                    #Play song_list
+                    elif f == "2":
+                        random1 = input("[+]循环播放或者随机播放 Enter S/R\n")
+                        
+                        # Sequential playback
+                        if random1 == "S" or random1 == "s":
+                            print("[~]输入 Q/q 即可退出当前歌单")
+                            print('[~]如果没有音乐播放提示, 请检查您的网络情况')
+                            song_List_num = int(resp.json()["song_num"])
+                            for list_num in range(song_List_num):
+                                ids = resp.json()["Songlist_detail"][list_num]["id"]
+                                send_list_data = {"id":ids,"page":1,"platform":data["platform"],"token":token_message}
+                                resp_list = requests.post(url="http://zlclclc.cn/" + "id", data=json.dumps(send_list_data))
+                                #print(resp_list.json())
+                                t1 = threading.Thread(target=self.player, args = (resp_list.json()["song"]["list"]["play_url"],))
+                                t1.start()
+                                if t1.is_alive():
+                                    t2 = threading.Thread(target=self.play_lyric, args=(resp_list.json()["song"]["list"]["music_id"],))
+                                    t2.start()
+                                    t2.join()
+                                t1.join()
+
+
+                        # Random playback
+                        elif random1 == "R" or random1 == "r":
+                            print("[~]输入 Q/q 即可退出当前歌单")
+                            print('[~]如果没有音乐播放提示, 请检查您的网络情况')
+                            song_List_num = resp.json()["song_num"]
+                            for i in range(200):
+                                list_num = random.randint(0,song_List_num-1)
+                                ids = resp.json()["Songlist_detail"][list_num]["id"]
+                                send_list_data = {"id":ids,"page":1,"platform":data["platform"],"token":token_message}
+                                resp_list = requests.post(url="http://zlclclc.cn/" + "id", data=json.dumps(send_list_data))
+                                t1 = threading.Thread(target=self.player, args = (resp_list.json()["song"]["list"]["play_url"],))
+                                t1.start()
+                                if t1.is_alive():
+                                    t2 = threading.Thread(target=self.play_lyric, args=(resp_list.json()["song"]["list"]["music_id"],))
+                                    t2.start()
+                                    t2.join()
+                                t1.join()
+
+                                                
+                        print("[+]请选择新歌单\n如果想要退出请按住Ctrl + c")
+                        try:
+                            songlist = input(">>>请输入想要搜索的歌单: ")
+                            if songlist == "exit()":
+                                print("bye")
+                                os.system("exit")
+                            platform = input(">>>请输入想要搜索的平台: ")
+                            if platform == "exit()":
+                                print("bye")
+                                os.system("exit")
+                            if songlist != None:
+                                music_page = 1
+                                platform = self.fix_enter(platform)
+                                _send_data["url"], _send_data["page"], _send_data["platform"]= songlist, 1, platform
+                                self.send_data(p, f, _send_data, func, music_page) 
+
+                        except KeyboardInterrupt:
+                            print("\n用户主动退出")
+                            print("bye")
 
                 elif resp.json()["code"] == "202":
                     result = resp.json()
@@ -314,15 +347,7 @@ class pymusic(object):
                         print("bye")
                     else:
                         pass
-                        # if keyboard == "s" and _send_data["page"] < 10:
-                        #     _send_data["page"] = int(_send_data["page"]) + 1
-                        #     music_page        += 1
-                        #     return self.send_data(p, _send_data, func, music_page)
-                        # elif keyboard == "w" and _send_data["page"] > 0:
-                        #     _send_data["page"] = int(_send_data["page"]) - 1
-                        #     music_page        -= 1
-                        #     return self.send_data(p, _send_data, func, music_page)
-                    
+
                     os.system('pymusic -sl %s -p net'%(result[str(keyboard)]["Playlist_id"]))
                 else:
                     print(resp.json())

@@ -5,7 +5,11 @@
 import time , re
 import subprocess
 import argparse
-import requests, json
+import requests
+import rsa
+import base64
+import json
+from valid_token import valid_token
 #from colorama import  init, Fore, Back, Style  
 #
 
@@ -49,6 +53,7 @@ import requests, json
 
 
 class Play_Lyric(object):
+    token_message = valid_token()
     parser = argparse.ArgumentParser()        
     parser.add_argument("-id", dest = "id", help = "like 123456")
     args = parser.parse_args()
@@ -60,7 +65,8 @@ class Play_Lyric(object):
     _send_data = {
                  "id":music_id,
                  "platform":"Neteasymusic",
-                 "page":music_page
+                 "page":music_page,
+                 "token":token_message
                  }
 
     resp      = requests.post(url="http://zlclclc.cn/id", data=json.dumps(_send_data))
