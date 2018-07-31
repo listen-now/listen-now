@@ -141,6 +141,7 @@ class loginer(object):
         # 直接反馈加上标准内容的信息
         token_crypto = bytes(token_crypto, encoding='utf8') + tag
         signature = rsa.sign(token_message.encode(), privkey, 'SHA-1')
+        print("token message encode = ", token_message.encode())
         # 利用私钥对信息进行签名
         signature = base64.encodestring(signature)
         return (token_crypto, signature)

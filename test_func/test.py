@@ -30,9 +30,9 @@
 
 
 #! /usr/bin/python3
-from Crypto.Cipher import AES
-from binascii import b2a_base64, a2b_base64
-from cryptography.fernet import Fernet
+# from Crypto.Cipher import AES
+# from binascii import b2a_base64, a2b_base64
+# from cryptography.fernet import Fernet
 # import os
  
 # class AES_Crypt_Cookies(object):
@@ -92,9 +92,8 @@ from cryptography.fernet import Fernet
 #     b = AES_Crypt_Cookies(key).decrypt(a)
 #     print(a)
 #     print(b)
-import datetime
-outdate=datetime.datetime.today() + datetime.timedelta(days=2)
-
+# import datetime
+# outdate=datetime.datetime.today() + datetime.timedelta(days=2)
 
 # import requests
 # import threading

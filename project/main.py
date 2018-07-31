@@ -4,6 +4,7 @@
 # Author:Cat.1    
 # 2018/05/20 代码部分重构
 # 2018/07/15 重构系统
+# 2018/07/29 增加酷狗音乐支持
 import sys
 sys.path.append('..') # 必须要, 设置project为源程序的包顶
 import copy
@@ -11,6 +12,7 @@ from flask import Flask,request,Response,jsonify
 import json, time
 import re
 from Scrawl.NeteasyMusic import NeteasyMusic as neteasy_scrawl
+from Scrawl.KugouMusic import kugou as kugou_scrawl
 from Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
 from Scrawl.QQMusic import QQMusic as qq_scrawl
 import Config.config
@@ -22,6 +24,9 @@ from project.Helper import bcrypt_hash
 from Sync.XiamiSync import XiamiMusic as xiami_Song_List
 import datetime
 import redis
+from flask_cors import CORS
+
+
 """
 引入json网页框架用于开放api接口
 引入json库用于解析前端上传的json文件
@@ -39,6 +44,9 @@ if int(Config.config.getConfig("open_database", "redis")) == 1:
 
 app = Flask(__name__)
 # 形成flask实例
+CORS(app, resources=r'/*')
+# r'/*' 是通配符，让本服务器所有的URL 都允许跨域请求
+
 
 
 
@@ -47,7 +55,9 @@ def hello_world():
     """
     用于测试服务器是否正常工作.
     """
-    return 'Hello World!  Listen-now\'s API Working  Cat.1'
+    UA = request.headers['User-Agent']
+    return UA + 'Hello World!  Listen-now\'s API Working  Cat.1'
+    # return 'Hello World!  Listen-now\'s API Working  Cat.1'
 
 def _Return_Error_Post(code, status, detail = "", **kw):
     """
@@ -102,18 +112,25 @@ def search_json():
                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "Is so many response!")
             else:
                 try:
-                    token = dict_data["token"]
+
+                    token = request.headers['token']
                     if Simple_Check(token) != 1:
                         raise AssertionError
                 except AssertionError:
                     re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_ERROR, status="Failed", detail = "remind token")
                     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
                     response.headers.add('Server','python flask')       
+                    response.headers['Access-Control-Allow-Origin'] = '*'
+                    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+                    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'
                     return response
                 except:
                     re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "")
                     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
                     response.headers.add('Server','python flask')       
+                    response.headers['Access-Control-Allow-Origin'] = '*'
+                    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+                    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'                    
                     return response
 
                 if music_title != '' or music_title != None:
@@ -150,6 +167,21 @@ def search_json():
                                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
                         else:
                             pass
+                    elif music_platform == "Kugoumusic":
+                        
+                        kugou_search = kugou_scrawl.Kugou()
+                        re_dict      = kugou_search.Search_List(music_title, music_page)                        
+                        try:
+                            re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                        else:
+                            pass
+                        finally:
+                            re_dict.update({"now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                     else:
                         re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "Not know platform!")
 
@@ -161,12 +193,18 @@ def search_json():
 
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
             return response
 
     else:
         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')     
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'          
         return response
 
 @app.route('/Random_song_list', methods = ['POST'])
@@ -186,13 +224,13 @@ def Return_Random_User_Song_List():
         platform = dict_data["platform"]
         
         try:
-            token = dict_data["token"]
+            token = request.headers['token']
             if Simple_Check(token) != 1:
                 raise AssertionError
         except AssertionError:
             re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_ERROR, status="Failed", detail = "remind token")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
+            response.headers.add('Server','python flask')                   
         except:
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
@@ -207,7 +245,10 @@ def Return_Random_User_Song_List():
                     else:
                         re_dict = _Return_Error_Post(code=ReturnStatus.NOT_SAFE, status="Failed", detail="Unknown Error!")
                     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-                    response.headers.add('Server','python flask')       
+                    response.headers.add('Server','python flask')    
+                    response.headers['Access-Control-Allow-Origin'] = '*'
+                    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+                    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'                       
                     return response
                 else:
                     re_dict = _Return_Error_Post(code=ReturnStatus.DATABASE_OFF, status="Failed", detail="数据库未启用")
@@ -216,12 +257,18 @@ def Return_Random_User_Song_List():
             else:
                 # 其他平台热门歌单维护
                 pass
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'                
         return response
 
     else:
         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'               
         return response
 
 @app.route('/login', methods = ["POST"])
@@ -271,7 +318,10 @@ def login():
             re_dict = copy.deepcopy(status)
 
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-    response.headers.add('Server','python flask')       
+    response.headers.add('Server','python flask')
+    response.headers['Access-Control-Allow-Origin']  = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'           
     return response
     
 @app.route('/get_token', methods=['POST', 'GET'])
@@ -294,6 +344,9 @@ def get_token():
         response    = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')  
         response.set_cookie('token', Token[0], expires=outdate)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'
         return response
     else:
         ua          = request.headers.get('User-Agent')
@@ -304,6 +357,9 @@ def get_token():
         response    = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')  
         response.set_cookie('token', Token[0], expires=outdate)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'        
         return response
 
 @app.route('/exist_token', methods=['POST'])
@@ -335,6 +391,9 @@ def exist_token():
         re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_CREAT_FAILED, status="Failed", detail="NOT KNOW ERROR!")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')  
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'        
     return response
 
 
@@ -345,7 +404,8 @@ def Return_User_Song_List():
     需要的参数为用户在本平台上的uid以及同步的音乐平台id
     返回的数据包为被同步的歌单信息，用户uid，状态码等
     """
-    global re_dict
+    global re_dict, user_id
+    user_id = None
     data            = request.get_data()     
     try:
         dict_data   = json.loads(data)      
@@ -353,7 +413,7 @@ def Return_User_Song_List():
         re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="post not json_data!")
     
     try:
-        token = dict_data["token"]
+        token = request.headers['token']
         if Simple_Check(token) != 1:
             raise AssertionError
     except AssertionError:
@@ -376,7 +436,7 @@ def Return_User_Song_List():
             try:
                 user_id = dict_data["user_id"]
             except:
-                re_dict = _Return_Error_Post(code=ReturnStatus.USER_NOT_SIGN_IN, status="Failed", detail="用户未注册")
+                re_dict = _Return_Error_Post(code=ReturnStatus.USER_NOT_SIGN_UP, status="Failed", detail="用户未注册")
             else:
                 pass
         if user_id != None:
@@ -397,7 +457,10 @@ def Return_User_Song_List():
             else:
                 re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')    
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'           
     return response
 
 
@@ -419,7 +482,7 @@ def Return_User_Song_List_Detail():
     except:
         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail = "post not json_data!")
     try:
-        token = dict_data["token"]
+        token = request.headers['token']
         if Simple_Check(token) != 1:
             raise AssertionError
     except AssertionError:
@@ -457,7 +520,10 @@ def Return_User_Song_List_Detail():
                 re_dict.update(_Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="没有更多数据或服务器发生错误"))
         
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')     
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'          
     return response
 
 @app.route('/check_user', methods = ['GET','POST'])
@@ -482,7 +548,10 @@ def check_user():
         except:
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail = "POST not json_data!")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
+            response.headers.add('Server','python flask')     
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'              
             return response
 
         if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
@@ -510,7 +579,10 @@ def check_user():
     else:
         re_dict = _Return_Error_Post(code=ReturnStatus.DATABASE_OFF, status="Failed", detail = "数据库繁忙或遇到技术障碍")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')     
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'          
         return response
 
 
@@ -527,18 +599,24 @@ def play_id():
         dict_data = json.loads(data)  
         
         try:
-            token = dict_data["token"]
+            token = request.headers['token']
             if Simple_Check(token) != 1:
                 raise AssertionError
         except AssertionError:
             re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_ERROR, status="Failed", detail = "remind token")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')       
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
             return response
         except:
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
+            response.headers.add('Server','python flask')    
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'               
             return response
         else:
             try:
@@ -577,17 +655,33 @@ def play_id():
                             re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                         else:
                             re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                    
+                    elif music_platform == "Kugoumusic":
+                        kugou = kugou_scrawl.Kugou()
+                        re_dict = kugou.hash_search(dict_data["id"])
+
+                        if re_dict:
+                            re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
+                        else:
+                            re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                    
                     else:
                         re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "Not know platform!")
             finally:
                     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
                     response.headers.add('Server','python flask')       
+                    response.headers['Access-Control-Allow-Origin'] = '*'
+                    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+                    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'
                     return response
 
     else:
         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-        response.headers.add('Server','python flask')       
+        response.headers.add('Server','python flask')      
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'         
         return response
 
 
