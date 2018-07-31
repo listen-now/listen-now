@@ -3,6 +3,11 @@
 # __author__ : Yaxuan, Cat.1
 # __Update__ : 2018/07/19
 
+TOKEN_ERROR          = 100 # Token错误不合法或者预Token超时
+TOKEN_SUCCESS        = 101 # 服务器验证Token成功
+TOKEN_CREAT_SUCCESS  = 102 # 服务器生成Token成功
+TOKEN_CREAT_FAILED   = 103 # 服务器生成Token遇到错误
+TOKEN_IS_EXIST       = 104 # 预Token生成Token成功
 SUCCESS              = 200 # 成功请求数据, 服务器处理成功
 ERROR_METHOD         = 400 # 应该为POST请求却使用了GET请求
 NO_MUSIC_DETAIL      = 401 # 该平台没有该歌曲
@@ -22,3 +27,5 @@ USER_SUCCESS_SIGN_IN = 503 # 用户登录成功
 USER_FAILED_SIGN_IN  = 504 # 用户登录失败
 USER_WECHAT_SIGN     = 505 # 小程序注册/登录 成功
 USER_WECHAT_ERROR    = 506 # 小程序注册/登录 发生未知错误
+TOKEN_FORBED         = 600 # 目前ip所使用Token受到服务器封锁
+IP_FORBED            = 601 # 目前ip被禁止注册token

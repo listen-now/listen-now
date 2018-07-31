@@ -26,6 +26,8 @@ mod_cdlist = {
     'dissid' : '',
     'dissname' : '我喜欢',
     'nickname' : '默认列表',
+    'info':'',
+    'image_url':'',
     'song' : {
         'totalnum' : 0,
         'curnum' : 0,
@@ -63,9 +65,17 @@ mod_hot_dissid_list = {
 } #推荐主题歌单id列表json模板
 
 mod_sign = {
-    'code' : '200',
+    'code'   : '200',
     'status' : 'Success',
-    'user_id' : 0,    
+    'user_id': 0, 
+    'token_status': ""
 } #注册登录信息模板
 
+mod_token = {
+    'code'   : '200',
+    'status' : 'Success',
+    'ip':"",
+    'token_status': "",
+    'other':"",
+} #注册登录信息模板
 
