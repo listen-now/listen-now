@@ -7,6 +7,9 @@ import requests
 import rsa
 import base64
 import json
+import sys
+sys.path.append('/msc/user/listen-now/project/Pymusic/pubkey.pem')
+
 def valid_token():
     r = requests.get("http://zlclclc.cn/get_token")
     s = eval(r.json()["signature"])
@@ -27,3 +30,5 @@ def valid_token():
     parameter = {"sign_valid":sign_valid,"token":token_message}
     valid_key = requests.post(url="http://zlclclc.cn/exist_token",data = json.dumps(parameter))
     return token_message
+
+print(valid_token())
