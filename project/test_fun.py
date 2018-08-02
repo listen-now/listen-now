@@ -13,6 +13,21 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # from project.Scrawl.QQMusic import QQMusic
 # app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
+<<<<<<< HEAD
+
+# from project.Scrawl.NeteasyMusic import NeteasyMusic
+# app2 = NeteasyMusic.Netmusic()
+# print(app2.pre_response_neteasymusic('大鱼'))
+
+# from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
+# app3 = Search_xiami()
+# print(app3.search_xiami('纸短情长'))
+
+
+from project.Sync.XiamiSync import XiamiMusic
+app4 = XiamiMusic.XiamiApi()
+print(app4.getPlaylist("358024020"))
+=======
 # print(app1.get_user_profile_dissidlist("1069954477"))
 # print(app1.get_cdlist(disstid = "3531843793"))
 # print(app1.get_hot_playlist('71'))
@@ -38,3 +53,4 @@ print(app2.music_id_requests(66282))
 # print(app4.Sign_In_Check("The powder toy", "passwd"))
 
 
+>>>>>>> 76df50ecc5a292bb040d4e109c6160677337b73a

@@ -16,10 +16,22 @@ from Scrawl.QQMusic import QQMusic as qq_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
+<<<<<<< HEAD
+from Sync.xiamiSync import XiamiMusic as xiami_Song_List
+
+#import Scrawl.NeteasyMusic.NeteasyHelper.AES
+#import Scrawl.NeteasyMusic.NeteasyMusic
+#import Scrawl.XiamiMusic.XiamiMusic
+#import Scrawl.QQMusic.QQMusic
+#import Config.config
+#import Sync.NeteasySync.Hot_Song_List
+#import Sync.NeteasySync.Neteasymusic_Sync
+=======
 from Sync.XiamiSync import XiamiMusic as xiami_Song_List
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
 from project.Helper import bcrypt_hash
+>>>>>>> 76df50ecc5a292bb040d4e109c6160677337b73a
 
 """
 引入json网页框架用于开放api接口
@@ -264,6 +276,16 @@ def Return_User_Song_List_Detail():
         if song_list_platform == "Neteasymusic":
             song_list_url         = dict_data["url"]
             return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
+<<<<<<< HEAD
+            re_dict = return_user_song_list.Download_SongList(song_list_url)
+        
+        else song_list_platform == "Xiamimusic":
+            return_song_list = xiami_Song_List.XiamiApi()
+            re_dict = retrun_song_list.getPlaylist(song_list_url)
+
+        if re_dict:
+            re_dict.update({"code":"201", "status":"Success"})
+=======
             re_dict               = return_user_song_list.Download_SongList(song_list_url)
         elif song_list_platform == "QQmusic":
             song_list_id          = dict_data["id"]
@@ -273,6 +295,7 @@ def Return_User_Song_List_Detail():
             song_list_id = dict_data["id"]
             return_song_list = xiami_Song_List.XiamiApi()
             re_dict = return_user_song_list.getPlaylist(song_list_id)               
+>>>>>>> 76df50ecc5a292bb040d4e109c6160677337b73a
 
         if re_dict:
             re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
@@ -408,4 +431,4 @@ if __name__ == '__main__':
     host = Config.config.getConfig("apptest", "apphost")
     port = Config.config.getConfig("apptest", "appport")
     app.run(host=host, port=int(port), debug = True)
-    # test
+

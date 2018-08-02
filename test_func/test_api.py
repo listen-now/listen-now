@@ -85,7 +85,7 @@ class TestDict(unittest.TestCase):
         my_dict["id"]       = 444706287
         my_dict["platform"] = "Neteasymusic"
         self.assertEqual(json.loads(self.post_func(my_dict, "id").text)['code'], "200")
-        my_dict["id"]       = 123456
+        my_dict["id"]       = 358024020
         my_dict["platform"] = "Xiamimusic"
         self.assertEqual(json.loads(self.post_func(my_dict, "id").text)['code'], "200")
 
