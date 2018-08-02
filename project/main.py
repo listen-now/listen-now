@@ -27,6 +27,7 @@ import redis
 from flask_cors import CORS
 
 
+
 """
 引入json网页框架用于开放api接口
 引入json库用于解析前端上传的json文件
@@ -499,6 +500,17 @@ def Return_User_Song_List_Detail():
             song_list_platform = dict_data["platform"]
         except:
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "")
+        if song_list_platform == "Neteasymusic":
+            song_list_url         = dict_data["url"]
+            return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
+            re_dict = return_user_song_list.Download_SongList(song_list_url)
+        
+        else song_list_platform == "Xiamimusic":
+            return_song_list = xiami_Song_List.XiamiApi()
+            re_dict = retrun_song_list.getPlaylist(song_list_url)
+
+        if re_dict:
+            re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
         else:
             if song_list_platform == "Neteasymusic":
                 song_list_url         = dict_data["url"]

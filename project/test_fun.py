@@ -13,6 +13,20 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # from project.Scrawl.QQMusic import QQMusic
 # app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
+
+# from project.Scrawl.NeteasyMusic import NeteasyMusic
+# app2 = NeteasyMusic.Netmusic()
+# print(app2.pre_response_neteasymusic('大鱼'))
+
+# from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
+# app3 = Search_xiami()
+# print(app3.search_xiami('纸短情长'))
+
+
+# from project.Sync.XiamiSync import XiamiMusic
+# app4 = XiamiMusic.XiamiApi()
+# print(app4.getPlaylist("358024020"))
+
 # print(app1.get_user_profile_dissidlist("1069954477"))
 # print(app1.get_cdlist(disstid = "3531843793"))
 # print(app1.get_hot_playlist('71'))
@@ -54,5 +68,4 @@ app6 = kugou.Kugou()
 # print(app6.Search_List("纸短情长", 1))
 # print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
 print(app6.ReturnSongList("12345"))
-
 
