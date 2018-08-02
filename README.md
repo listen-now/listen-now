@@ -1,7 +1,7 @@
 # Listen-now
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
-![Listen-now](https://img.shields.io/badge/Listen--now-1.0.0-red.svg)
-
+![Listen-now](https://img.shields.io/badge/Listen--now-1.2.0-red.svg)
+![Listen-now](首页.jpg)
 ## 邮件列表
 Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegroups.com
 欢迎将你遇到的问题直接反馈到该地址。你的邮件将很快会得到回复。
