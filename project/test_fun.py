@@ -53,4 +53,6 @@ from project.Scrawl.KugouMusic import kugou
 app6 = kugou.Kugou()
 # print(app6.Search_List("纸短情长", 1))
 # print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
-print(app6.HotSongList("487279"))
+print(app6.ReturnSongList("12345"))
+
+

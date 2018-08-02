@@ -504,15 +504,26 @@ def Return_User_Song_List_Detail():
                 song_list_url         = dict_data["url"]
                 return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
                 re_dict               = return_user_song_list.Download_SongList(song_list_url)
+
+
             elif song_list_platform == "QQmusic":
                 song_list_id          = dict_data["id"]
                 return_user_song_list = qq_scrawl.QQMusic()
                 re_dict               = return_user_song_list.get_cdlist(disstid=song_list_id)
                 re_dict = return_user_song_list.Download_SongList(song_list_url)
-            
+
+
             elif song_list_platform == "Xiamimusic":
+                song_list_url         = dict_data["url"]
                 return_song_list = xiami_Song_List.XiamiApi()
                 re_dict = retrun_song_list.getPlaylist(song_list_url)
+
+
+            elif song_list_platform == "Kugoumusic":
+                song_list_id     = dict_data["id"]
+                return_song_list = kugou_scrawl.Kugou()
+                return_song_list.ReturnSongList(song_list_id)
+
 
             if re_dict:
                 re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
