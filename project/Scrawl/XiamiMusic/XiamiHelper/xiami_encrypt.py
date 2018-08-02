@@ -30,3 +30,4 @@ if __name__ == '__main__':
 
     url = "4h%2F8an213135%79357.%uk326%555ce81Ec31ct3Fm.meF%3%3E263_E6m3teD6%5EEE3389db65tA%1xit828273F8666_pFhy155E---3a7%2c94p%22i.%2F2F%1195%8l3a_%52E%%%d7fe5ed8c"
     print(xiami_encrypt(url))
+    

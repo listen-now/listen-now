@@ -12,13 +12,12 @@
 # qr.make(fit = True) 
 # img = qr.make_image()
 # img.save("share.png")
-
-
+vjkl5 = "asjkdhlka"
+cookies = dict(vjkl5=vjkl5)
+print(cookies)
 # import requests
 # import threading
 # from time import ctime,sleep
-
-
 
 # def loop(name):
 #     global i, a
