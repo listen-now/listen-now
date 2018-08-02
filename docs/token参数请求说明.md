@@ -76,6 +76,7 @@ user_id       否     用户在平台上的用户名，微信端为open_id，web
 {
     "user_id":"Listen-now-user"
 }
+```
 
 
 * API [B]
@@ -98,4 +99,5 @@ user_id(str)      是     用户是登录状态请求token时（即请求get_tok
     "token":"your_token_message_content",
     "user_id":"Listen-now-user"
 }
+```
 
