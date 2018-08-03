@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# @File:kugou.py
+# @Date:2018/08/01
+# Author:Cat.1    
+
 # # encoding:utf-8
 # import io  
 # import sys  

@@ -64,11 +64,11 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 
 
-from project.Scrawl.BaiduMusic import BaiduMusic
-app6 = BaiduMusic.BaiduMusic()
-# print(app6.search_by_keyword('纸短情长'))
-# print(app6.search_by_id('795823'))
-print(app6.get_play_url('299800'))
+# from project.Scrawl.BaiduMusic import BaiduMusic
+# app6 = BaiduMusic.BaiduMusic()
+# # print(app6.search_by_keyword('纸短情长'))
+# # print(app6.search_by_id('795823'))
+# print(app6.get_play_url('299800'))
 
 
 # from project.Scrawl.KugouMusic import kugou
@@ -77,5 +77,12 @@ print(app6.get_play_url('299800'))
 # # print(app6.Search_List("纸短情长", 1))
 # # print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
 # print(app7.ReturnSongList("12345"))
+
+from Helper.token_admin import Forbidden
+
+app8 = Forbidden()
+print(app8.sign_ip("1234test"))
+
+
 
 

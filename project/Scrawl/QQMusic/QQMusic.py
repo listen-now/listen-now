@@ -312,7 +312,7 @@ class QQMusic(object):
                     tmp_id = tid['tid'] if type(tid['tid']) == str else str(tid['tid'])
                     re_dict['idlist'].append(tmp_id) #添加到歌单id列表
                     re_dict['totaldiss'] += 1
-                else:
+            else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
         except:

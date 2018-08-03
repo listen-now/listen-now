@@ -50,10 +50,11 @@ class AES_Crypt_Cookies(object):
 
         Token = loginer()
         Token_Crypto            = Token.Creat_Return_Token(str(b2a_base64(res), encoding= "utf-8"))
-        print(str(Token_Crypto[0]))
-        print(self.r.set(Token_Crypto[0], nickname))
-        self.r.expire(Token_Crypto, 60)  # 生成预token
-        print(self.r.get(Token_Crypto[0]))
+        # print(str(Token_Crypto[0]))
+        self.r.set(Token_Crypto[0], nickname)
+        self.r.expire(Token_Crypto[0], 60)  
+        # 生成预token
+        # print(self.r.get(Token_Crypto[0]))
 
         re_dict["token_status"] = ReturnStatus.TOKEN_CREAT_SUCCESS
         return Token_Crypto
