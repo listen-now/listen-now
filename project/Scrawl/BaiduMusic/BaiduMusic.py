@@ -16,8 +16,8 @@ class BaiduMusic(object):
 	'''
 	百度音乐
 	'''
-	cache_path = os.path.abspath('.') + '/BaiduCache/'
-	meta_path = os.path.abspath('.') + '/BaiduMeta/'
+	cache_path = os.path.abspath('.') + '/Scrawl/BaiduMusic/BaiduCache/'
+	meta_path = os.path.abspath('.') + '/Scrawl/BaiduMusic/BaiduMeta/'
 	def __init__(self):
 		'''
 		会话初始化
@@ -101,6 +101,7 @@ class BaiduMusic(object):
 		song_id : 歌曲识别码
 		返回值 : 歌曲地址
 		'''
+		print(self.cache_path)
 		try:
 			_url = 'http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&'\
 			'method=baidu.ting.song.playAAC&songid={}'.format(song_id)

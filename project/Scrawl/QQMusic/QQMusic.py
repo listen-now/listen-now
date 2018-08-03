@@ -17,8 +17,8 @@ class QQMusic(object):
     '''
     QQ音乐类
     '''
-    cache_path = os.path.abspath('.') + '/QQCache/'
-    meta_path = os.path.abspath('.') + '/QQMeta/'
+    cache_path = os.path.abspath('.') + '/Scrawl/QQMusic/QQCache/'
+    meta_path = os.path.abspath('.') + '/Scrawl/QQMusic/QQMeta/'
     def __init__(self):
         '''
         会话初始化
