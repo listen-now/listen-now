@@ -5,6 +5,7 @@
 # 2018/05/20 代码部分重构
 # 2018/07/15 重构系统
 # 2018/07/29 增加酷狗音乐支持
+# 2018/08/03 Add KuwoMuisc
 import sys
 sys.path.append('..') # 必须要, 设置project为源程序的包顶
 import copy
@@ -15,6 +16,7 @@ from Scrawl.NeteasyMusic import NeteasyMusic as neteasy_scrawl
 from Scrawl.KugouMusic import kugou as kugou_scrawl
 from Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
 from Scrawl.QQMusic import QQMusic as qq_scrawl
+from Scrawl.KuwoMusic import KuwoMusic as kuwo_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
@@ -180,6 +182,20 @@ def search_json():
                                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
                         else:
                             pass
+
+                    elif music_platform == "Kuwomusic":
+                        kuwo_search = kuwo_scrawl.Kuwomusic()
+                        re_dict     = kuwo_search.Search_List(music_title, music_page)
+                        try:
+                            re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                        else:
+                            pass
+
                         finally:
                             re_dict.update({"now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                     else:
@@ -524,6 +540,10 @@ def Return_User_Song_List_Detail():
                 return_song_list = kugou_scrawl.Kugou()
                 return_song_list.ReturnSongList(song_list_id)
 
+            elif song_list_platform == "Kuwomusic":
+                song_list_id    = dict_data["id"]
+                return_song_list = kuwo_scrawl.KuwoMusic()
+                return_song_list.ReturnSongList(song_list_id)
 
             if re_dict:
                 re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="None"))
@@ -670,6 +690,10 @@ def play_id():
                     elif music_platform == "Kugoumusic":
                         kugou = kugou_scrawl.Kugou()
                         re_dict = kugou.hash_search(dict_data["id"])
+
+                    elif music_platform == "Kuwomusic":
+                        kuwo = kuwo_scrawl.KuwoMusic()
+                        re_dict = kuwo.Search_details(dict_data["id"])
 
                         if re_dict:
                             re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
