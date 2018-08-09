@@ -46,21 +46,20 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # app4.Check_Token(b'c+D+2FdJbUXSY9QLB1UvH8P0/EbqBSz5Km+XRTFiAmCsh19V7nOdxzbVRlc7c2tIwSTgiHBx9tDacxqq49wcrkXApsH232oD7XKbuyHzFVk=\nNQZ',
 #                       # "115.238.228.39", 
 #                       # "Wechat Firefox")
+#
 
-
-#from project.Scrawl.KugouMusic import kugou#
-
+#from project.Scrawl.KugouMusic import kugou
 #app6 = kugou.Kugou()
-## print(app6.Search_List("纸短情长", 1))
-## print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
+#print(app6.Search_List("纸短情长", 1))
+#print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
 #print(app6.ReturnSongList("12345"))
 
 from project.Scrawl.KuwoMusic import KuwoMusic
 
-app7 = KuwoMusic.KuwoMusic
-print(app7.Search_List("青花瓷",1))
+app7 = KuwoMusic.KuwoMusic()
+#print(app7.Search_List("青花瓷", 0))
 print(app7.Search_details("48791034"))
-print(app7.get_play_url("48791034")
-print(app7.get_comment("48791034"))
+#print(app7.get_play_url("48791034"))
+#print(app7.get_comment("48791034"))
 
 
