@@ -18,8 +18,7 @@ mod_dissidlist = {
     'code' : '200',
     'status' : 'Success',
     'totaldiss' : 0,
-    'list' : [],
-    'comment':[],
+    'list' : []
 } #歌单id列表json模板
 
 mod_cdlist = {
@@ -41,7 +40,8 @@ mod_song = {
     'music_name' : '',
     'artists' : '',
     'image_url' : '',
-    'lyric' : ''
+    'lyric' : '',
+    'comment':[]
 } #歌曲json模板
 
 mod_hot_item_list = {

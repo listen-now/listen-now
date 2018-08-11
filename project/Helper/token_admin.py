@@ -1,8 +1,8 @@
+import copy
+import redis
+from project.Config import config
 from project.Module import RetDataModule
 from project.Module import ReturnStatus
-import redis
-import copy
-from project.Config import config
 
 class Forbidden(object):
 
