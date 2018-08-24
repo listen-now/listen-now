@@ -51,8 +51,8 @@ elif pip == "pip":
     os.system("pip install -r requirements.txt")
 else:
     pip = input("键入你的pip管理工具的名称：")
-    os.system(pip + "install --upgrade pip")
-    os.system(pip + "install -r requirements.txt")
+    os.system(pip + " install --upgrade pip")
+    os.system(pip + " install -r requirements.txt")
 
 try:
     os.system("touch error.log && touch access.log")
