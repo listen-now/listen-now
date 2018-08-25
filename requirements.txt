@@ -32,4 +32,5 @@ Naked==0.1.31
 shellescape==3.4.1
 pycrypto==2.6.1
 simplejson==3.16.0
-
+selenium==3.14.0
+spotipy==2.4.4

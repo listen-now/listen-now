@@ -12,12 +12,12 @@ import requests
 import re
 import spotipy
 import spotipy.oauth2 as oauth2
-import RetDataModule
-import ReturnStatus
+from project.Module import ReturnStatus
+from project.Module import RetDataModule
 import random
 import json
 
-#常量
+# 常量
 IMG_PATH = '/SpotifyMeta'
 
 STR_REGEX = r'<div class="rc-imageselect-desc.*?" style=".*?">(.*?)<strong style=".*?">(.*?)</strong>(.*?)<span.*?>(.*?)</span>'
@@ -88,7 +88,6 @@ class Spotify(object):
         初始化几个待用的驱动为了防止token过期 每3分钟删一个
     '''
     def __init__(self, d_num):
-        pass
         loadd = threading.Thread(target=self.load_driver, args=[d_num])
         loadd.start()
         removet = threading.Thread(target=self.remove_driver)
@@ -241,7 +240,7 @@ class Spotify(object):
         with open(filename, 'wb') as f:
             f.write(reqs.content)
 
-        #计算图片块个数
+        # 计算图片块个数
         elems = driver.find_elements_by_class_name('rc-image-tile-wrapper')
         elems_len = len(elems)
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-# @File:Neteasymusic.py
+# @File:main.py
 # @Date:2018/5/9
 # Author:Cat.1    
 # 2018/05/20 代码部分重构
 # 2018/07/15 重构系统
 # 2018/07/29 增加酷狗音乐初步支持
 # 2018/08/03 增加百度、酷我音乐初步支持
+# 2018/08/25 增加Spotify初步支持
+
 import re
 import sys
 sys.path.append('..') # 必须要, 设置project为源程序的包顶
@@ -26,6 +28,7 @@ from flask import Flask,request,Response,jsonify
 from project.Sync.NeteasySync import Neteasymusic_Sync
 from project.Scrawl.QQMusic import QQMusic as qq_scrawl
 from project.Scrawl.KugouMusic import kugou as kugou_scrawl
+from project.Scrawl.SpotifyMusic import SpotifyMusic as spotify
 from project.Sync.XiamiSync import XiamiMusic as xiami_Song_List
 from project.Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
 from project.Scrawl.NeteasyMusic import NeteasyMusic as neteasy_scrawl
@@ -38,8 +41,17 @@ from project.Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 引入json网页框架用于开放api接口
 引入json库用于解析前端上传的json文件
 引入AES外部文件用于加密网易云音乐的POST数据
-引入scrawl_Neteasymusic、scrawl_Xiamimusic、scrawl_QQmusic用于各个平台的爬虫
+引入Scrawl用于各个平台的爬虫
 引入config文件用于配置数据库等配置信息
+引入Sync文件用不各个平台歌单信息同步
+引入Module文件用于规定各个平台返回数据的格式和针对不同状况的错误处理码
+引入flask_cors用于运行跨域访问
+"""
+
+
+"""
+>>>以下为部分全局参数设定>>>
+
 """
 
 re_dict = {}
@@ -48,6 +60,7 @@ if int(Config.config.getConfig("open_database", "redis")) == 1:
     port   = Config.config.getConfig("database", "dbport")
     _redis = redis.Redis(host=host, port=int(port), decode_responses=True, db=6)  
 
+sp = spotify.Spotify(2) # 必要的全局变量 参数是保持的待用驱动数 一个驱动可以处理一个用户
 
 app = Flask(__name__)
 # 形成flask实例
@@ -684,31 +697,135 @@ def redirect():
                 elif token_value == ReturnStatus.TOKEN_FORBED:
                     raise Error.Token_Contorl_Error()
         except Error.Token_Time_Error:
-            re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_ERROR, status="Failed", detail = "remind token")
+            re_dict  = _Return_Error_Post(code=ReturnStatus.TOKEN_ERROR, status="Failed", detail = "remind token")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
-            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'
-            return response
         except Error.Token_Contorl_Error:
-            re_dict = _Return_Error_Post(code=ReturnStatus.TOKEN_FORBED, status="Failed", detail = "TOKEN_FORBED")
+            re_dict  = _Return_Error_Post(code=ReturnStatus.TOKEN_FORBED, status="Failed", detail = "TOKEN_FORBED")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
-            response.headers.add('Server','python flask')       
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
-            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'                    
-            return response
         except:
-            re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
+            re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
+            response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        else:
+            return 0
+        response.headers.add('Server','python flask')       
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'
+        return response
+    
+
+
+
+@app.route('/SpotifyLogin', methods=['GET', 'POST']) #登陆 并入以前的登陆接口 加入错误处理逻辑
+def SpotifyLogin():
+    if request.method == 'POST':
+        data = request.get_data()
+        try:
+            dict_data = json.loads(data)
+            username  = dict_data['username']
+            password  = dict_data['password']
+        except KeyError:
+            re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
+        except:
+            re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_UNKNOWN, status="Failed", detail = "ERROR_UNKNOWN")
+        else:
+            re_dict  = sp.login(username, password)
+        finally:
+            response = Response(json.dumps(re_dict), mimetype='application/json')
+            response.headers.add('Server','python flask')       
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
+            return response
+
+    else:
+        re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "ERROR_METHOD")
+        response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        response.headers.add('Server','python flask')       
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
+        return response
+
+
+@app.route('/SpotifyGoogle', methods=['GET', 'POST'])  #独立的 google 认证 加入错误处理逻辑 具体数据格式我和前端说
+def google():
+    if request.method == 'POST':
+        data = request.get_data()
+        try:
+            dict_data = json.loads(data)
+            username = dict_data['username']
+            method   = dict_data['method']
+            nums     = dict_data['nums']
+        except KeyError:
+            re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
+        except:
+            re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_UNKNOWN, status="Failed", detail = "ERROR_UNKNOWN")
+        else:
+
+            if method == 'mul_submit':
+                re_dict = sp.mul_submit(username=username, nums=nums)
+            elif method == 'single_click':
+                re_dict = sp.single_click(username=username, num=nums[0])
+            elif method == 'submit':
+                re_dict = sp.submit(username=username)
+            else:
+                re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS->MethodParams")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')       
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
-            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'                    
+            response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
             return response
-        else:
-            pass
+    else:
+        re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "ERROR_METHOD")
+        response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        response.headers.add('Server','python flask')       
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
+        return response
+
+
+@app.route("/callback/") #这个路由不能改
+def callback():
+    """
+        后端的日志功能还不完善，所以暂时不修改异常写入
+    """
+    try:
+        error = request.args['error']
+        if error != None:
+            return error
+
+    except:
+        print('noerror') # 这里表示没有异常
+
+    try:
+        code = request.args['code']
+        state = request.args['state']
+        sp.user_load_token(code, state)
+    except:
+        return 'error' # 按错误处理
+    return 'ok'
+
+
+
+@app.route("/SpotifyLogout") #注销函数 加入错误处理必要逻辑
+def SpotifyLogout():
+    try:
+        username = request.args['username']
+    except KeyError:
+        re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
+    else:
+        sp.user_login[username] = False
+        re_dict  = _Return_Error_Post(code=ReturnStatus.SUCCESS, status="SUCCESS", detail = "SUCCESS Logout")
+    finally:
+        response = Response(json.dumps(re_dict), mimetype = 'application/json')    
+        response.headers.add('Server','python flask')       
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
+        return response
 
 
 
