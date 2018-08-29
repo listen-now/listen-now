@@ -51,11 +51,11 @@ class QQMusic(object):
                     tmp_song = copy.deepcopy(RetDataModule.mod_song) #拷贝歌曲模板
                     music_id = music['mid']
                     tmp_song['music_id'] = music_id
-                    tmp_song['play_url'] = self.get_play_url(music_id, self.get_music_vkey(music_id))
+                    # tmp_song['play_url'] = self.get_play_url(music_id, self.get_music_vkey(music_id))
                     tmp_song['music_name'] = music['name']
                     tmp_song['artists'] = music['singer'][0]['name']
-                    tmp_song['image_url'] = self.get_image_url(music_id)
-                    tmp_song['lyric'] = self.get_music_lyric(music_id)
+                    # tmp_song['image_url'] = self.get_image_url(music_id)
+                    # tmp_song['lyric'] = self.get_music_lyric(music_id)
                     re_dict['song']['list'].append(copy.deepcopy(tmp_song)) #添加到歌曲列表
                     re_dict['song']['totalnum'] += 1
             else:

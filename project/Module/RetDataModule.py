@@ -24,9 +24,11 @@ mod_dissidlist = {
 } #歌单id列表json模板
 
 mod_cdlist = {
+    'code' : '200',
+    'status' : 'Success',
     'dissid' : '',
-    'dissname' : '我喜欢',
-    'nickname' : '默认列表',
+    'dissname' : '我是这个歌单的名字',
+    'nickname' : '我是这个歌单的创建者的名字',
     'info':'',
     'image_url':'',
     'song' : {
@@ -37,12 +39,15 @@ mod_cdlist = {
 } #歌单json模板
 
 mod_song = {
+    'code' : '200',
+    'status' : 'Success',
     'play_url' : '',
     'music_id' : '',
     'music_name' : '',
     'artists' : '',
     'image_url' : '',
     'lyric' : '',
+    'tlyric':'',
     'comment':[]
 } # 歌曲json模板
 
@@ -54,6 +59,8 @@ mod_hot_item_list = {
 } # 推荐主题列表json模板
 
 mod_hot_item = {
+    'code' : '200',
+    'status' : 'Success',
     'item_id' : '',
     'item_name' : '粤语',
     'item_desc' : '越动越难听',
@@ -70,7 +77,8 @@ mod_sign = {
     'code'   : '200',
     'status' : 'Success',
     'user_id': 0, 
-    'token_status': ""
+    'token_status': "",
+    'token_message':""
 } # 注册登录信息模板
 
 mod_token = {

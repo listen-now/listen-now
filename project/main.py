@@ -352,7 +352,7 @@ def login():
     response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'           
     return response
     
-@app.route('/get_token', methods=['POST', 'GET'])
+@app.route('/get_token', methods=['GET'])
 def get_token():
     global re_dict
     outdate=datetime.datetime.today()

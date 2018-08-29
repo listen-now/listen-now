@@ -120,6 +120,8 @@ class loginer(object):
                     re_dict["user_id"] = user_id[::-1]
                     create_token = AES_Crypt_Cookies()
                     Token_Crypto = create_token.Creat_Token(timevalue, user_id[::-1], ip, ua)
+                    re_dict['token_message'] = Token_Crypto
+                    # 返回token参数数据
             else:
                 re_dict["code"]    = ReturnStatus.USER_SIGN_ERROR
                 re_dict["status"]  = "Failed"
@@ -196,6 +198,8 @@ class loginer(object):
                     create_token = AES_Crypt_Cookies()
                     Token_Crypto = create_token.Creat_Token(timevalue, user_id[::-1], ip, ua)
                     re_dict["token_status"] = ReturnStatus.TOKEN_CREAT_SUCCESS
+                    re_dict['token_message'] = Token_Crypto
+                    # 返回token参数以及token生成状态
                 else:
                     print("Failed :(")
                     re_dict["code"]    = ReturnStatus.USER_FAILED_SIGN_IN
@@ -206,7 +210,7 @@ class loginer(object):
                 re_dict["status"]  = "Failed"
                 re_dict["user_id"] = user_id[::-1]             
 
-        return re_dict, Token_Crypto
+        return re_dict
 
 
 if __name__ == '__main__':

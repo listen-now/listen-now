@@ -10,9 +10,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 功能测试脚本
 '''
 
-# from project.Scrawl.QQMusic import QQMusic
-# app1 = QQMusic.QQMusic()
-# print(app1.search_by_keyword('纸短情长'))
+from project.Scrawl.QQMusic import QQMusic
+app1 = QQMusic.QQMusic()
+print(app1.search_by_keyword('纸短情长'))
+# print(app1.get_cdlist(3644190836))
 
 # from project.Scrawl.NeteasyMusic import NeteasyMusic
 # app2 = NeteasyMusic.Netmusic()
