@@ -17,8 +17,8 @@ class QQMusic(object):
     '''
     QQ音乐类
     '''
-    cache_path = os.path.abspath('.') + '/QQCache/'
-    meta_path = os.path.abspath('.') + '/QQMeta/'
+    cache_path = os.path.abspath('.') + '/Scrawl/QQMusic/QQCache/'
+    meta_path = os.path.abspath('.') + '/Scrawl/QQMusic/QQMeta/'
     def __init__(self):
         '''
         会话初始化
@@ -60,8 +60,10 @@ class QQMusic(object):
                     re_dict['song']['totalnum'] += 1
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
     def search_by_id(self, songMid):
@@ -89,10 +91,13 @@ class QQMusic(object):
                 tmp_song['lyric'] = self.get_music_lyric(music_id)
                 re_dict['song']['list'].append(tmp_song)
                 re_dict['song']['totalnum'] += 1
+                re_dict['next_page'] = 1
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
     def get_image_url(self, songMid):
@@ -174,9 +179,11 @@ class QQMusic(object):
                     re_dict['totaldiss'] += 1
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-        return re_dict          
+            re_dict['status'] = 'ERROR_UNKNOWN'
+        return re_dict       
 
     def get_user_collect_dissidlist(self, uin):
         '''
@@ -198,8 +205,10 @@ class QQMusic(object):
                     re_dict['totaldiss'] += 1
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
                 
     def get_cdlist(self, disstid, uin = '447231743',  song_begin = 0, song_num = 10):
@@ -240,8 +249,10 @@ class QQMusic(object):
                     re_dict['song']['list'].append(copy.deepcopy(tmp_song))
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
     def get_hot_itemidlist(self):
@@ -275,8 +286,10 @@ class QQMusic(object):
                     re_dict['itemlist'].append(copy.deepcopy(tmp_item)) #添加推荐主题
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
     def get_hot_playlist(self, itemid):
@@ -299,10 +312,12 @@ class QQMusic(object):
                     tmp_id = tid['tid'] if type(tid['tid']) == str else str(tid['tid'])
                     re_dict['idlist'].append(tmp_id) #添加到歌单id列表
                     re_dict['totaldiss'] += 1
-                else:
-                    re_dict['code'] = ReturnStatus.ERROR_SEVER
+            else:
+                re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
         except:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
     def download_song(self, songMid, path = cache_path, transTomp3 = False, guid = '4096863533'):
@@ -322,7 +337,6 @@ class QQMusic(object):
             exists_mp3 = os.path.exists(filename.replace('.m4a', '.mp3'))
             if (transTomp3 and not exists_m4a) or (not transTomp3 and not exists_m4a):
                 _url = self.get_play_url(songMid, self.get_music_vkey(songMid))
-                print(_url)
                 if transTomp3 and not exists_mp3 or not transTomp3 and not exists_m4a:
                     response = self.session.request('GET', _url, headers = self.headers)
                     with open(filename, 'wb') as fl:
