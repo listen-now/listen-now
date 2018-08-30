@@ -6,6 +6,8 @@ from project.Module import RetDataModule
 
 class songList(object):
     
+    def __init__(self):
+        
 
 
 class RetDateModuleFunc(object):
