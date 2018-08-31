@@ -13,7 +13,6 @@ import base64
 from Crypto.Cipher import AES
 from binascii import b2a_base64, a2b_base64
 from cryptography.fernet import Fernet
-from project.Config import config #从项目包顶导入
 
 
 re_dict = copy.deepcopy(RetDataModule.mod_sign)

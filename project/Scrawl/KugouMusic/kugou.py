@@ -33,7 +33,8 @@ class Kugou(object):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
         try:
-            resp = eval((self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)[17:-1])
+            resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text[17:-1])
+
         except simplejson.errors.JSONDecodeError:
             re_dict["code"] = ReturnStatus.ERROR_SEVER
             return re_dict

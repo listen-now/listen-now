@@ -3,6 +3,11 @@
 # __author__ : Yaxuan
 # __Update__: Cat.1
 
+mod_search_song = {
+                    "music_name":"",
+                    "artists":"",
+                    "id":""
+                    }
 
 mod_search = {
     'code' : '200',
