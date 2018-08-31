@@ -17,6 +17,7 @@ from Scrawl.KugouMusic import kugou as kugou_scrawl
 from Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
 from Scrawl.QQMusic import QQMusic as qq_scrawl
 from Scrawl.KuwoMusic import KuwoMusic as kuwo_scrawl
+from Scrawl.MiguMusic import Migu as migu_scrawl
 import Config.config
 from Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 from Sync.NeteasySync import Neteasymusic_Sync
@@ -195,6 +196,20 @@ def search_json():
                                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
                         else:
                             pass
+
+                    elif music_platform == "MiguMusic":
+                        kuwo_search = migu_scrawl.Kuwomusic()
+                        re_dict     = migu_search.Search_List(music_title, music_page)
+                        try:
+                            re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                        else:
+                            pass
+
 
                         finally:
                             re_dict.update({"now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
@@ -540,9 +555,14 @@ def Return_User_Song_List_Detail():
                 return_song_list = kugou_scrawl.Kugou()
                 return_song_list.ReturnSongList(song_list_id)
 
-            elif song_list_platform == "Kuwomusic":
+            # elif song_list_platform == "Kuwomusic":
+            #     song_list_id    = dict_data["id"]
+            #     return_song_list = kuwo_scrawl.KuwoMusic()
+            #     return_song_list.ReturnSongList(song_list_id)
+
+            elif song_list_platform == "Migumusic":
                 song_list_id    = dict_data["id"]
-                return_song_list = kuwo_scrawl.KuwoMusic()
+                return_song_list = migu_scrawl.KuwoMusic()
                 return_song_list.ReturnSongList(song_list_id)
 
             if re_dict:
@@ -694,6 +714,10 @@ def play_id():
                     elif music_platform == "Kuwomusic":
                         kuwo = kuwo_scrawl.KuwoMusic()
                         re_dict = kuwo.Search_details(dict_data["id"])
+
+                    elif music_platform == "Migumusic":
+                        kuwo = migu_scrawl.Migu()
+                        re_dict = migu.search_details(dict_data["id"])
 
                         if re_dict:
                             re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})

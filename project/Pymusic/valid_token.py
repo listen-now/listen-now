@@ -11,7 +11,7 @@ import sys
 sys.path.append('/home/mmmsc/listen-now/project/Pymusic/pubkey.pem')
 
 def valid_token():
-    resp = requests.get("http://zlclclc.cn/get_token")
+    resp = requests.get(url = "http://zlclclc.cn/get_token")
     s = eval(resp.json()["signature"])
     signature = base64.decodestring(s)
 
@@ -28,8 +28,9 @@ def valid_token():
         sign_valid = 1
     except:
         sign_valid = 0
-    token_message = crypto[2:110]+'\n'+crypto[112:115]      
+    #token = crypto[:110]+'\n'+crypto[112:115]
+    token_message = crypto[2:110]+r'\n'+crypto[112:115]      
     parameter = {"sign_valid":sign_valid,"token":token_message}
-    valid_key = requests.post(url="http://zlclclc.cn/exist_token",data = json.dumps(parameter))
+    valid_key = requests.post(url = "http://zlclclc.cn/exist_token",data = json.dumps(parameter))
     return token_message
 #print(valid_token())

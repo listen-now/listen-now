@@ -22,10 +22,11 @@ from valid_token import valid_token
     
 global token_message
 token_message = valid_token()
+token_message = token_message.replace('\\n','\n')
 
 def check_token():
     try :
-        token_message
+        token
     except:
         valid_token()
 
@@ -33,7 +34,7 @@ data = {
         "title":None,
         "platform":None,
         "page":1,
-        "token":None
+        #"token":None
         }
 
 
@@ -108,7 +109,8 @@ class pymusic(object):
         else:
             platform = self.fix_enter(platform)
             if title != None:
-                data["title"], data["page"], data["platform"],data["token"] = title, 1, platform,token_message
+                #data["title"], data["page"], data["platform"],data["token"] = title, 1, platform,token_message
+                data["title"], data["page"], data["platform"] = title, 1, platform
                 self.send_data("search", "0", data, "post", music_page)
             elif music_id != None:
                 data["id"], data["page"], data["platform"], data["token"] = music_id, 1, platform,token_message
@@ -183,6 +185,7 @@ class pymusic(object):
             if w == "1":
                 return resp
             try:
+                print(_send_data)
                 if resp.json()["code"] == 200:
                 #display songs and play
                     if f == "0":
