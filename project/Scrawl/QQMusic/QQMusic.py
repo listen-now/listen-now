@@ -5,6 +5,7 @@
 
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
+from project.Module import ReturnFunction
 from .QQHelper.m4aTomp3 import m4aTomp3
 import requests
 import random
@@ -46,22 +47,20 @@ class QQMusic(object):
             response = self.session.request('GET', _url, headers = self.headers)
             serach_res = response.json()
             if serach_res.get('code', -1) == 0:
-                song_list = serach_res.get('data',{}).get('song',{}).get('list',[])
-                for music in song_list:
-                    tmp_song = copy.deepcopy(RetDataModule.mod_song) #拷贝歌曲模板
-                    music_id = music['mid']
-                    tmp_song['music_id'] = music_id
-                    # tmp_song['play_url'] = self.get_play_url(music_id, self.get_music_vkey(music_id))
-                    tmp_song['music_name'] = music['name']
-                    tmp_song['artists'] = music['singer'][0]['name']
-                    # tmp_song['image_url'] = self.get_image_url(music_id)
-                    # tmp_song['lyric'] = self.get_music_lyric(music_id)
-                    re_dict['song']['list'].append(copy.deepcopy(tmp_song)) #添加到歌曲列表
-                    re_dict['song']['totalnum'] += 1
+                song_list     = serach_res.get('data',{}).get('song',{}).get('list',[])
+                
+                songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]")
+                songList.buidingSongList()
+                
+                re_dict_class = ReturnFunction.RetDateModuleFunc()
+                now_page      = page
+                before_page, next_page = page-1, page+1
+                totalnum      = songList.count
+                re_dict       = re_dict_class.RetDateModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
-        except:
+        except AssertionError:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
             re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict

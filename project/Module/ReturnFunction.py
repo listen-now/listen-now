@@ -14,29 +14,32 @@ class songList(object):
     Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，songName，artistsName，idName是对应的键值，即key
 
     """
-    def __init__(self, Data: list, songName: str, artistsName: str, idName: str) -> list:
-        self.Data        = Data
-        self.songName    = songName
-        self.artistsName = artistsName
-        self.idName      = idName
+    def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str) -> list:
+        self.Data       = Data
+        self.songdir    = songdir
+        self.artistsdir = artistsdir
+        self.iddir      = iddir
 
 
     def buidingSongList(self):
         self.songList = []
         tmpSongMod    = copy.deepcopy(RetDataModule.mod_search_song)
-        assert(self.Data[0][artistsName], 'PARAMS Error!')
-        self.count = 1
+        assert(eval("self.Data[0]" + self.songdir), 'PARAMS Error!')
+        self.count = 0
         for item in self.Data:
-            tmpSongMod['music_name'] = item[self.songName]
-            tmpSongMod['artists']    = item[self.artistsName]
-            tmpSongMod['id']         = item[self.idName]
-            self.songList.insert(tmpSongMod)
+            tmpSongMod['music_name'] = eval("item" + self.songdir)
+            tmpSongMod['artists']    = eval("item" + self.artistsdir)
+            tmpSongMod['id']         = eval("item" + self.iddir)
+            self.songList.append(copy.deepcopy(tmpSongMod))
             self.count += 1
-        return self.songList
+        return 0
 
 
     def CountSong(self):
         return self.count
+
+    def ReturnList(self):
+        return self.songList
 
     def ClearSongList(self):
         self.songList = []
@@ -59,16 +62,15 @@ class RetDateModuleFunc(object):
         code -> 请求状态码，参阅ReturnStatus, status -> 详细状态，以str方式提供, now_page -> 当前用户请求的页码，用于翻页, 
         songList -> 一种特定的list，主要用来返回规定的歌曲候选列表, totalnum -> 返回的总歌曲数量
         """
-        assert(len(songList)         == totalnum, "songList.totalnum != totalnum")
 
-        self.re_dict                 = copy.deepcopy(RetDataModule.mod_search)
-        self.re_dict['code']         = code
-        self.re_dict['status']       = status
-        self.re_dict['now_page']     = now_page
-        self.re_dict['next_page']    = next_page
-        self.re_dict['before_page']  = before_page
-        self.re_dict['song']['list'] = songList
-        self.re_dict['totalnum']     = totalnum
+        self.re_dict                     = copy.deepcopy(RetDataModule.mod_search)
+        self.re_dict['code']             = code
+        self.re_dict['status']           = status
+        self.re_dict['now_page']         = now_page
+        self.re_dict['next_page']        = next_page
+        self.re_dict['before_page']      = before_page
+        self.re_dict['song']['list']     = songList.ReturnList()
+        self.re_dict['song']['totalnum'] = songList.count
 
         return self.re_dict
 
@@ -97,9 +99,9 @@ class RetDateModuleFunc(object):
 
 
     def RetDateModCdlist(self, dissname: str, nickname: str, info: str, dissid: str, image_url: str, 
-                         songList: songList(), code=200, status="Success", totalnum: int, curnum: int) -> dict:
+                         songList: songList, totalnum: int, curnum: int, code=200, status="Success") -> dict:
 
-        assert(len(songList.totalnum)    == totalnum, "songList.totalnum != totalnum")
+        assert(len(songList.count)    == totalnum, "songList.totalnum != totalnum")
         assert(type(code)                == int, "code type is int ?")
 
         self.re_dict                     = copy.deepcopy(RetDataModule.mod_cdlist)
@@ -108,8 +110,8 @@ class RetDateModuleFunc(object):
         self.re_dict['dissname']         = dissname
         self.re_dict['nickname']         = nickname
         self.re_dict['image_url']        = image_url
-        self.re_dict['song']['list']     = songList
-        self.re_dict['song']['totalnum'] = songList.totalitem
+        self.re_dict['song']['list']     = songList.ReturnList()
+        self.re_dict['song']['totalnum'] = songList.count
         self.re_dict['song']['curnum']   = curnum
         self.re_dict['code']             = code
         self.re_dict['status']           = status

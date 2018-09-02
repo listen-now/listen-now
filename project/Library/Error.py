@@ -45,7 +45,6 @@ class ReturnFuncParams(ReturnFunction):
 class ReturnFuncType(ReturnFunction):
     pass
 
-class 
 
 if __name__ == '__main__':
 
