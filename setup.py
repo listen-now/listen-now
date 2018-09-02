@@ -63,15 +63,15 @@ pip = {"1":"pip", "2":"pip3", "3":"other"}
 pip = pip[input("请选择你的pip管理工具使用的哪一个名称\n1.)pip\n2.)pip3\n3.)other\n->")]
 try:
     if pip == "pip3":
-        print(subprocess.check_output("pip3 install --upgrade pip", shell=True).decode("UTF-8"))
-        print(subprocess.check_output("pip3 install -r requirements.txt", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo pip3 install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo pip3 install -r requirements.txt", shell=True).decode("UTF-8"))
     elif pip == "pip":
-        print(subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8"))
-        print(subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo pip install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo pip install --upgrade pip", shell=True).decode("UTF-8"))
     else:
         pip = input("键入你的pip管理工具的名称：")
-        print(subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8"))
-        print(subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo " + pip + " install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("sudo " + pip + " install --upgrade pip", shell=True).decode("UTF-8"))
 except:
     print("[-]pip依赖包安装失败")
     print("请手动安装requirements.txt")
