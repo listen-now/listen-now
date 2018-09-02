@@ -49,8 +49,7 @@
 RSA公钥验证随接口返回的签名有效性；验证签名后，请求API接口B去使预token生成长效token（目前有效期为2天），或者签名不正确的话，接口B会返回
 新的预token用于验签。
 
-当你的预token成功注册为token后请将其加入到Headers 里的Authorization字段，同时在请求服务器任何API的时候都带上"token"参数，服务器会随机
-抽取该两个参数/字段中任意一个用于检测，同时你需要维护cookies中该内容不受影响，cookies中token参数仍会被服务器随机抽取验证参数是否合法
+当你的预token成功注册为token后请将其加入到Headers 里的token字段，服务器会抽取该字段中用于检测，同时你需要维护cookies中该内容不受影响，cookies中token参数仍会被服务器随机抽取验证参数是否合法
 
 ```
 
@@ -77,7 +76,6 @@ user_id       否     用户在平台上的用户名，微信端为open_id，web
     "user_id":"Listen-now-user"
 }
 ```
-
 
 * API [B]
 >请求地址:

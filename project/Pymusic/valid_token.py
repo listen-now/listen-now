@@ -8,6 +8,7 @@ import rsa
 import base64
 import json
 import sys
+
 sys.path.append('/home/mmmsc/listen-now/project/Pymusic/pubkey.pem')
 
 def valid_token():
@@ -27,6 +28,7 @@ def valid_token():
         rsa.verify(message.encode(), signature, pubkey)
         sign_valid = 1
     except:
+
         sign_valid = 0
     #token = crypto[:110]+'\n'+crypto[112:115]
     token_message = crypto[2:110]+r'\n'+crypto[112:115]      
@@ -34,3 +36,4 @@ def valid_token():
     valid_key = requests.post(url = "http://zlclclc.cn/exist_token",data = json.dumps(parameter))
     return token_message
 #print(valid_token())
+

@@ -13,7 +13,6 @@ import base64
 from Crypto.Cipher import AES
 from binascii import b2a_base64, a2b_base64
 from cryptography.fernet import Fernet
-from project.Config import config #从项目包顶导入
 
 
 re_dict = copy.deepcopy(RetDataModule.mod_sign)
@@ -50,10 +49,11 @@ class AES_Crypt_Cookies(object):
 
         Token = loginer()
         Token_Crypto            = Token.Creat_Return_Token(str(b2a_base64(res), encoding= "utf-8"))
-        print(str(Token_Crypto[0]))
-        print(self.r.set(Token_Crypto[0], nickname))
-        self.r.expire(Token_Crypto, 60)  # 生成预token
-        print(self.r.get(Token_Crypto[0]))
+        # print(str(Token_Crypto[0]))
+        self.r.set(Token_Crypto[0], nickname)
+        self.r.expire(Token_Crypto[0], 60)  
+        # 生成预token
+        # print(self.r.get(Token_Crypto[0]))
 
         re_dict["token_status"] = ReturnStatus.TOKEN_CREAT_SUCCESS
         return Token_Crypto
@@ -119,6 +119,8 @@ class loginer(object):
                     re_dict["user_id"] = user_id[::-1]
                     create_token = AES_Crypt_Cookies()
                     Token_Crypto = create_token.Creat_Token(timevalue, user_id[::-1], ip, ua)
+                    re_dict['token_message'] = Token_Crypto
+                    # 返回token参数数据
             else:
                 re_dict["code"]    = ReturnStatus.USER_SIGN_ERROR
                 re_dict["status"]  = "Failed"
@@ -195,6 +197,8 @@ class loginer(object):
                     create_token = AES_Crypt_Cookies()
                     Token_Crypto = create_token.Creat_Token(timevalue, user_id[::-1], ip, ua)
                     re_dict["token_status"] = ReturnStatus.TOKEN_CREAT_SUCCESS
+                    re_dict['token_message'] = Token_Crypto
+                    # 返回token参数以及token生成状态
                 else:
                     print("Failed :(")
                     re_dict["code"]    = ReturnStatus.USER_FAILED_SIGN_IN
@@ -205,7 +209,7 @@ class loginer(object):
                 re_dict["status"]  = "Failed"
                 re_dict["user_id"] = user_id[::-1]             
 
-        return re_dict, Token_Crypto
+        return re_dict
 
 
 if __name__ == '__main__':

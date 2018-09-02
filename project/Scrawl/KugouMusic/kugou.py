@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# @File:kugou.py
+# @Date:2018/08/01
+# Author:Cat.1    
+
 # # encoding:utf-8
 # import io  
 # import sys  
@@ -28,7 +33,8 @@ class Kugou(object):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
         try:
-            resp = eval((self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)[17:-1])
+            resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text[17:-1])
+
         except simplejson.errors.JSONDecodeError:
             re_dict["code"] = ReturnStatus.ERROR_SEVER
             return re_dict
@@ -74,6 +80,7 @@ class Kugou(object):
             re_dict["code"] = ReturnStatus.ERROR_SEVER
             return re_dict
         try:
+            print(resp)
             re_dict["dissname"]  = resp['info']['list']['specialname']
             re_dict["nickname"]  = resp['info']['list']['nickname']
             re_dict['image_url'] = resp['info']['list']['imgurl']
@@ -92,6 +99,21 @@ class Kugou(object):
         except:re_dict['code'] = ReturnStatus.DATA_ERROR
         else:re_dict['code']   = ReturnStatus.SUCCESS
         return re_dict
+
+    def TopSongList(self):
+        url     = "http://m.kugou.com/plist/index&json=true"
+        re_dict = copy.deepcopy(RetDataModule.mod_hot_dissid_list)
+        try:
+            resp = requests.get(url=url, headers=self.headers).json()
+        except simplejson.errors.JSONDecodeError:
+            re_dict["code"] = ReturnStatus.ERROR_SEVER
+            return re_dict
+        try:
+            print(resp)
+        except:
+            pass
+
+
 
 if __name__ == "__main__":
 

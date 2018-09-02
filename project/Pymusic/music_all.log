@@ -14,3 +14,4 @@
 2018-08-10 20:14:31,257 - /usr/local/bin/pymusic[line:61] - DEBUG: This is a test log.
 2018-08-10 20:14:42,894 - /home/mmmsc/listen-now/project/Pymusic/music.py[line:61] - DEBUG: This is a test log.
 2018-08-10 20:14:43,403 - /usr/local/bin/pymusic[line:61] - DEBUG: This is a test log.
+

@@ -83,6 +83,7 @@ class Play_Lyric(object):
         TimeList = re.findall(r"\d{1,3}\:\d{1,3}\.\d{1,3}", lyric)
         lyric    = re.sub(r"\d{1,3}\:\d{1,3}\.\d{1,3}", '', lyric)
         lyric    = lyric.replace('[]','')
+
         if len(TimeList) > 1:
             TimeEnd   = TimeList[1].split(':')
             TimeStart = TimeList[0].split(':')
@@ -104,7 +105,7 @@ class Play_Lyric(object):
         # print(TimeSleep/len(lyric))
         # time.sleep(10)
         time.sleep(TimeSleep)
-        subprocess.call("clear")
+        subprocess.call("clear")#
 
         if TimeList == []:
             print("{0:_^60}".format(lyric))

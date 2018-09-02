@@ -1,3 +1,4 @@
+
 # __date__ 2018/7/29
 # __file__ KuwoMusic
 # __author__ Msc
@@ -14,6 +15,7 @@ class KuwoMusic(object):
     '''
         酷我音乐
     '''
+    
     global null
     null=''
     re_dict = copy.deepcopy(RetDataModule.mod_search)
@@ -91,14 +93,3 @@ if __name__=="__main__":
     test = KuwoMusic()
 
     rest.Search_List("青花瓷",0)
-
-
-
-
-
-
-
-
-
-
-
