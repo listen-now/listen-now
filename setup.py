@@ -14,9 +14,13 @@ path2 = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/read_lyric.py "
 
 
 try:
-    print("Hello " + os.getlogin()+" 我们正在为您执行listen-now的后端自动化部署")
-    subprocess.check_output(path1, shell=True).decode("UTF-8")
-    subprocess.check_output(path2, shell=True).decode("UTF-8")
+    try:
+        print("Hello " + os.getlogin()+" 我们正在为您执行listen-now的后端自动化部署")
+    except FileNotFoundError:
+        print("Hello Listen-now用户, 我们正在为您执行listen-now的后端自动化部署")
+
+    print(subprocess.check_output(path1, shell=True).decode("UTF-8"))
+    print(subprocess.check_output(path2, shell=True).decode("UTF-8"))
 except:
     print("[-]请手动初始化终端命令功能\n")
     print("参考指令 -> " + path2)
@@ -34,17 +38,17 @@ except:
 else:
     try:
         if platform == "darwin":
-            subprocess.check_output("brew install mpg123", shell=True).decode("UTF-8")
-            subprocess.check_output("brew install ffmpeg", shell=True).decode("UTF-8")
+            print(subprocess.check_output("brew install mpg123", shell=True).decode("UTF-8"))
+            print(subprocess.check_output("brew install ffmpeg", shell=True).decode("UTF-8"))
         elif platform == "linux":
             platform = {"1":"基于Redhat的发行版及centos", "2":"debian及基于debian的发行版"}
             platform = platform[input("请选择你的linux版本\n1.)基于Redhat的发行版及centos\n2.)debian及基于debian的发行版\n->")]
             if platform == "基于Redhat的发行版及centos":
-                subprocess.check_output("sudo yum install mpg123", shell=True).decode("UTF-8")
-                subprocess.check_output("sudo yum install ffmpeg", shell=True).decode("UTF-8")
+                print(subprocess.check_output("sudo yum install mpg123", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo yum install ffmpeg", shell=True).decode("UTF-8"))
             elif platform == "debian及基于debian的发行版":
-                subprocess.check_output("sudo apt-get install mpg123", shell=True).decode("UTF-8")
-                subprocess.check_output("sudo apt-get install ffmpeg", shell=True).decode("UTF-8")
+                print(subprocess.check_output("sudo apt-get install mpg123", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo apt-get install ffmpeg", shell=True).decode("UTF-8"))
         else:
             print("暂时不支持Win平台")
             raise BaseException
@@ -59,22 +63,22 @@ pip = {"1":"pip", "2":"pip3", "3":"other"}
 pip = pip[input("请选择你的pip管理工具使用的哪一个名称\n1.)pip\n2.)pip3\n3.)other\n->")]
 try:
     if pip == "pip3":
-        subprocess.check_output("pip3 install --upgrade pip", shell=True).decode("UTF-8")
-        subprocess.check_output("pip3 install -r requirements.txt", shell=True).decode("UTF-8")
+        print(subprocess.check_output("pip3 install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("pip3 install -r requirements.txt", shell=True).decode("UTF-8"))
     elif pip == "pip":
-        subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8")
-        subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8")
+        print(subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output("pip install --upgrade pip", shell=True).decode("UTF-8"))
     else:
         pip = input("键入你的pip管理工具的名称：")
-        subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8")
-        subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8")
+        print(subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8"))
+        print(subprocess.check_output(pip + " install --upgrade pip", shell=True).decode("UTF-8"))
 except:
     print("[-]pip依赖包安装失败")
     print("请手动安装requirements.txt")
     raise BaseException
 
 try:
-    subprocess.check_output("touch error.log && touch access.log", shell=True).decode("UTF-8")
+    print(subprocess.check_output("touch error.log && touch access.log", shell=True).decode("UTF-8"))
     fp = open("config.ini", "w+")
     fp.write("[uwsgi]\n\nsocket = 127.0.0.1:5051\nchdir = /root/listen-now/\nwsgi-file = main.py\ncallable = app\nprocesses = 4\nthreads = 2\nstats = 127.0.0.1:9191\n")
     fp.close()
