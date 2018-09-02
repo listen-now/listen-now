@@ -1,6 +1,6 @@
 # Listen-now
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)
-![Listen-now](https://img.shields.io/badge/Listen--now-1.2.0-red.svg)
+![Listen-now](https://img.shields.io/badge/Listen--now-1.5.3-red.svg)
 ![Listen-now](首页.jpg)
 
 ## 邮件列表
@@ -30,10 +30,11 @@ Listen-now开源项目公开的邮件列表地址为：listen-now-email@googlegr
 
     * 1.5.0   初步支持新的三个音乐平台：百度（千千）音乐、酷狗音乐、酷我音乐
     * 1.5.2   开发Spotify音乐平台，暂时因为Spotify不向国内提供服务，而没有启用。
+    * 1.5.3   初步支持咪咕音乐平台
 ```
 ## 简要说明
 
-这是一个目前支持七大(网易、虾米、QQ、百度[千千]、酷狗、酷我、Spotify)音乐平台的Python后端系统, 它可以被部署在服务器上, 接受相关请求, 返回相应音乐的地址、歌词、演唱者等更多信息.
+这是一个目前支持八大(网易、虾米、QQ、百度[千千]、酷狗、酷我、Spotify、咪咕)音乐平台的Python后端系统, 它可以被部署在服务器上, 接受相关请求, 返回相应音乐的地址、歌词、演唱者等更多信息.
 
 目前他提供多个版本，
 
@@ -57,15 +58,15 @@ Nginx
 
 ## 使用指南
 
-[1. pymusic 使用指南](https://github.com/listen-now/listen-now/blob/master/README/pymusic-readme.md)
+[1. pymusic 使用指南](https://github.com/listen-now/listen-now/docs/pymusic-readme.md)
 
-[2. API搭建版本](https://github.com/listen-now/listen-now/blob/master/README/API-readme.me)
+[2. API搭建版本](https://github.com/listen-now/listen-now/docs/API-readme.me)
 
-[3. docker免配置版本](https://github.com/listen-now/listen-now/blob/master/README/docker-readme.me)
+[3. docker免配置版本](https://github.com/listen-now/listen-now/docs/docker-readme.me)
 
 ## 如何参与贡献？
 
-[参与贡献指南](https://github.com/listen-now/listen-now/blob/master/CONTRIBUTING.md)
+[参与贡献指南](https://github.com/listen-now/listen-now/docs/CONTRIBUTING.md)
 
 
 

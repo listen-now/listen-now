@@ -1,6 +1,6 @@
 [listen-now开发者文档说明]
 =======================
-### 版本 - 1.2.0
+### 文档支持版本 - 1.5.3
 '''
 该文件解释了Listen-now 前后端交互的使用说明
 和状态码的解读
@@ -14,7 +14,9 @@
 102 # 服务器生成Token成功
 103 # 服务器生成Token遇到错误
 104 # 预Token生成Token成功
+
 200 # 成功请求数据, 服务器处理成功
+
 400 # 应该为POST请求却使用了GET请求
 401 # 该平台没有该歌曲
 402 # 没有该歌曲的更多结果啦
@@ -26,6 +28,7 @@
 408 # 未启用数据库, 却使用了依赖其的功能
 409 # 不安全的参数值要求
 410 # 服务器内部错误
+
 500 # 用户未注册
 501 # 用户注册成功
 502 # 用户名被注册过
@@ -40,7 +43,7 @@
 ```
 暂时提供POST、GET方式请求
 以raw格式进行数据提交
-提交主机地址：https://www.zlclclc.cn/
+提交主机地址：https://www.zlclclc.cn/ (目前测试服务，暂时不启用SSL加密)
 或者        http://zlclclc.cn
 测试服务器地址：http://118.126.93.123
 ```
@@ -62,6 +65,7 @@ platform 请求音乐平台，目前提供如下：
     。QQmusic
 
 token 服务器加密参数，请求任何API均需要提供：
+具体请参考 `token参数请求说明` 。
 
 ```
 
@@ -79,13 +83,11 @@ http://zlclclc.cn/search
 title       否     关键字，主要的内容是歌手名/歌曲名，例如:纸短情长，张学友
 platform    否     音乐平台，为通用参数platform列出字段
 page        是     搜索页，不加入该参数默认返回第一页10首，通过增加page来改变搜索信息  
-token       否     token参数
 ```
 >请求示例:
 ```
 {
     "title":"成都",
-    "token":"your_token_message_content",
     "platform":"Neteasymusic"
 }
 ```
@@ -101,14 +103,12 @@ http://zlclclc.cn/id
 参数          可选    描述
 id            否     歌曲识别码，各平台的歌曲识别码格式不一样，需要请求获取
 platform      否     音乐平台，通用参数
-token         否     token参数
 ```
 >请求示例:
 ```
 {
     "id":"0015H75B1NvYzl",
     "platform":"QQmusic",
-    "token":"your_token_message_content"
 }
 ```
 * API [C]
@@ -121,7 +121,6 @@ http://zlclclc.cn/song_list_requests
 参数        可选      描述
 url         否       歌单地址，目前只支持网易，QQ
 platform    否       音乐平台，通用参数
-token       否       token参数
 
 ```
 
@@ -136,9 +135,14 @@ http://zlclclc.cn/user_song_list
 参数        可选        描述
 uid         否       用户识别码，目前只支持网易，QQ
 platform    否       确认用户同步的平台选择
-token       否       token参数
 
 ```
+
+
+
+
+
+
 
 成功请求
 -------
@@ -148,7 +152,6 @@ token       否       token参数
     "title":"纸短情长",
     “platform”:”Neteasymusic”,
     “page”: 1,
-    "token":"your_token_message_content"
 }
 ```
 * 返回值:
