@@ -4,33 +4,19 @@
 # Author:Cat.1    
 # 2018/05/20 代码部分重构
 # 2018/07/15 重构系统
-<<<<<<< HEAD
-# 2018/07/29 增加酷狗音乐支持
-# 2018/08/03 Add KuwoMuisc
-=======
 # 2018/07/29 增加酷狗音乐初步支持
 # 2018/08/03 增加百度、酷我音乐初步支持
 # 2018/08/25 增加Spotify初步支持
 
-import re
->>>>>>> origin/CatDev
+
 import sys
 sys.path.append('..') # 必须要, 设置project为源程序的包顶
+import re
 import copy
 import redis
 import datetime
 import threading
 import json, time
-<<<<<<< HEAD
-import re
-from Scrawl.NeteasyMusic import NeteasyMusic as neteasy_scrawl
-from Scrawl.KugouMusic import kugou as kugou_scrawl
-from Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
-from Scrawl.QQMusic import QQMusic as qq_scrawl
-from Scrawl.KuwoMusic import KuwoMusic as kuwo_scrawl
-from Scrawl.MiguMusic import Migu as migu_scrawl
-=======
->>>>>>> origin/CatDev
 import Config.config
 from flask_cors import CORS
 from project.Library import Error
@@ -43,6 +29,8 @@ from flask import Flask,request,Response,jsonify
 from project.Sync.NeteasySync import Neteasymusic_Sync
 from project.Scrawl.QQMusic import QQMusic as qq_scrawl
 from project.Scrawl.KugouMusic import kugou as kugou_scrawl
+from project.Scrawl.KuwoMusic import KuwoMusic as kuwo_scrawl
+from project.Scrawl.MiguMusic import Migu as migu_scrawl
 from project.Scrawl.SpotifyMusic import SpotifyMusic as spotify
 from project.Sync.XiamiSync import XiamiMusic as xiami_Song_List
 from project.Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl

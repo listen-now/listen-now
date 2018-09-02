@@ -10,10 +10,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 功能测试脚本
 '''
 
-from project.Scrawl.QQMusic import QQMusic
-app1 = QQMusic.QQMusic()
+# from project.Scrawl.QQMusic import QQMusic
+# app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
-print(app1.get_cdlist(3644190836))
+# print(app1.get_cdlist(3644190836))
 
 # from project.Scrawl.NeteasyMusic import NeteasyMusic
 # app2 = NeteasyMusic.Netmusic()
@@ -69,18 +69,18 @@ print(app1.get_cdlist(3644190836))
 #print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
 #print(app6.ReturnSongList("12345"))
 
-#from project.Scrawl.KuwoMusic import KuwoMusic
+# from project.Scrawl.KuwoMusic import KuwoMusic
 
-#app7 = KuwoMusic.KuwoMusic()
-#print(app7.Search_List("青花瓷", 0))
-#print(app7.Search_details("48791034"))
+# app7 = KuwoMusic.KuwoMusic()
+# print(app7.Search_List("青花瓷", 0))
+# print(app7.Search_details("48791034"))
 #print(app7.get_play_url("48791034"))
 #print(app7.get_comment("48791034"))
 
 from project.Scrawl.MiguMusic import MiguMusic
 app8 = MiguMusic.Migu()
-#print(app8.search("怪咖",1))
-print(app8.search_details('60075020337'))
+print(app8.search("怪咖",1))
+# print(app8.search_details('60075020337'))
 
 # from project.Sync.XiamiSync import XiamiMusic
 # app7 = XiamiMusic.XiamiApi()

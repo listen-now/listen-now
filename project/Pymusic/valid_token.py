@@ -7,9 +7,7 @@ import requests
 import rsa
 import base64
 import json
-import sys
 
-sys.path.append('/home/mmmsc/listen-now/project/Pymusic/pubkey.pem')
 
 def valid_token():
     resp = requests.get(url = "http://zlclclc.cn/get_token")
@@ -19,7 +17,7 @@ def valid_token():
     crypto = resp.json()["token_message"]
     message = crypto[2:-6]+'\n'
 
-    with open('pubkey.pem','r') as f:
+    with open('/home/mmmsc/listen-now/project/Helper/pubkey.pem','r') as f:
         pubkey = rsa.PublicKey.load_pkcs1(f.read().encode())        
     
     v = rsa.verify(message.encode(), signature, pubkey)     

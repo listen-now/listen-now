@@ -15,9 +15,6 @@ class Migu(object):
     '''
         migumusic scrawl
     '''
-    globals = {
-     'true': 0 
-    }
     global null
     null=''
     re_dict = copy.deepcopy(RetDataModule.mod_search)
@@ -35,9 +32,8 @@ class Migu(object):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
         try:
-            resp = dict((self.session.get(url=self.searchurl%(keyword, page), headers=self.headers).text))
-            resp = eval(resp,globals)
-        except KeyboardInterrupt :
+            resp = eval(self.session.get(url=self.searchurl%(keyword, page), headers=self.headers).text)
+        except simplejson.errors.JSONDecodeError :
             re_dict["code"] = ReturnStatus.ERROR_SEVER
             return re_dict
         if resp["pgt"] != 0 :
