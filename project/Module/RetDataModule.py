@@ -62,23 +62,21 @@ mod_hot_item_list = {
     'status' : 'Success',
     'totalitem' : 0,
     'itemlist' : [
-                  {
-                    'code' : 200,
-                    'status' : 'Success',
-                    'item_id' : '',
-                    'item_name' : '粤语',
-                    'item_desc' : '越动越好听，经典的粤语合集给你',
-                   },
-    ]
+              {
+                'item_id' : '',
+                'item_name' : '粤语',
+                'item_desc' : '越动越好听，经典的粤语合集给你',
+                'image_url' : '',
+               },
+            ]
 } # 推荐主题列表json模板
 
 
 mod_hot_item = {
-    'code' : 200,
-    'status' : 'Success',
     'item_id' : '',
     'item_name' : '粤语',
     'item_desc' : '越动越好听，经典的粤语合集给你',
+    'image_url' : '',
 } # 推荐主题的json模板，包括主题id
 
 mod_hot_dissid_list = {

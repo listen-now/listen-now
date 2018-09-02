@@ -11,7 +11,7 @@ from project.Module import RetDataModule
 class songList(object):
     """部分请求参数说明
     
-    Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，songName，artistsName，idName是对应的键值，即key
+    Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，songdir，artistsdir，iddir是对应的键值，即dir地址
 
     """
     def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str) -> list:
@@ -22,9 +22,9 @@ class songList(object):
 
 
     def buidingSongList(self):
+        assert(eval("self.Data[0]" + self.songdir), 'PARAMS Error!')
         self.songList = []
         tmpSongMod    = copy.deepcopy(RetDataModule.mod_search_song)
-        assert(eval("self.Data[0]" + self.songdir), 'PARAMS Error!')
         self.count = 0
         for item in self.Data:
             tmpSongMod['music_name'] = eval("item" + self.songdir)
@@ -47,7 +47,39 @@ class songList(object):
 
 
 
-class RetDateModuleFunc(object):
+class TopSongList(songList):
+    """部分请求参数说明
+    
+    Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，
+    songdir，artistsdir，iddir是对应的键值，即dir地址
+
+    """
+
+    def __init__(self, Data: list, ItemNameDir: str, ImageUrlDir: str, IdDir: str, InfoDir: str) -> list:
+        self.Data        = Data
+        self.ItemNameDir = ItemNameDir
+        self.ImageUrlDir = ImageUrlDir
+        self.IdDir       = IdDir
+        self.InfoDir     = InfoDir
+
+    def buidingSongList(self):
+        assert(eval("self.Data[0]" + self.ItemNameDir), 'PARAMS Error!')
+        self.songList = []
+        tmpSongMod    = copy.deepcopy(RetDataModule.mod_hot_item)
+
+        self.count = 0
+        for item in self.Data:
+            tmpSongMod['item_name'] = eval("item" + self.ItemNameDir)
+            tmpSongMod['image_url'] = eval("item" + self.ImageUrlDir)
+            tmpSongMod['item_desc'] = eval("item" + self.InfoDir)
+            tmpSongMod['item_id']   = eval("item" + self.IdDir)
+            self.songList.append(copy.deepcopy(tmpSongMod))
+            self.count += 1
+        return 0
+
+
+
+class RetDataModuleFunc(object):
 
 
 
@@ -55,7 +87,7 @@ class RetDateModuleFunc(object):
         self.re_dict = None
 
 
-    def RetDateModSearch(self, now_page: int, next_page: int, before_page: int, songList: list, 
+    def RetDataModSearch(self, now_page: int, next_page: int, before_page: int, songList: list, 
                          totalnum: int, code=200, status='Success') -> dict:
         """部分返回参数说明
         
@@ -75,7 +107,7 @@ class RetDateModuleFunc(object):
         return self.re_dict
 
 
-    def RetDateModSong(self, play_url: str, music_id: str, music_name: str, artists: str, image_url: str, 
+    def RetDataModSong(self, play_url: str, music_id: str, music_name: str, artists: str, image_url: str, 
                        lyric: str, comment: list, tlyric='None',  code=200, status='Success') -> dict:
         """部分返回参数说明
         
@@ -98,10 +130,10 @@ class RetDateModuleFunc(object):
         return self.re_dict
 
 
-    def RetDateModCdlist(self, dissname: str, nickname: str, info: str, dissid: str, image_url: str, 
+    def RetDataModCdlist(self, dissname: str, nickname: str, info: str, dissid: str, image_url: str, 
                          songList: songList, totalnum: int, curnum: int, code=200, status="Success") -> dict:
 
-        assert(len(songList.count)    == totalnum, "songList.totalnum != totalnum")
+        assert(songList.count            == totalnum, "songList.totalnum != totalnum")
         assert(type(code)                == int, "code type is int ?")
 
         self.re_dict                     = copy.deepcopy(RetDataModule.mod_cdlist)
@@ -118,7 +150,7 @@ class RetDateModuleFunc(object):
 
         return self.re_dict
 
-    def RetDateModHotItem(self, item_id: str, item_name: str, item_desc: str, code=200, status='Success') -> dict:
+    def RetDataModHotItem(self, item_id: str, item_name: str, item_desc: str, code=200, status='Success') -> dict:
         assert(type(code)         == int, "code type is int ?")        
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item)
         self.re_dict['item_id']   = item_id
@@ -134,7 +166,7 @@ class RetDateModuleFunc(object):
         assert(len(ItemList)      == totalnum, "ItemList.totalnum != totalnum")
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item_list)
         self.re_dict['totalitem'] = totalitem
-        self.re_dict[itemlist]    = ItemList
+        self.re_dict["itemlist"]  = ItemList
         self.re_dict['code']      = code
         self.re_dict['status']    = status
 
