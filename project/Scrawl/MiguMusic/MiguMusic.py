@@ -32,53 +32,46 @@ class Migu(object):
     def search(self, keyword, page):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
-        try:
-            response1 = self.session.request('GET',url=self.searchurl%(keyword, page), headers=self.headers)
-            resp = response1.json() 
-            if resp["pgt"] != 0 :
-                song_list = resp.get('data',{}).get('song',{}).get('list',[])
-                songList = ReturnFunction.songList(Data=song_list["musics"], songdir="[\"songName\"]",artistdir="[\"singerName\"]",iddir="[\"copyrightId\"]")
-                songList.buidingSongList()
-                re_dict_class = ReturnFunction.RetDataModuleFunc()
-                now_page      = page
-                before_page, next_page = page-1, page+1
-                totalnum      = songList.count
-                re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
-                return re_dict
-            else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
-
-        except simplejson.errors.JSONDecodeError :
-            re_dict["code"] = ReturnStatus.ERROR_SEVER
         
+        try:
+            resp = self.session.get(url=self.searchurl%(keyword, page), headers=self.headers)
+            resp = resp.json()
 
+        except simplejson.errors.JSONDecodeError:
+            code   = ReturnStatus.ERROR_SEVER
+            status = "ReturnStatus.ERROR_SEVER"
+
+        if resp["pgt"] != 0 :
+            songList = ReturnFunction.songList(Data=resp["musics"], songdir="[\"songName\"]",artistsdir="[\"artist\"]",iddir="[\"copyrightId\"]")
+            songList.buidingSongList()
+            re_dict_class = ReturnFunction.RetDataModuleFunc()
+            now_page      = page 
+            before_page, next_page = page -1 , page +1
+            totalnum      = songList.count
+            re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+            
+            return re_dict
+
+    
     def search_details(self,music_id):
-        re_dict = copy.deepcopy(RetDataModule.mod_song)
         try:
             resp = eval(self.session.get(url=self.detailurl%(music_id),headers=self.headers).text)
         except simplejson.errors.JSONDecodeError:
-            re_dict["code"] = ReturnStatus.ERROR_SEVER
-            return re_dict
-
-        try:
-            re_dict["music_id"] = resp["data"]["songId"]
-            re_dict["music_name"] = resp["data"]["songName"]
-            re_dict["artists"] = resp["data"]["singerName"]
-            re_dict["play_url"] = resp['data']['listenUrl']
-            re_dict["lyric"] = resp["data"]["lyricLrc"]
-            re_dict["image_url"] = resp["data"]["picL"]
-            #re_dict["comment"] = 
-        except:
-            re_dict["code"]    = ReturnStatus.DATA_ERROR
+            code   = ReturnStatus.ERROR_SEVER
+            status = "ReturnStatus.ERROR_SEVER"
+            return 0
         else:
-            re_dict["code"]      = ReturnStatus.SUCCESS
-        
+            code   = ReturnStatus.SUCCESS
+            status = "ReturnStatus.SUCCESS"
+            
+            try:
+                resp = resp["data"]
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+                re_dict = re_dict_class.RetDataModSong(resp["listenUrl"], resp["songId"], resp["songName"], 
+                    resp["singerName"], resp["picL"], resp["lyricLrc"], comment=[], tlyric='None', code=code, status=status)
+            
+            except:re_dict["code"]    = ReturnStatus.DATA_ERROR
         return re_dict
-
-    # def search_list(self, list_id):
-    #     re_dict              = copy.deepcopy(RetDataModule.mod_cdlist)
-        
 
 
 if __name__=="__main__":

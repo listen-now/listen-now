@@ -1,8 +1,8 @@
-
+# -*- coding: utf-8 -*-
 # __date__ 2018/7/29
 # __file__ KuwoMusic
 # __author__ Msc
-# encoding:utf-8
+
 
 import simplejson
 from project.Module import ReturnStatus
@@ -35,64 +35,47 @@ class KuwoMusic(object):
     def Search_List(self, keyword, page):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
-        # try:
-        #     resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)
-        # except simplejson.errors.JSONDecodeError :
-        #     re_dict["code"] = ReturnStatus.ERROR_SEVER
-        #     return re_dict
-        # if resp["HIT"] != 0:
-        #     re_dict["code"] = ReturnStatus.SUCCESS
-        #     count           = 0
-        #     for item in resp["abslist"]:
-        #         count += 1
-        #         singer = item["ARTIST"]
-        #         songname = item["SONGNAME"]
-        #         music_id = item["MUSICRID"][6:]
-        #         return_dict = {"music_name":songname,"artist":singer,"id":music_id}
-        #         re_dict["song"]["list"].append(return_dict)
-        #     re_dict["song"]["totalnum"] = count
-        #     return re_dict
 
         try:
-            response1 = self.session.request('GET',url=self.baseurl%(keyword, page), headers=self.headers)
-            resp = response1.json().replace("'","\"")
-            print(resp)
-            if resp["HIT"] != 0 :
-                song_list = resp.get("data",{}).get("song",{}).get("list",[])
-                songList = ReturnFunction.songList(Data=song_list["abslist"], songdir="[\"SONGNAME\]",artistdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]")
-                songList.buidingSongList()
-                re_dict_class = ReturnFunction.RetDataModuleFunc()
-                now_page      = page
-                before_page, next_page = page-1, page+1
-                totalnum      = songList.count
-                re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status="Success")
-            else:
-                re_dict["code"] = ReturnStatus.ERROR_SEVER
-                re_dict["status"] = "ERROR_SEVER"
+            resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)
 
-        except KeyboardInterrupt :
-            re_dict["code"] = ReturnStatus.ERROR_SEVER
+        except simplejson.errors.JSONDecodeError:
+            code   = ReturnStatus.ERROR_SEVER
+            status = "ReturnStatus.ERROR_SEVER"
+            
+        if resp["HIT"] != 0 :
+            songList = ReturnFunction.songList(Data=resp["abslist"], songdir="[\"SONGNAME\"]",artistsdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]")
+            songList.buidingSongList()
+            re_dict_class = ReturnFunction.RetDataModuleFunc()
+            now_page      = page + 1
+            before_page, next_page = page , page +2
+            totalnum      = songList.count
+            re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+            
             return re_dict
+
+
 
     def Search_details(self,music_id):
 
-        re_dict = copy.deepcopy(RetDataModule.mod_song)
         try:
             resp = eval(self.session.get(url=self.searchurl%(music_id),headers=self.headers).text)
         except simplejson.errors.JSONDecodeError:
-            re_dict["code"] = ReturnStatus.ERROR_SEVER
-            return re_dict 
+            code   = ReturnStatus.ERROR_SEVER
+            status = "ReturnStatus.ERROR_SEVER"
+            return 0
+        else:
+            code   = ReturnStatus.SUCCESS
+            status = "ReturnStatus.SUCCESS"
 
-        try:
-            re_dict["music_id"] = resp["data"]["songinfo"]["id"]
-            re_dict["music_name"] = resp["data"]["songinfo"]["songName"]
-            re_dict["artists"] = resp["data"]["songinfo"]["artist"]
-            re_dict["play_url"] = self.get_play_url(music_id)
-            re_dict["lyric"] = resp["data"]["lrclist"]
-            re_dict["image_url"] = resp["data"]["songinfo"]["pic"]
-            re_dict["comment"] = self.get_comment(music_id)
-        except:re_dict["code"]    = ReturnStatus.DATA_ERROR
-        else:re_dict["code"]      = ReturnStatus.SUCCESS
+            try:
+                resp = resp["data"]
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+                re_dict = re_dict_class.RetDataModSong(self.get_play_url(music_id), resp["songinfo"]["id"], resp["songinfo"]['songName'], 
+                    resp["songinfo"]['artist'], resp["songinfo"]['pic'], resp['lrclist'], self.get_comment(music_id), tlyric='None', 
+                    code=code, status=status)
+            
+            except:re_dict["code"]    = ReturnStatus.DATA_ERROR
         return re_dict
 
 

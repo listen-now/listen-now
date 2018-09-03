@@ -2,17 +2,16 @@
 # __fileName__ : QQMusic.py
 # __date__ : 2018/07/03
 # __author__ : Yaxuan
-
+import re
+import os
+import copy
+import json
+import random
+import requests
+from .QQHelper.m4aTomp3 import m4aTomp3
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
 from project.Module import ReturnFunction
-from .QQHelper.m4aTomp3 import m4aTomp3
-import requests
-import random
-import json
-import copy
-import re
-import os
 
 class QQMusic(object):
     '''
@@ -48,20 +47,19 @@ class QQMusic(object):
             serach_res = response.json()
             if serach_res.get('code', -1) == 0:
                 song_list     = serach_res.get('data',{}).get('song',{}).get('list',[])
-                
                 songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]")
                 songList.buidingSongList()
-                
+
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 now_page      = page
                 before_page, next_page = page-1, page+1
                 totalnum      = songList.count
                 re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['code']   = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
-        except AssertionError:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+        except:
+            re_dict['code']   = ReturnStatus.ERROR_UNKNOWN
             re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
@@ -80,21 +78,15 @@ class QQMusic(object):
             serach_res = response.json()
             if serach_res.get('code', -1) == 0: 
                 info = serach_res.get('data')[0]
-                tmp_song = copy.deepcopy(RetDataModule.mod_song) #拷贝歌曲模版
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
                 music_id = info['mid']
-                tmp_song['music_id'] = music_id
-                tmp_song['music_name'] = info['name']   
-                tmp_song['artists'] = info['singer'][0]['name']
-                tmp_song['play_url'] = self.get_play_url(music_id, self.get_music_vkey(music_id))
-                tmp_song['image_url'] = self.get_image_url(music_id)
-                tmp_song['lyric'] = self.get_music_lyric(music_id)
-                re_dict['song']['list'].append(tmp_song)
-                re_dict['song']['totalnum'] += 1
-                re_dict['next_page'] = 1
+                re_dict = re_dict_class.RetDataModSong(self.get_play_url(music_id, self.get_music_vkey(music_id)), 
+                    music_id, info['name'], info['singer'][0]['name'], self.get_image_url(music_id), 
+                    self.get_music_lyric(music_id), comment=[], tlyric='None', code=ReturnStatus.SUCCESS, status='Success')
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
-        except:
+        except AssertionError:
             re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
             re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
