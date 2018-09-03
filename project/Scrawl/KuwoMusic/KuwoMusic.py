@@ -7,9 +7,11 @@
 import simplejson
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
+from project.Module import ReturnFunction
 import requests
 import copy
 import json
+import demjson
 
 class KuwoMusic(object):
     '''
@@ -30,25 +32,46 @@ class KuwoMusic(object):
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
         }
 
-    def Search_List(self, keyword, page) -> str:
+    def Search_List(self, keyword, page):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
+        # try:
+        #     resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)
+        # except simplejson.errors.JSONDecodeError :
+        #     re_dict["code"] = ReturnStatus.ERROR_SEVER
+        #     return re_dict
+        # if resp["HIT"] != 0:
+        #     re_dict["code"] = ReturnStatus.SUCCESS
+        #     count           = 0
+        #     for item in resp["abslist"]:
+        #         count += 1
+        #         singer = item["ARTIST"]
+        #         songname = item["SONGNAME"]
+        #         music_id = item["MUSICRID"][6:]
+        #         return_dict = {"music_name":songname,"artist":singer,"id":music_id}
+        #         re_dict["song"]["list"].append(return_dict)
+        #     re_dict["song"]["totalnum"] = count
+        #     return re_dict
+
         try:
-            resp = eval(self.session.get(url=self.baseurl%(keyword, page), headers=self.headers).text)
-        except simplejson.errors.JSONDecodeError :
+            response1 = self.session.request('GET',url=self.baseurl%(keyword, page), headers=self.headers)
+            resp = response1.json().replace("'","\"")
+            print(resp)
+            if resp["HIT"] != 0 :
+                song_list = resp.get("data",{}).get("song",{}).get("list",[])
+                songList = ReturnFunction.songList(Data=song_list["abslist"], songdir="[\"SONGNAME\]",artistdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]")
+                songList.buidingSongList()
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+                now_page      = page
+                before_page, next_page = page-1, page+1
+                totalnum      = songList.count
+                re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status="Success")
+            else:
+                re_dict["code"] = ReturnStatus.ERROR_SEVER
+                re_dict["status"] = "ERROR_SEVER"
+
+        except KeyboardInterrupt :
             re_dict["code"] = ReturnStatus.ERROR_SEVER
-            return re_dict
-        if resp["HIT"] != 0:
-            re_dict["code"] = ReturnStatus.SUCCESS
-            count           = 0
-            for item in resp["abslist"]:
-                count += 1
-                singer = item["ARTIST"]
-                songname = item["SONGNAME"]
-                music_id = item["MUSICRID"][6:]
-                return_dict = {"music_name":songname,"artist":singer,"id":music_id}
-                re_dict["song"]["list"].append(return_dict)
-            re_dict["song"]["totalnum"] = count
             return re_dict
 
     def Search_details(self,music_id):

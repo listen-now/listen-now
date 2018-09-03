@@ -6,6 +6,7 @@
 import simplejson
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
+from project.Module import ReturnFunction
 import requests
 import copy
 import json
@@ -32,22 +33,25 @@ class Migu(object):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
         try:
-            resp = eval(self.session.get(url=self.searchurl%(keyword, page), headers=self.headers).text)
+            response1 = self.session.request('GET',url=self.searchurl%(keyword, page), headers=self.headers)
+            resp = response1.json() 
+            if resp["pgt"] != 0 :
+                song_list = resp.get('data',{}).get('song',{}).get('list',[])
+                songList = ReturnFunction.songList(Data=song_list["musics"], songdir="[\"songName\"]",artistdir="[\"singerName\"]",iddir="[\"copyrightId\"]")
+                songList.buidingSongList()
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+                now_page      = page
+                before_page, next_page = page-1, page+1
+                totalnum      = songList.count
+                re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+                return re_dict
+            else:
+                re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
+
         except simplejson.errors.JSONDecodeError :
             re_dict["code"] = ReturnStatus.ERROR_SEVER
-            return re_dict
-        if resp["pgt"] != 0 :
-            re_dict["code"] = ReturnStatus.SUCCESS
-            count           = 0
-            for item in resp['musics']:
-                count += 1
-                singer = item['singerName']
-                songname = item['songName']
-                music_id = item['copyrightId']
-                return_dict = {"music_name":songname,"artist":singer,"id":music_id}
-                re_dict["song"]["list"].append(return_dict)
-            re_dict["song"]["totalnum"] = count
-            return re_dict
+        
 
     def search_details(self,music_id):
         re_dict = copy.deepcopy(RetDataModule.mod_song)
