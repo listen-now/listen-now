@@ -18,9 +18,11 @@ import random
 import rsa
 import base64
 from valid_token import valid_token
+
     
 global token_message
 token_message = valid_token()
+#token_message = token_message.replace('\\n','\n')
 
 def check_token():
     try :
@@ -32,7 +34,6 @@ data = {
         "title":None,
         "platform":None,
         "page":1,
-        "token":None
         }
 
 
@@ -57,6 +58,9 @@ class pymusic(object):
         """
         music_logger = Logger.Logger('music_all.log', 'debug')
         music_logger.logger.debug('This is a test log.')
+        self.headers = {
+        'token': token_message
+        }
 
     def fix_enter(self, platform):
         """
@@ -107,16 +111,16 @@ class pymusic(object):
         else:
             platform = self.fix_enter(platform)
             if title != None:
-                data["title"], data["page"], data["platform"],data["token"] = title, 1, platform,token_message
+                data["title"], data["page"], data["platform"] = title, 1, platform
                 self.send_data("search", "0", data, "post", music_page)
             elif music_id != None:
-                data["id"], data["page"], data["platform"], data["token"] = music_id, 1, platform,token_message
+                data["id"], data["page"], data["platform"] = music_id, 1, platform
                 self.send_data("id", "1", data, "post", music_page)
             elif songlist != None:
-                data = {"url":songlist, "page":1,"platform":platform,"token":token_message}
+                data = {"url":songlist, "page":1,"platform":platform}
                 self.send_data("song_list_requests", "2", data, "post", music_page)
             elif userid != None:
-                data = {"uid":userid, "token":token_message}
+                data = {"uid":userid}
                 self.send_data("user_song_list","3" , data, "post", music_page)
 
 
@@ -162,7 +166,7 @@ class pymusic(object):
 
         if func == "post":
             try:
-                resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data))
+                resp = requests.post(url="http://zlclclc.cn/" + p, data=json.dumps(_send_data),headers=self.headers)
 
             except:
                 print("[-]网络错误!")
@@ -182,6 +186,7 @@ class pymusic(object):
             if w == "1":
                 return resp
             try:
+                #print(_send_data)
                 if resp.json()["code"] == 200:
                 #display songs and play
                     if f == "0":
@@ -284,7 +289,7 @@ class pymusic(object):
                             song_List_num = int(resp.json()["song_num"])
                             for list_num in range(song_List_num):
                                 ids = resp.json()["Songlist_detail"][list_num]["id"]
-                                send_list_data = {"id":ids,"page":1,"platform":data["platform"],"token":token_message}
+                                send_list_data = {"id":ids,"page":1,"platform":data["platform"]}
                                 resp_list = requests.post(url="http://zlclclc.cn/" + "id", data=json.dumps(send_list_data))
                                 #print(resp_list.json())
                                 t1 = threading.Thread(target=self.player, args = (resp_list.json()["song"]["list"]["play_url"],))
@@ -304,7 +309,7 @@ class pymusic(object):
                             for i in range(200):
                                 list_num = random.randint(0,song_List_num-1)
                                 ids = resp.json()["Songlist_detail"][list_num]["id"]
-                                send_list_data = {"id":ids,"page":1,"platform":data["platform"],"token":token_message}
+                                send_list_data = {"id":ids,"page":1,"platform":data["platform"]}
                                 resp_list = requests.post(url="http://zlclclc.cn/" + "id", data=json.dumps(send_list_data))
                                 t1 = threading.Thread(target=self.player, args = (resp_list.json()["song"]["list"]["play_url"],))
                                 t1.start()
@@ -356,7 +361,7 @@ class pymusic(object):
                 print("\n[-]没有更多关于这首歌的内容\n")
 
         else:
-            resp = requests.get(url="http://zlclclc.cn/" + p)
+            resp = requests.get(url="http://zlclclc.cn/" + p, headers=self.headers)
             print(resp.json())
 
 if __name__ == "__main__":

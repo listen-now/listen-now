@@ -8,6 +8,10 @@
 # 2018/08/03 增加百度、酷我音乐初步支持
 # 2018/08/25 增加Spotify初步支持
 
+
+import sys
+sys.path.append('..') # 必须要, 设置project为源程序的包顶
+import re
 #t
 #te
 #tes
@@ -17,6 +21,7 @@
 #testtes
 import re
 import sys
+>>>>>>> CatDev
 import copy
 import redis
 import datetime
@@ -35,6 +40,8 @@ from flask import Flask,request,Response,jsonify
 from project.Sync.NeteasySync import Neteasymusic_Sync
 from project.Scrawl.QQMusic import QQMusic as qq_scrawl
 from project.Scrawl.KugouMusic import kugou as kugou_scrawl
+from project.Scrawl.KuwoMusic import KuwoMusic as kuwo_scrawl
+from project.Scrawl.MiguMusic import Migu as migu_scrawl
 from project.Scrawl.SpotifyMusic import SpotifyMusic as spotify
 from project.Sync.XiamiSync import XiamiMusic as xiami_Song_List
 from project.Scrawl.XiamiMusic import XiamiMusic as xiami_scrawl
@@ -228,6 +235,34 @@ def search_json():
                                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "OVER_MAXPAGE")
                         else:
                             pass
+
+                    elif music_platform == "Kuwomusic":
+                        kuwo_search = kuwo_scrawl.Kuwomusic()
+                        re_dict     = kuwo_search.Search_List(music_title, music_page)
+                        try:
+                            re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                        else:
+                            pass
+
+                    elif music_platform == "MiguMusic":
+                        kuwo_search = migu_scrawl.Kuwomusic()
+                        re_dict     = migu_search.Search_List(music_title, music_page)
+                        try:
+                            re_dict["code"]
+                        except KeyError:                        
+                            if re_dict:
+                                re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success", "now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
+                            else:
+                                re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "")
+                        else:
+                            pass
+
+
                         finally:
                             re_dict.update({"now_page":music_page, "next_page":music_page + 1, "before_page":music_page - 1})
                     else:
@@ -542,6 +577,15 @@ def Return_User_Song_List_Detail():
             return_song_list = kugou_scrawl.Kugou()
             return_song_list.ReturnSongList(song_list_id)
 
+        # elif song_list_platform == "Kuwomusic":
+        #     song_list_id    = dict_data["id"]
+        #     return_song_list = kuwo_scrawl.KuwoMusic()
+        #     return_song_list.ReturnSongList(song_list_id)
+
+        elif song_list_platform == "Migumusic":
+            song_list_id    = dict_data["id"]
+            return_song_list = migu_scrawl.KuwoMusic()
+            return_song_list.ReturnSongList(song_list_id)
 
         if re_dict:
             re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="SUCCESS"))
@@ -667,6 +711,24 @@ def play_id():
                 elif music_platform == "Kugoumusic":
                     kugou = kugou_scrawl.Kugou()
                     re_dict = kugou.hash_search(dict_data["id"])
+
+                    if re_dict:
+                        re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
+                    else:
+                        re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "OVER_MAXPAGE")
+                
+                elif music_platform == "Kuwomusic":
+                    kuwo = kuwo_scrawl.KuwoMusic()
+                    re_dict = kuwo.Search_details(dict_data["id"])
+
+                    if re_dict:
+                        re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
+                    else:
+                        re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "OVER_MAXPAGE")
+
+                elif music_platform == "Migumusic":
+                    kuwo = migu_scrawl.Migu()
+                    re_dict = migu.search_details(dict_data["id"])
 
                     if re_dict:
                         re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
@@ -814,7 +876,6 @@ def callback():
     except:
         return 'error' # 按错误处理
     return 'ok'
-
 
 
 @app.route("/SpotifyLogout") #注销函数 加入错误处理必要逻辑

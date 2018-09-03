@@ -7,16 +7,17 @@ import requests
 import rsa
 import base64
 import json
-import sys
-sys.path.append('/msc/user/listen-now/project/Pymusic/pubkey.pem')
+
 
 def valid_token():
-    r = requests.get("http://zlclclc.cn/get_token")
-    s = eval(r.json()["signature"])
-    signature = base64.decodestring(s)      
-    crypto = r.json()["token_message"]
-    message = crypto[2:-6]+'\n'     
-    with open('pubkey.pem','r') as f:
+    resp = requests.get(url = "http://zlclclc.cn/get_token")
+    s = eval(resp.json()["signature"])
+    signature = base64.decodestring(s)
+
+    crypto = resp.json()["token_message"]
+    message = crypto[2:-6]+'\n'
+
+    with open('/home/mmmsc/listen-now/project/Helper/pubkey.pem','r') as f:
         pubkey = rsa.PublicKey.load_pkcs1(f.read().encode())        
     
     v = rsa.verify(message.encode(), signature, pubkey)     
@@ -25,10 +26,12 @@ def valid_token():
         rsa.verify(message.encode(), signature, pubkey)
         sign_valid = 1
     except:
-        sign_valid = 0      
-    token_message = crypto[2:110]+'\n'+crypto[112:115]      
-    parameter = {"sign_valid":sign_valid,"token":token_message}
-    valid_key = requests.post(url="http://zlclclc.cn/exist_token",data = json.dumps(parameter))
-    return token_message
 
-print(valid_token())
+        sign_valid = 0
+    #token = crypto[:110]+'\n'+crypto[112:115]
+    token_message = crypto[2:110]+r'\n'+crypto[112:115]      
+    parameter = {"sign_valid":sign_valid,"token":token_message}
+    valid_key = requests.post(url = "http://zlclclc.cn/exist_token",data = json.dumps(parameter))
+    return token_message
+#print(valid_token())
+

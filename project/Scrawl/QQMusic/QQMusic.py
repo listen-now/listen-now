@@ -49,17 +49,20 @@ class QQMusic(object):
                 song_list     = serach_res.get('data',{}).get('song',{}).get('list',[])
                 songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]")
                 songList.buidingSongList()
+
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 now_page      = page
                 before_page, next_page = page-1, page+1
                 totalnum      = songList.count
                 re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
             else:
-                re_dict['code']   = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
         except:
-            re_dict['code']   = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
 
     def search_by_id(self, songMid):
@@ -83,11 +86,13 @@ class QQMusic(object):
                     music_id, info['name'], info['singer'][0]['name'], self.get_image_url(music_id), 
                     self.get_music_lyric(music_id), comment=['暂无评论数据'], tlyric='None', code=ReturnStatus.SUCCESS, status='Success')
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
-        except AssertionError:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
+        except:
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
 
     def get_image_url(self, songMid):
@@ -168,12 +173,14 @@ class QQMusic(object):
                     re_dict['list'].append(dissid)
                     re_dict['totaldiss'] += 1
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
         except:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
-        return re_dict       
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
+
 
     def get_user_collect_dissidlist(self, uin):
         '''
@@ -194,11 +201,13 @@ class QQMusic(object):
                     re_dict['list'].append(dissid)
                     re_dict['totaldiss'] += 1
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
         except:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
                 
     def get_cdlist(self, disstid, uin='447231743',  song_begin=0, song_num=100000, page=1):
@@ -235,33 +244,16 @@ class QQMusic(object):
                 re_dict = re_dict_class.RetDataModCdlist(retjson['cdlist'][0]['dissname'], retjson['cdlist'][0]['nickname'],
                                                         retjson['cdlist'][0]['desc'], retjson['cdlist'][0]['disstid'], 
                                                         retjson['cdlist'][0]['logo'], songList, retjson['cdlist'][0]['total_song_num'],
-                                                        retjson['cdlist'][0]['cur_song_num'], code=code, status=status)
-                                                        
-
-
-                # cdlist = retjson.get('cdlist',[])[0]
-                # song_list = cdlist.get('songlist', [])
-                # re_dict['dissid'] = cdlist.get('disstid', disstid)
-                # re_dict['dissname'] = cdlist.get('dissname', '')
-                # re_dict['nickname'] = cdlist.get('nickname', '')
-                # re_dict['info'] = cdlist.get('desc', '')
-                # re_dict['image_url'] = cdlist.get('logo', '')
-
-                # re_dict['song']['totalnum'] = cdlist.get('total_song_num', 0)
-                # re_dict['song']['curnum'] = cdlist.get('cur_song_num', 0)
-                # for music in song_list:
-                #     tmp_song = copy.deepcopy(RetDataModule.mod_search_song) #拷贝歌曲模板
-                #     song_id = music['songmid'] if type(music['songmid']) == str else str(music['songmid'])
-                #     tmp_song['id'] = song_id
-                #     tmp_song['music_name'] = music['songname']
-                #     tmp_song['artists'] = music['singer'][0]['name']
-                #     re_dict['song']['list'].append(copy.deepcopy(tmp_song))
+                                                        retjson['cdlist'][0]['cur_song_num'], code=code, status=status
+                                                        )
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
-        except SyntaxError:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
+        except:
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
 
     def get_hot_itemidlist(self):
@@ -294,11 +286,13 @@ class QQMusic(object):
                     tmp_item['item_desc'] = item['item_desc']
                     re_dict['itemlist'].append(copy.deepcopy(tmp_item)) #添加推荐主题
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
         except:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
 
     def get_hot_playlist(self, itemid):
@@ -322,11 +316,13 @@ class QQMusic(object):
                     re_dict['idlist'].append(tmp_id) #添加到歌单id列表
                     re_dict['totaldiss'] += 1
             else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
         except:
-            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
 
     def download_song(self, songMid, path = cache_path, transTomp3 = False, guid = '4096863533'):

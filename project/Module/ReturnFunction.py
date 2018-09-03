@@ -14,7 +14,7 @@ class songList(object):
     Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，songdir，artistsdir，iddir是对应的键值，即dir地址
 
     """
-    def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str, page=1) -> list:
+    def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str, page) -> list:
         self.Data       = Data
         self.songdir    = songdir
         self.artistsdir = artistsdir
@@ -59,6 +59,7 @@ class songList(object):
 
 
 
+
 class TopSongList(songList):
     """部分请求参数说明
     
@@ -89,6 +90,7 @@ class TopSongList(songList):
             self.count += 1
 
         return 0
+
 
 
 
@@ -175,7 +177,7 @@ class RetDataModuleFunc(object):
         
         return self.re_dict
 
-    def RetDateModHotItemList(self, ItemList: list, totalitem: int, code=200, status='Success') -> dict:
+    def RetDataModHotItemList(self, ItemList: list, totalitem: int, code=200, status='Success') -> dict:
         assert(type(code)         == int, "code type is int ?")        
         assert(ItemList.count     == totalitem, "ItemList.totalnum != totalnum")
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item_list)
