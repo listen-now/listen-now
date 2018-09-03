@@ -10,11 +10,11 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 功能测试脚本
 '''
 
-# from project.Scrawl.QQMusic import QQMusic
-# app1 = QQMusic.QQMusic()
+from project.Scrawl.QQMusic import QQMusic
+app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
 # print(app1.search_by_id("0026dJ8k47cwSU"))
-# print(app1.get_cdlist(3644190836))
+print(app1.get_cdlist(3644190836, page=2))
 
 # from project.Scrawl.NeteasyMusic import NeteasyMusic
 # app2 = NeteasyMusic.Netmusic()
@@ -73,12 +73,12 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app6.get_play_url('299800'))
 
 
-from project.Scrawl.KugouMusic import kugou
-app7 = kugou.Kugou()
+# from project.Scrawl.KugouMusic import kugou
+# app7 = kugou.Kugou()
 # print(app7.Search_List("纸短情长", 1))
-# # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
-print(app7.ReturnSongList("511210"))
-app7.TopSongList()
+# print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+# print(app7.ReturnSongList("511210"))
+# print(app7.TopSongList())
 
 
 # from Helper.token_admin import Forbidden

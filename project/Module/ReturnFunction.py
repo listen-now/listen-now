@@ -14,24 +14,36 @@ class songList(object):
     Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，songdir，artistsdir，iddir是对应的键值，即dir地址
 
     """
-    def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str) -> list:
+    def __init__(self, Data: list, songdir: str, artistsdir: str, iddir: str, page=1) -> list:
         self.Data       = Data
         self.songdir    = songdir
         self.artistsdir = artistsdir
         self.iddir      = iddir
-
+        self.page       = page
 
     def buidingSongList(self):
         assert(eval("self.Data[0]" + self.songdir), 'PARAMS Error!')
         self.songList = []
         tmpSongMod    = copy.deepcopy(RetDataModule.mod_search_song)
-        self.count = 0
-        for item in self.Data:
-            tmpSongMod['music_name'] = eval("item" + self.songdir)
-            tmpSongMod['artists']    = eval("item" + self.artistsdir)
-            tmpSongMod['id']         = eval("item" + self.iddir)
-            self.songList.append(copy.deepcopy(tmpSongMod))
-            self.count += 1
+        self.count    = 0
+
+        if len(self.Data) < 30 :
+            for item in self.Data:
+                tmpSongMod['music_name'] = eval("item" + self.songdir)
+                tmpSongMod['artists']    = eval("item" + self.artistsdir)
+                tmpSongMod['id']         = eval("item" + self.iddir)
+                self.songList.append(copy.deepcopy(tmpSongMod))
+                self.count += 1
+        else:
+            tmpSongNum = len(self.Data) - (self.page-1) * 30
+            tmpSongNum = 30 if tmpSongNum>30 else tmpSongNum
+            for item in self.Data:
+                tmpSongMod['music_name'] = eval("item" + self.songdir)
+                tmpSongMod['artists']    = eval("item" + self.artistsdir)
+                tmpSongMod['id']         = eval("item" + self.iddir)
+                self.songList.append(copy.deepcopy(tmpSongMod))
+                self.count += 1
+                if self.count >= tmpSongNum:break
         return 0
 
 
@@ -75,6 +87,7 @@ class TopSongList(songList):
             tmpSongMod['item_id']   = eval("item" + self.IdDir)
             self.songList.append(copy.deepcopy(tmpSongMod))
             self.count += 1
+
         return 0
 
 
@@ -150,24 +163,32 @@ class RetDataModuleFunc(object):
 
         return self.re_dict
 
-    def RetDataModHotItem(self, item_id: str, item_name: str, item_desc: str, code=200, status='Success') -> dict:
+    def RetDataModHotItem(self, item_id: str, item_name: str, item_desc: str, image_url: str, code=200, status='Success') -> dict:
         assert(type(code)         == int, "code type is int ?")        
+
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item)
         self.re_dict['item_id']   = item_id
         self.re_dict['item_name'] = item_name
         self.re_dict['item_desc'] = item_desc
-        self.re_dict['status']    = status
-        self.re_dict['code']      = code
-
+        self.re_dict['image_url'] = image_url
+        self.re_dict.update({"code":code, "status":status})
+        
         return self.re_dict
 
     def RetDateModHotItemList(self, ItemList: list, totalitem: int, code=200, status='Success') -> dict:
         assert(type(code)         == int, "code type is int ?")        
-        assert(len(ItemList)      == totalnum, "ItemList.totalnum != totalnum")
+        assert(ItemList.count     == totalitem, "ItemList.totalnum != totalnum")
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item_list)
         self.re_dict['totalitem'] = totalitem
-        self.re_dict["itemlist"]  = ItemList
+        self.re_dict["itemlist"]  = ItemList.ReturnList()
         self.re_dict['code']      = code
         self.re_dict['status']    = status
+
+        return self.re_dict
+
+
+
+
+
 
 
