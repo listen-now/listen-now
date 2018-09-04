@@ -14,20 +14,16 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # app1 = QQMusic.QQMusic()
 # print(app1.search_by_keyword('纸短情长'))
 # print(app1.search_by_id("0026dJ8k47cwSU"))
-# print(app1.get_cdlist(3644190836))
+# print(app1.get_cdlist(3644190836, page=2))
 
-# from project.Scrawl.NeteasyMusic import NeteasyMusic
-# app2 = NeteasyMusic.Netmusic()
-# print(app2.pre_response_neteasymusic('大鱼'))
 
 # from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
 # app3 = Search_xiami()
 # print(app3.search_xiami('纸短情长'))
-
-
 # from project.Sync.XiamiSync import XiamiMusic
 # app4 = XiamiMusic.XiamiApi()
 # print(app4.getPlaylist("358024020"))
+
 
 # print(app1.get_user_profile_dissidlist("1069954477"))
 # print(app1.get_cdlist(disstid = "3531843793"))
@@ -35,10 +31,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app1.get_hot_itemidlist())
 
 
-# from project.Scrawl.NeteasyMusic import NeteasyMusic
-# app2 = NeteasyMusic.Netmusic()
+from project.Scrawl.NeteasyMusic import NeteasyMusic
+app2 = NeteasyMusic.Netmusic()
 # print(app2.pre_response_neteasymusic('浮夸'))
-# print(app2.music_id_requests(66282))
+print(app2.music_id_requests(66282))
 # print(app2.requests_comment("413812448"))
 
 
@@ -64,11 +60,6 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 #                       # "Wechat Firefox")
 #
 
-# from project.Scrawl.KugouMusic import kugou
-# app6 = kugou.Kugou()
-# #print(app6.Search_List("纸短情长", 1))
-# print(app6.hash_search("c592091f71226cd2dc9f840655b235bb"))
-#print(app6.ReturnSongList("12345"))
 
 # from project.Scrawl.KuwoMusic import KuwoMusic
 
@@ -79,18 +70,23 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app7.get_comment("48791034"))
 # print(app7.get_songlist('90275'))
 
-from project.Scrawl.MiguMusic import MiguMusic
-app8 = MiguMusic.Migu()
-#print(app8.search("怪咖",1))
-print(app8.search_details('60075020337'))
+# from project.Scrawl.MiguMusic import MiguMusic
+# app8 = MiguMusic.Migu()
+# print(app8.search("怪咖",2))
+# print(app8.search_details('60075020337'))
 
 
 # from project.Scrawl.KugouMusic import kugou
 # app7 = kugou.Kugou()
-# print(app7.Search_List("纸短情长", 1))
+# print(app7.Search_List("纸短情长", 1000))
 # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+<<<<<<< HEAD
 # print(app7.ReturnSongList("521431"))
 # app7.TopSongList()
+=======
+# print(app7.ReturnSongList("511210"))
+# print(app7.TopSongList())
+>>>>>>> CatDev
 
 
 # from Helper.token_admin import Forbidden

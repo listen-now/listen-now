@@ -1,3 +1,7 @@
+# 此处使用了一部分cyrbuzz的开源代码
+# 在此声明致意
+# Cat.1
+
 """
     提供封装好的持久连接的Http请求类。
     默认返回(cookies, jsonData),
