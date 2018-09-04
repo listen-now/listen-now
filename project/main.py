@@ -21,7 +21,6 @@ import re
 #testtes
 import re
 import sys
->>>>>>> CatDev
 import copy
 import redis
 import datetime

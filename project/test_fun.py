@@ -44,7 +44,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 # from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
 # app3 = Search_xiami()
-# print(app3.search_xiami('纸短情长'))
+# print(app3.search_xiami('纸短情长',1))
 # app3 = XiamiMusic.XiamiApi()
 # print(app3.getPlaylist("358024020"))
 
@@ -75,8 +75,9 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # app7 = KuwoMusic.KuwoMusic()
 # print(app7.Search_List("青花瓷", 0))
 # print(app7.Search_details("48791034"))
-#print(app7.get_play_url("48791034"))
-#print(app7.get_comment("48791034"))
+# print(app7.get_play_url("48791034"))
+# print(app7.get_comment("48791034"))
+# print(app7.get_songlist('90275'))
 
 from project.Scrawl.MiguMusic import MiguMusic
 app8 = MiguMusic.Migu()
@@ -88,7 +89,7 @@ print(app8.search_details('60075020337'))
 # app7 = kugou.Kugou()
 # print(app7.Search_List("纸短情长", 1))
 # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
-# print(app7.ReturnSongList("511210"))
+# print(app7.ReturnSongList("521431"))
 # app7.TopSongList()
 
 
@@ -98,3 +99,6 @@ print(app8.search_details('60075020337'))
 # print(app8.sign_ip("1234test"))
 
 
+# from project.Sync.XiamiSync import XiamiMusic
+# app9 = XiamiMusic.XiamiApi()
+# print(app9.getPlaylist('358024020'))

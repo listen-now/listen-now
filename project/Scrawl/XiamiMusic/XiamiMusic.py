@@ -3,9 +3,9 @@
 # @Date:2018/5/10
 # Author:Cat.1
 
-from project import Config
+import Config
 import project.Scrawl.XiamiMusic.XiamiHelper
-import redis
+
 import requests, re, json
 
 
@@ -22,10 +22,10 @@ xiami_dict               = {'hot': 101, 'origin': 103}
 
 requ_date, music_data    = [{} for i in range(2)]
 
-if int(Config.config.getConfig("open_database", "redis")) == 1:
-    host                 = Config.config.getConfig("database", "dbhost")
-    port                 = Config.config.getConfig("database", "dbport")
-    redis_cli            = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)  
+# if int(Config.config.getConfig("open_database", "redis")) == 1:
+#     host                 = Config.config.getConfig("database", "dbhost")
+#     port                 = Config.config.getConfig("database", "dbport")
+#     redis_cli            = redis.Redis(host=host, port=int(port), decode_responses=True, db = 2)  
 
 def request_id(music_id):
     url     = "http://www.xiami.com/widget/xml-single/uid/0/sid/%s" %music_id

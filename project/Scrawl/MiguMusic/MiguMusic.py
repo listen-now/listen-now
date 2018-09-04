@@ -27,7 +27,8 @@ class Migu(object):
         }
         self.searchurl = 'http://m.music.migu.cn/migu/remoting/scr_search_tag?rows=10&type=2&keyword=%s&pgc=%s'
         self.detailurl = 'http://m.music.migu.cn/migu/remoting/cms_detail_tag?c=5108&cpid=%s'
-
+        self.songlisturl = 'http://m.music.migu.cn/migu/remoting/playlistcontents_query_tag?playListType=2&playListId=%s'
+        self.createUserurl = 'http://m.music.migu.cn/migu/remoting/playlist_query_tag?onLine=1&queryChannel=0&createUserId=%s=&contentCountMin=5&playListId=%s'
 
     def search(self, keyword, page):
 
@@ -67,12 +68,32 @@ class Migu(object):
             try:
                 resp = resp["data"]
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
-                re_dict = re_dict_class.RetDataModSong(resp["listenUrl"], resp["songId"], resp["songName"], 
-                    resp["singerName"], resp["picL"], resp["lyricLrc"], comment=[], tlyric='None', code=code, status=status)
+                re_dict = re_dict_class.RetDataModSong(resp["listenUrl"], resp["songId"], str(resp["songName"]), 
+                    str(resp["singerName"])[2:-2], resp["picL"], resp["lyricLrc"], comment=[], tlyric='None', code=code, status=status)
             
             except:re_dict["code"]    = ReturnStatus.DATA_ERROR
         return re_dict
 
+    # def search_songlist(self, listid):
+    #     try:
+    #         resp = eval(self.session.get(url=self.songlisturl%(listid),headers=self.headers).text)
+    #     except simplejson.errors.JSONDecodeError:
+    #         code   = ReturnStatus.ERROR_SEVER
+    #         status = "ReturnStatus.ERROR_SEVER"
+    #         return 0
+    #     else:
+    #         code   = ReturnStatus.SUCCESS
+    #         status = "ReturnStatus.SUCCESS"
+    #         try:
+    #             re_dict_class = ReturnFunction.RetDataModuleFunc()
+    
+    #             songList = ReturnFunction.songList(Data=resp["contentList"], songdir="[\"contentName\"]", artistsdir="[\'singerName\']", iddir="[\"songId\"]")
+    #             songList.buidingSongList()
+                # re_dict  = re_dict_class.RetDataModCdlist(resp["contentList"]['specialname'], 
+                #                                          resp['info']['list']['nickname'], resp['info']['list']['intro'], 
+                #                                          resp['info']['list']['specialid'], image.replace(r"{size}", "400"), 
+                #                                          songList, resp['list']['list']['total'], resp['list']['list']['total'], 
+                #                                          code=code, status=status)
 
 if __name__=="__main__":
 
