@@ -186,7 +186,6 @@ class pymusic(object):
             if w == "1":
                 return resp
             try:
-                #print(_send_data)
                 if resp.json()["code"] == 200:
                 #display songs and play
                     if f == "0":
