@@ -62,7 +62,7 @@ class BaiduMusic(object):
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
-        except AssertionError:
+        except:
                 re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
                 re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
