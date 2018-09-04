@@ -59,6 +59,7 @@ class Search_xiami(object):
         url          = self.get_search_url(title, page)
         c            = requests.get(url = url, headers = xiami_header)
         result       = c.json()
+        print(result)
         music_id     = result['data']['songs'][0]['song_id']
         music_name   = result['data']['songs'][0]['song_name']
         artists      = result['data']['songs'][0]['artist_name']

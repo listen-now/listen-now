@@ -11,7 +11,6 @@ from project.Module import ReturnFunction
 import requests
 import copy
 import json
-import demjson
 
 class KuwoMusic(object):
     '''
@@ -26,22 +25,14 @@ class KuwoMusic(object):
         self.searchurl  = "http://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId=%s"
         self.palyurl    = "http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=%s&format=aac|mp3&response=url"
         self.commenturl = "http://comment.kuwo.cn/com.s?type=get_comment&uid=0&prod=newWeb&digest=15&sid=%s&page=1&rows=10&f=web"
-<<<<<<< HEAD
         self.songlisturl = "http://yinyue.kuwo.cn/yy/cinfo_%s.htm"
-        self.session = requests.session()
-        self.headers = {
-        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-        'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
-        }
-=======
         self.session    = requests.session()
         self.headers    = {
                     'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
                     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
                     }
->>>>>>> CatDev
 
-    def Search_List(self, keyword, page):
+    def Search_List(self, keyword, page=1):
 
         re_dict = copy.deepcopy(RetDataModule.mod_search)
 
@@ -54,7 +45,7 @@ class KuwoMusic(object):
             status = "ReturnStatus.ERROR_SEVER"
             
         if resp["HIT"] != 0 :
-            songList               = ReturnFunction.songList(Data=resp["abslist"], songdir="[\"SONGNAME\"]",artistsdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]")
+            songList               = ReturnFunction.songList(Data=resp["abslist"], songdir="[\"SONGNAME\"]",artistsdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]", page=page)
             songList.buidingSongList()
             re_dict_class          = ReturnFunction.RetDataModuleFunc()
             now_page               = page + 1

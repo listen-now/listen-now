@@ -47,7 +47,7 @@ class QQMusic(object):
             serach_res = response.json()
             if serach_res.get('code', -1) == 0:
                 song_list     = serach_res.get('data',{}).get('song',{}).get('list',[])
-                songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]")
+                songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]", page=page)
                 songList.buidingSongList()
 
                 re_dict_class = ReturnFunction.RetDataModuleFunc()

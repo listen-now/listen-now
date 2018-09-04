@@ -12,6 +12,8 @@ import copy
 import re
 import os
 
+
+
 class BaiduMusic(object):
     '''
     百度音乐
@@ -27,6 +29,8 @@ class BaiduMusic(object):
             'User-Agent' : 'Mozilla/5.0 (Linux; Android 7.0; SM-G935P Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.92 Mobile Safari/537.36',
             'Referer' : 'http://music.taihe.com/'
         }
+
+
 
     def search_by_keyword(self, keyword, page_no = 1, page_num = 10):
         '''
@@ -45,16 +49,49 @@ class BaiduMusic(object):
             if search_res.get('error_code', -1) == 22000:
                 song_list = search_res.get('result', {}).get('song_info', {}).get('song_list', [])
                 re_dict['song']['totalnum'] = search_res.get('song_info', {}).get('total', 0)
+                count = 0
                 for song in song_list:
-                    tmp_song = copy.deepcopy(RetDataModule.mod_song) #拷贝歌曲模板
+                    tmp_song = copy.deepcopy(RetDataModule.mod_search_song) #拷贝歌曲模板
                     song_id = song['song_id']
-                    tmp_song['music_id'] = song_id
+                    tmp_song['id'] = song_id
                     tmp_song['music_name'] = song['title']
-                    tmp_song['image_url'] = song['pic_small']
                     tmp_song['artists'] = song['author']
-                    tmp_song['lyric'] = self.get_lyric(song['lrclink'])
-                    tmp_song['play_url'] = self.get_playurl(song_id)
                     re_dict['song']['list'].append(copy.deepcopy(tmp_song)) #添加到歌曲列表
+                    count += 1
+                re_dict['song']['totalnum'] = count
+            else:
+                re_dict['code'] = ReturnStatus.ERROR_SEVER
+                re_dict['status'] = 'ERROR_SEVER'
+        except AssertionError:
+                re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+                re_dict['status'] = 'ERROR_UNKNOWN'
+        return re_dict
+
+
+
+    def search_by_id(self, song_id):
+        '''
+        通过id搜索歌曲
+        song_id : 歌曲id
+        返回值 : 歌曲信息
+        '''
+        re_dict = copy.deepcopy(RetDataModule.mod_song) #拷贝搜素结果模板
+        try:
+            _url = 'http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&'\
+            'method=baidu.ting.song.playAAC&songid={}'.format(song_id)
+            response = self.session.request('GET', _url, headers = self.headers)
+            search_res = response.json()
+
+            if search_res.get('error_code', -1) == 22000:
+                info = search_res.get('songinfo', {})
+                re_dict['music_id'] = song_id
+                re_dict['music_name'] = info['title']   
+                re_dict['comment'] = ['暂无评论数据']
+                re_dict['artists'] = info['author']
+                re_dict['play_url'] = search_res.get('bitrate', {})['file_link']
+                re_dict['image_url'] = info['pic_small']
+                re_dict['lyric'] = self.get_lyric(info['lrclink'])
+
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
@@ -63,37 +100,7 @@ class BaiduMusic(object):
                 re_dict['status'] = 'ERROR_UNKNOWN'
         return re_dict
 
-    def search_by_id(self, song_id):
-        '''
-        通过id搜索歌曲
-        song_id : 歌曲id
-        返回值 : 歌曲信息
-        '''
-        re_dict = copy.deepcopy(RetDataModule.mod_search) #拷贝搜素结果模板
-        try:
-            _url = 'http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&'\
-            'method=baidu.ting.song.playAAC&songid={}'.format(song_id)
-            response = self.session.request('GET', _url, headers = self.headers)
-            search_res = response.json()
-            if search_res.get('error_code', -1) == 22000:
-                info = search_res.get('songinfo', {})
-                tmp_song = copy.deepcopy(RetDataModule.mod_song) #拷贝歌曲模版
-                tmp_song['music_id'] = song_id
-                tmp_song['music_name'] = info['title']   
-                tmp_song['artists'] = info['author']
-                tmp_song['play_url'] = search_res.get('bitrate', {})['file_link']
-                tmp_song['image_url'] = info['pic_small']
-                tmp_song['lyric'] = self.get_lyric(info['lrclink'])
-                re_dict['song']['list'].append(tmp_song)
-                re_dict['song']['totalnum'] += 1    
-                re_dict['next_page'] = 1
-            else:
-                re_dict['code'] = ReturnStatus.ERROR_SEVER
-                re_dict['status'] = 'ERROR_SEVER'
-        except:
-                re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-                re_dict['status'] = 'ERROR_UNKNOWN'
-        return re_dict
+
 
     def get_play_url(self, song_id):
         '''
@@ -110,6 +117,8 @@ class BaiduMusic(object):
         except Exception:
             return ''
 
+
+
     def get_lyric(self, url):
         '''
         获取歌词
@@ -122,11 +131,15 @@ class BaiduMusic(object):
         except Exception:
             return ''
 
+
+
     def get_user_dissidlist(self):
         '''
         获取用户歌单id列表
         '''
         pass
+
+
 
     def get_hot_itemidlist(self):
         '''
@@ -134,11 +147,15 @@ class BaiduMusic(object):
         '''
         pass
 
+
+
     def get_hot_playlist(self):
         '''
         获取热门推荐歌单id列表
         '''
         pass
+
+
 
     def get_cdlist(self, listid):
         '''
@@ -154,12 +171,16 @@ class BaiduMusic(object):
         response = self.session.request('GET', _url, headers = self.headers)
         print(response.json())
 
+
+
     def get_ranndom_playlist(self, num = 6):
         '''
         获取随机歌单
         num : 歌单数量[默认=6]
         '''
         pass
+
+
 
     def download_song(self, song_id, path = cache_path, transTomp3 = False):
         '''
@@ -188,6 +209,8 @@ class BaiduMusic(object):
             return ReturnStatus.SUCCESS
         except:
             return ReturnStatus.ERROR_UNKNOWN
+
+
 
 if __name__ == '__main__':
     app = BaiduMusic()
