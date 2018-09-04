@@ -66,7 +66,6 @@ class Kugou(object):
             status = "ReturnStatus.SUCCESS"
             try:
                 resp = resp["data"]
-                print(resp)
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 music_id = resp["hash"]
                 re_dict = re_dict_class.RetDataModSong(play_url=resp["play_url"], music_id=music_id, music_name=resp['song_name'], 

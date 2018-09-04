@@ -95,25 +95,40 @@ class Hot_Song_List(object):
 
     def Random_Return_func(self):
         """
-        这个方法用于向前端随机返回redis-1数据库中的六条歌单记录
+        这个方法用于向前端返回热门三十条歌单记录
         """
         global re_date
-        self.requ_date = {}
-        Random_Max = self.r.dbsize()
-        for i in range(0, 6):
-            music_data = {}
-            
-            User_Song_List = self.r.get(str(random.sample(range(0, Random_Max), 1)[0]))
-            music_data.update({
-                                "image_url":User_Song_List.split("user_song_list")[0],\
-                                "title": User_Song_List.split("user_song_list")[1], \
-                                "song_list_url": self.NEMurl + User_Song_List.split("user_song_list")[2]
-                                })
-            self.requ_date.update({str(i) : music_data})
-        return self.requ_date
+        try:
+            connection = requests.get(url = "http://music.163.com/discover/playlist", headers=self.headers)
+        except:
+            return 0
+        else:
+            connection.encoding = 'UTF-8'
+            SongList_Id         = re.findall(r'/playlist\?id=(\d+)', \
+                                             connection.text)
+            Set_SongList_Id     = set(SongList_Id)
+            if Set_SongList_Id == []:
+                return 0
+            return list(Set_SongList_Id)
+
+
+        code = ReturnStatus.SUCCESS
+        status = "ReturnStatus.SUCCESS"
+
+        re_dict_class = ReturnFunction.RetDataModuleFunc()
+
+        songList = ReturnFunction.songList(Data=retjson['cdlist'][0]["songlist"], songdir="[\"songname\"]", artistsdir="[\"singer\"][0][\"name\"]", iddir="[\"songmid\"]", page=page)
+
+        songList.buidingSongList()
+        re_dict = re_dict_class.RetDataModCdlist(retjson['cdlist'][0]['dissname'], retjson['cdlist'][0]['nickname'],
+                                                retjson['cdlist'][0]['desc'], retjson['cdlist'][0]['disstid'], 
+                                                retjson['cdlist'][0]['logo'], songList, retjson['cdlist'][0]['total_song_num'],
+                                                retjson['cdlist'][0]['cur_song_num'], code=code, status=status
+                                                )
     
+
     @staticmethod
-    def Download_SongList(url):
+    def Download_SongList(id):
         post_headers  = {
                         'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13;rv:57.0) Gecko/20100101 Firefox/57.0',
                         'Referer':"http://music.163.com", 
@@ -123,38 +138,42 @@ class Hot_Song_List(object):
         """
         这是用来下载用户的歌单的方法
         并向前端返回歌曲的id,歌手, 歌名的信息
-        通过独一无二的歌曲id请求Scrawl_Neteasymusic.py中的music_id_requests方法返回
+        通过独一无二的歌曲id请求歌曲id接口方法返回
         单首歌曲详细信息
         """
         date = "{\'id\': %s, \'total\': \'true\',\'csrf_token\
         \':\"\", \'limit\': 1000, \'n\': 1000, \'offset\': 0}"
-        Song_List_Id = re.findall(r"id=(\d{1,15})", url)
-        if Song_List_Id == []:
-            Song_List_Id = re.findall(r"(\d{1,15})", url)
-        date = AES.encrypted_request(date %(Song_List_Id[0]))
+        # Song_List_Id = re.findall(r"id=(\d{1,15})", url)
+        # if Song_List_Id == []:
+        #     Song_List_Id = re.findall(r"(\d{1,15})", url)
+
+        date = AES.encrypted_request(date %(id))
         try:
             connection = requests.session().post(url="http://music.163.com/weapi/v3/playlist/detail",
                                                 data=date,
-                                                headers=post_headers,)
-        except EOFError:
+                                                headers=post_headers,).json()
+
+            print(connection)
+        except:
             return 0
         else:
             try:
                 music_data = {}
-                connection = connection.json()
+
                 num = len(connection["playlist"]['tracks'])
                 music_data = {"creator":connection["playlist"]['creator'], "Songlist_detail":connection["playlist"]['tracks'], "description":connection["playlist"]['description'], "song_num":num}
             except:
                 music_data = {"status":"没有该歌单!"}
-            requ_date.update(music_data)
+            else:
+                requ_date.update(music_data)
             return requ_date
 
 
 if __name__ == "__main__":
     
     test = Hot_Song_List()
-    while 1:
-        test.pre_request(test.User_List_All[1])
-        time.sleep(3600 * 48)
-        test.r.flushdb()
-    # print(Hot_Song_List.Download_SongList("2196054076"))
+    # while 1:
+    #     test.pre_request(test.User_List_All[1])
+    #     time.sleep(3600 * 48)
+    #     test.r.flushdb()
+    print(Hot_Song_List.Download_SongList("2196054076"))

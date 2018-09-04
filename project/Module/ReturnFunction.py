@@ -88,7 +88,8 @@ class TopSongList(songList):
             tmpSongMod['item_id']   = eval("item" + self.IdDir)
             self.songList.append(copy.deepcopy(tmpSongMod))
             self.count += 1
-
+            if self.count == 21:
+                break
         return 0
 
 

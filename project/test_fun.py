@@ -34,7 +34,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # from project.Scrawl.NeteasyMusic import NeteasyMusic
 # app2 = NeteasyMusic.Netmusic()
 # # print(app2.pre_response_neteasymusic('浮夸'))
-# print(app2.music_id_requests(66282))
+# print(app2.music_id_requests(471411438))
 # print(app2.requests_comment("413812448"))
 
 
@@ -44,7 +44,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # app3 = XiamiMusic.XiamiApi()
 # print(app3.getPlaylist("358024020"))
 
+# from project.Sync.NeteasySync import Hot_Song_List
 
+# test = Hot_Song_List.Hot_Song_List()
+# test.Download_SongList("2196054076")
 
 #from project.Helper import bcrypt_hash
 # # 登录/注册模块的测试，现已可用
@@ -75,10 +78,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app8.search_details('60075020337'))
 
 
-from project.Scrawl.KugouMusic import kugou
-app7 = kugou.Kugou()
+# from project.Scrawl.KugouMusic import kugou
+# app7 = kugou.Kugou()
 # print(app7.Search_List("纸短情长", 1))
-print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+# print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
 # print(app7.ReturnSongList("511210"))
 # print(app7.TopSongList())
 

@@ -190,13 +190,12 @@ class Netmusic(object):
             re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
 
         except:
-            re_dict['code']   = ReturnStatus.ERROR_UNKNOWN
-            re_dict['status'] = 'ERROR_UNKNOWN'
-
+            code   = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN
         else:
             re_dict['code']   = ReturnStatus.SUCCESS
             re_dict['status'] = 'ReturnStatus.SUCCESS'
-
             return re_dict
 
 
