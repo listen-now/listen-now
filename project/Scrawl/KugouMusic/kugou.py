@@ -3,10 +3,7 @@
 # @Date:2018/08/01
 # Author:Cat.1    
 
-# # encoding:utf-8
-# import io  
-# import sys  
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
+
 import copy
 import requests
 import simplejson
@@ -57,7 +54,7 @@ class Kugou(object):
             return re_dict
 
     def hash_search(self, hash):
-        
+
         try:
             resp = eval(self.session.get(url=self.hashurl%(hash), headers=self.headers).text)
         except simplejson.errors.JSONDecodeError:
@@ -69,11 +66,11 @@ class Kugou(object):
             status = "ReturnStatus.SUCCESS"
             try:
                 resp = resp["data"]
-
+                print(resp)
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 music_id = resp["hash"]
-                re_dict = re_dict_class.RetDataModSong(resp["play_url"], music_id, resp['song_name'], 
-                    resp['author_name'], resp['img'], resp['lyrics'], comment=['暂无评论数据'], tlyric='None', 
+                re_dict = re_dict_class.RetDataModSong(play_url=resp["play_url"], music_id=music_id, music_name=resp['song_name'], 
+                    artists=resp['author_name'], image_url=resp['img'], lyric=resp['lyrics'], comment=['暂无评论数据'], tlyric='None', 
                     code=code, status=status)
 
             except:re_dict["code"]    = ReturnStatus.DATA_ERROR

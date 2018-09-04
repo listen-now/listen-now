@@ -31,10 +31,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app1.get_hot_itemidlist())
 
 
-from project.Scrawl.NeteasyMusic import NeteasyMusic
-app2 = NeteasyMusic.Netmusic()
-# print(app2.pre_response_neteasymusic('浮夸'))
-print(app2.music_id_requests(66282))
+# from project.Scrawl.NeteasyMusic import NeteasyMusic
+# app2 = NeteasyMusic.Netmusic()
+# # print(app2.pre_response_neteasymusic('浮夸'))
+# print(app2.music_id_requests(66282))
 # print(app2.requests_comment("413812448"))
 
 
@@ -75,10 +75,10 @@ print(app2.music_id_requests(66282))
 # print(app8.search_details('60075020337'))
 
 
-# from project.Scrawl.KugouMusic import kugou
-# app7 = kugou.Kugou()
-# print(app7.Search_List("纸短情长", 1000))
-# print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+from project.Scrawl.KugouMusic import kugou
+app7 = kugou.Kugou()
+# print(app7.Search_List("纸短情长", 1))
+print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
 # print(app7.ReturnSongList("511210"))
 # print(app7.TopSongList())
 

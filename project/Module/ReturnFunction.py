@@ -131,16 +131,17 @@ class RetDataModuleFunc(object):
         """
         assert(isinstance(comment, list), 'comment type is list ?')
 
-        self.re_dict              = copy.deepcopy(RetDataModule.mod_song)
-        self.re_dict['code']      = code
-        self.re_dict['status']    = status
-        self.re_dict['play_url']  = play_url
-        self.re_dict['music_id']  = music_id
-        self.re_dict['lyric']     = lyric
-        self.re_dict['tlyric']    = tlyric
-        self.re_dict['artists']   = artists
-        self.re_dict['image_url'] = image_url
-        self.re_dict['comment']   = comment
+        self.re_dict               = copy.deepcopy(RetDataModule.mod_song)
+        self.re_dict['code']       = code
+        self.re_dict['status']     = status
+        self.re_dict['play_url']   = play_url
+        self.re_dict['music_name'] = music_name
+        self.re_dict['music_id']   = music_id
+        self.re_dict['lyric']      = lyric
+        self.re_dict['tlyric']     = tlyric
+        self.re_dict['artists']    = artists
+        self.re_dict['image_url']  = image_url
+        self.re_dict['comment']    = comment
 
         return self.re_dict
 
