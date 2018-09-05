@@ -31,10 +31,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app1.get_hot_itemidlist())
 
 
-from project.Scrawl.NeteasyMusic import NeteasyMusic
-app2 = NeteasyMusic.Netmusic()
+# from project.Scrawl.NeteasyMusic import NeteasyMusic
+# app2 = NeteasyMusic.Netmusic()
 # print(app2.pre_response_neteasymusic('浮夸'))
-print(app2.music_id_requests(66282))
+# print(app2.music_id_requests(66282))
 # print(app2.requests_comment("413812448"))
 
 
@@ -61,14 +61,14 @@ print(app2.music_id_requests(66282))
 #
 
 
-# from project.Scrawl.KuwoMusic import KuwoMusic
+from project.Scrawl.KuwoMusic import KuwoMusic
 
-# app7 = KuwoMusic.KuwoMusic()
+app7 = KuwoMusic.KuwoMusic()
 # print(app7.Search_List("青花瓷", 0))
 # print(app7.Search_details("48791034"))
 # print(app7.get_play_url("48791034"))
-# print(app7.get_comment("48791034"))
-# print(app7.get_songlist('90275'))
+# print(app7.get_comment("48791034"))b
+print(app7.get_songlist('90275'))
 
 # from project.Scrawl.MiguMusic import MiguMusic
 # app8 = MiguMusic.Migu()
@@ -80,13 +80,9 @@ print(app2.music_id_requests(66282))
 # app7 = kugou.Kugou()
 # print(app7.Search_List("纸短情长", 1000))
 # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
-<<<<<<< HEAD
-# print(app7.ReturnSongList("521431"))
-# app7.TopSongList()
-=======
 # print(app7.ReturnSongList("511210"))
 # print(app7.TopSongList())
->>>>>>> CatDev
+
 
 
 # from Helper.token_admin import Forbidden

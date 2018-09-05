@@ -8,6 +8,7 @@ import simplejson
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
 from project.Module import ReturnFunction
+from lxml import etree
 import requests
 import copy
 import json
@@ -26,20 +27,13 @@ class KuwoMusic(object):
         self.searchurl  = "http://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId=%s"
         self.palyurl    = "http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=%s&format=aac|mp3&response=url"
         self.commenturl = "http://comment.kuwo.cn/com.s?type=get_comment&uid=0&prod=newWeb&digest=15&sid=%s&page=1&rows=10&f=web"
-<<<<<<< HEAD
         self.songlisturl = "http://yinyue.kuwo.cn/yy/cinfo_%s.htm"
         self.session = requests.session()
         self.headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
         }
-=======
-        self.session    = requests.session()
-        self.headers    = {
-                    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-                    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
-                    }
->>>>>>> CatDev
+
 
     def Search_List(self, keyword, page):
 
@@ -101,17 +95,43 @@ class KuwoMusic(object):
         comment = resp["rows"]
         return comment
 
-    def get_songlist(self,list_id):
+    def get_songlist(self,list_id,page=1):
         try:
-            resp = eval(self.session.get(url=self.songlisturl%(list_id),headers=self.headers).text)
+            resp = requests.get(url=self.songlisturl%(list_id), headers=self.headers)
+            resp = etree.HTML(resp.content)
+
         except simplejson.errors.JSONDecodeError:
             code   = ReturnStatus.ERROR_SEVER
             status = "ReturnStatus.ERROR_SEVER"
             return 0
-        # else:
-        #     try:
-        #         code = ReturnStatus.SUCCESS
-        #         status = "ReturnStatus.SUCCESS"
+        else:
+            try:
+                code = ReturnStatus.SUCCESS
+                status = "ReturnStatus.SUCCESS"
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+
+                songList = ReturnFunction.songList(Data=[], 
+                            songdir=resp.xpath('//li [@class="clearfix"]/p [@class="m_name"]/a/@title'), 
+                            artistsdir=resp.xpath('//p [@class="s_name"]/a/@title'), iddir=resp.xpath('//input/@ mid'), 
+                            page=page)
+                songList.buidingSongList()
+                re_dict  = re_dict_class.RetDataModCdlist(resp.xpath('//div [@class="s_img"]/a/@title'), nickname=[],
+                            resp.xpath('//div [@id="bdshare"]/@data/comment'), dissid=[], 
+                            resp.xpath('//div [@id="bdshare"]/@data//pic'), songList, total=[], 
+                            total=[], code=code, status=status)
+                # nickname = []
+                # info = resp.xpath('//div [@id="bdshare"]/@data/comment')
+                # dissname = resp.xpath('//div [@class="s_img"]/a/@title')
+                # song = {id:,artists:,music_name:}
+                # id = resp.xpath('//input/@ mid')
+                # artists = resp.xpath('//p [@class="s_name"]/a/@title')
+                # music_name = resp.xpath('//li [@class="clearfix"]/p [@class="m_name"]/a/@title')
+                # dissid = 
+                # listen_url = resp.xpath('//')
+                # image_url = resp.xpath('//div [@id="bdshare"]/@data//pic')
+                # re_dict = re_dict_class.RetDataModSong(resp.xpath())
+            except:
+                pass
 
 
 
