@@ -41,9 +41,9 @@ class Migu(object):
         except simplejson.errors.JSONDecodeError:
             code   = ReturnStatus.ERROR_SEVER
             status = "ReturnStatus.ERROR_SEVER"
-
+        print(resp)
         if resp["pgt"] != 0 :
-            songList = ReturnFunction.songList(Data=resp["musics"], songdir="[\"songName\"]",artistsdir="[\"artist\"]",iddir="[\"copyrightId\"]")
+            songList = ReturnFunction.songList(Data=resp["musics"], songdir="[\"songName\"]",artistsdir="[\"artist\"]",iddir="[\"copyrightId\"]", page=page)
             songList.buidingSongList()
             re_dict_class = ReturnFunction.RetDataModuleFunc()
             now_page      = page 
@@ -69,7 +69,7 @@ class Migu(object):
                 resp = resp["data"]
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 re_dict = re_dict_class.RetDataModSong(resp["listenUrl"], resp["songId"], str(resp["songName"]), 
-                    str(resp["singerName"])[2:-2], resp["picL"], resp["lyricLrc"], comment=[], tlyric='None', code=code, status=status)
+                    str(resp["singerName"])[2:-2], resp["picL"], resp["lyricLrc"], comment=["暂无评论数据"], tlyric='None', code=code, status=status)
             
             except:re_dict["code"]    = ReturnStatus.DATA_ERROR
         return re_dict

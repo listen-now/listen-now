@@ -47,7 +47,7 @@ class QQMusic(object):
             serach_res = response.json()
             if serach_res.get('code', -1) == 0:
                 song_list     = serach_res.get('data',{}).get('song',{}).get('list',[])
-                songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]")
+                songList      = ReturnFunction.songList(Data=song_list, songdir="[\"name\"]", artistsdir="[\'singer\'][0][\'name\']", iddir="[\"mid\"]", page=page)
                 songList.buidingSongList()
 
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
@@ -210,16 +210,17 @@ class QQMusic(object):
             return ReturnStatus.ERROR_UNKNOWN    
         return re_dict
                 
-    def get_cdlist(self, disstid, uin='447231743',  song_begin=0, song_num=100000, page=1):
+    def get_cdlist(self, disstid, uin='447231743',  song_begin=0, song_num=1000, page=1):
         '''
+        song_num 在这里直接是获取整个歌单所有的歌曲
         通过disstid获取的歌单
         disstid : 歌单id
         uin : 用户识别码[]
         song_begin : 歌曲起始索引[默认=0]
-        song_num : 欲获取歌曲的数量[默认=10]
+        # song_num : 欲获取歌曲的数量[默认=10]
         返回值 : 歌单(mod_cdlist格式)
         '''
-        re_dict = copy.deepcopy(RetDataModule.mod_cdlist) #歌单模版
+
         try:
             _url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?'\
             'type=1&json=1&utf8=1&onlysong=0&disstid={0}&format=json&loginUin={1}&hostUin=0'\
@@ -227,7 +228,7 @@ class QQMusic(object):
             '&song_num={3}'.format(disstid, uin, song_begin, song_num)
             response = self.session.request('GET', _url, headers = self.headers)
             retjson = response.json()
-            # print(retjson)
+
 
             if retjson.get('code', -1) == 0:
 
@@ -237,8 +238,6 @@ class QQMusic(object):
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
     
                 songList = ReturnFunction.songList(Data=retjson['cdlist'][0]["songlist"], songdir="[\"songname\"]", artistsdir="[\"singer\"][0][\"name\"]", iddir="[\"songmid\"]", page=page)
-
-
 
                 songList.buidingSongList()
                 re_dict = re_dict_class.RetDataModCdlist(retjson['cdlist'][0]['dissname'], retjson['cdlist'][0]['nickname'],
