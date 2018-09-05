@@ -73,8 +73,12 @@ class KuwoMusic(object):
 
             try:
                 resp = resp["data"]
-                lyric = str(resp['lrclist']).replace("[{'lineLyric': '","").replace("', 'time': '","[").replace("'}, {'lineLyric': '","]").replace("[{'time': \'","[").replace("', 'lineLyric': '","]").replace("{'lineLyric': '","]").replace("'}, {'time': '"," [")[:-3]
-                #print(lyric)
+                lyric = str(resp['lrclist'])
+                thelist = ['0','1','2','3','4','5','6','7','8','9']
+                while lyric[-5:-4]  in thelist:
+                        lyric = str(resp['lrclist'])
+                lyric = lyric.replace("[{'time': '","[").replace("', 'lineLyric': '","]").replace("'}, {'time': '","\n[")[:-3]
+
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 re_dict       = re_dict_class.RetDataModSong(self.get_play_url(music_id), resp["songinfo"]["id"], resp["songinfo"]['songName'], 
                     resp["songinfo"]['artist'], resp["songinfo"]['pic'], lyric, self.get_comment(music_id), tlyric='None', 

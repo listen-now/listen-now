@@ -61,7 +61,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 from project.Scrawl.KuwoMusic import KuwoMusic
 app7 = KuwoMusic.KuwoMusic()
 # print(app7.Search_List("青花瓷", 1))
-print(app7.Search_details("48791034"))
+print(app7.Search_details("50601684"))
 # print(app7.get_play_url("48791034"))
 # print(app7.get_comment("48791034"))
 # print(app7.get_songlist('90275'))
