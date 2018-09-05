@@ -84,7 +84,7 @@ class QQMusic(object):
                 music_id = info['mid']
                 re_dict = re_dict_class.RetDataModSong(self.get_play_url(music_id, self.get_music_vkey(music_id)), 
                     music_id, info['name'], info['singer'][0]['name'], self.get_image_url(music_id), 
-                    self.get_music_lyric(music_id), comment=['暂无评论数据'], tlyric='None', code=ReturnStatus.SUCCESS, status='Success')
+                    self.get_music_lyric(music_id), comment=self.get_song_comment(self.get_song_topid(music_id)), tlyric='None', code=ReturnStatus.SUCCESS, status='Success')
             else:
                 code   = ReturnStatus.ERROR_SEVER
                 status = 'ReturnStatus.ERROR_SEVER'
@@ -181,6 +181,54 @@ class QQMusic(object):
             status = 'ReturnStatus.ERROR_UNKNOWN'
             return ReturnStatus.ERROR_UNKNOWN    
 
+    def get_song_comment(self, topid):
+        '''
+        歌曲评论获取
+        topid: 歌曲数字识别码
+        返回值: 歌曲评论列表
+        '''
+        comment = ['暂无评论数据']
+        try:
+            _url = 'https://c.y.qq.com/base/fcgi-bin/fcg_global_comment_h5.fcg?g_tk=5381&loginUin=0&'\
+            'hostUin=0&format=jsonp&inCharset=utf8&outCharset=GB2312&notice=0&platform=yqq&needNewCode=0'\
+            '&cid=205360772&reqtype=2&biztype=1&topid={0}&cmd=8&needmusiccrit=0&pagenum=0&pagesize=25&'\
+            'lasthotcommentid=&domain=qq.com&ct=24&cv=101010'.format(topid)
+            response = self.session.request('GET', _url, headers = self.headers)
+            cmts = response.json()
+            if cmts.get('code', -1) == 0:
+                if len(cmts.get('hot_comment', {}).get('commentlist', [])) > 0:
+                    comment = []
+                for cmt in cmts.get('hot_comment', {}).get('commentlist', []):
+                    comment.append(cmt['rootcommentcontent'])
+            else:
+                code   = ReturnStatus.ERROR_SEVER
+                status = 'ReturnStatus.ERROR_SEVER'
+                return ReturnStatus.ERROR_SEVER
+        except:
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN 
+        return comment
+
+    def get_song_topid(self, songMid):
+        '''
+        获取歌曲数字识别码
+        songMid: 歌曲字母识别码
+        返回值: 歌曲数字识别码
+        '''
+        topid = ''
+        try:
+            _url = 'https://y.qq.com/n/yqq/song/{0}.html'.format(songMid)   
+            response = self.session.request('GET', _url, headers = self.headers)
+            start = 'var g_SongData = '
+            for line in response.text.split('\n'):
+                if line.startswith(start):
+                    topid = json.loads(line[len(start):-2]).get('songid', '')
+        except:
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN 
+        return topid
 
     def get_user_collect_dissidlist(self, uin):
         '''
