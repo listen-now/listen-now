@@ -64,7 +64,7 @@ class TopSongList(songList):
     """部分请求参数说明
     
     Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，
-    songdir，artistsdir，iddir是对应的键值，即dir地址
+    ItemNameDir，ImageUrlDir，IdDir，InfoDir
 
     """
 
