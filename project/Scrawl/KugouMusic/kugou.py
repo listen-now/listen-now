@@ -68,10 +68,9 @@ class Kugou(object):
                 resp = resp["data"]
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 music_id = resp["hash"]
-                print(type(resp['lyrics']))
-                # re_dict = re_dict_class.RetDataModSong(play_url=resp["play_url"], music_id=music_id, music_name=resp['song_name'], 
-                #     artists=resp['author_name'], image_url=resp['img'], lyric=resp['lyrics'], comment=['暂无评论数据'], tlyric='None', 
-                #     code=code, status=status)
+                re_dict = re_dict_class.RetDataModSong(play_url=resp["play_url"], music_id=music_id, music_name=resp['song_name'], 
+                    artists=resp['author_name'], image_url=resp['img'], lyric=resp['lyrics'], comment=['暂无评论数据'], tlyric='None', 
+                    code=code, status=status)
 
             except:re_dict["code"]    = ReturnStatus.DATA_ERROR
         return re_dict
@@ -81,10 +80,12 @@ class Kugou(object):
         url = "http://m.kugou.com/plist/list/%s?json=true"
         try:
             resp = requests.get(url=url%(specialid), headers=self.headers).json()
+        
         except simplejson.errors.JSONDecodeError:
             code   = ReturnStatus.ERROR_SEVER
             status = "ReturnStatus.ERROR_SEVER"
             return ReturnStatus.ERROR_SEVER
+        
         else:
             try:
                 code = ReturnStatus.SUCCESS

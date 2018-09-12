@@ -61,10 +61,10 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 from project.Scrawl.KuwoMusic import KuwoMusic
 app7 = KuwoMusic.KuwoMusic()
 # print(app7.Search_List("青花瓷", 1))
-print(app7.Search_details("50601684"))
+#print(app7.Search_details("50601684"))
 # print(app7.get_play_url("48791034"))
 # print(app7.get_comment("48791034"))
-# print(app7.get_songlist('90275'))
+print(app7.get_songlist('88152'))
 
 
 # from project.Scrawl.MiguMusic import MiguMusic
@@ -73,11 +73,11 @@ print(app7.Search_details("50601684"))
 # print(app8.search_details('60075020337'))
 
 
-# from project.Scrawl.KugouMusic import kugou
-# app7 = kugou.Kugou()
-# # print(app7.Search_List("纸短情长", 1))
-# # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
-# # print(app7.ReturnSongList("521431"))
+from project.Scrawl.KugouMusic import kugou
+app7 = kugou.Kugou()
+# print(app7.Search_List("纸短情长", 1))
+# print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+print(app7.ReturnSongList("521431"))
 # print(app7.TopSongList())
 
 
