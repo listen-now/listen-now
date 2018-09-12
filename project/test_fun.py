@@ -73,12 +73,12 @@ print(app7.get_songlist('88152'))
 # print(app8.search_details('60075020337'))
 
 
-from project.Scrawl.KugouMusic import kugou
-app7 = kugou.Kugou()
-# print(app7.Search_List("纸短情长", 1))
-# print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
-print(app7.ReturnSongList("521431"))
-# print(app7.TopSongList())
+# from project.Scrawl.KugouMusic import kugou
+# app7 = kugou.Kugou()
+# # print(app7.Search_List("纸短情长", 1))
+# # print(app7.hash_search("c592091f71226cd2dc9f840655b235bb"))
+# print(app7.ReturnSongList("521431"))
+# # print(app7.TopSongList())
 
 
 

@@ -112,49 +112,44 @@ class KuwoMusic(object):
             return 0
         
         else:
-            global re_dict
-            re_dict = {}
-            code = ReturnStatus.SUCCESS
-            status = "ReturnStatus.SUCCESS"
-            re_dict_class = ReturnFunction.RetDataModuleFunc()
+            try:
+                global re_dict
+                re_dict = {}
+                code = ReturnStatus.SUCCESS
+                status = "ReturnStatus.SUCCESS"
+                re_dict_class = ReturnFunction.RetDataModuleFunc()  
 
-            songdir = resp.xpath('//li [@class="clearfix"]/p [@class="m_name"]/a/@title')
-            artistsdir = resp.xpath('//p [@class="s_name"]/a/@title')
-            iddir = resp.xpath('//input/@ mid')
+                songdir = resp.xpath('//li [@class="clearfix"]/p [@class="m_name"]/a/@title')
+                artistsdir = resp.xpath('//p [@class="s_name"]/a/@title')
+                iddir = resp.xpath('//input/@ mid') 
 
+                dissname = str(resp.xpath('//div [@class="s_img"]/a/@title'))[2:-2]
+                dissid = list_id
+                info = str(resp.xpath('//*[@id="intro"]/text()'))[33:-2]
+                image1 = str(resp.xpath('//div [@id="bdshare"]/@data')).find("pic")
+                image2 = str(resp.xpath('//div [@id="bdshare"]/@data')).find("jpg")
+                image = str(resp.xpath('//div [@id="bdshare"]/@data'))[image1+6:image2+3]
+                total = str(resp.xpath('//*[@id="content"]/div/div[2]/div[4]/form/div[1]/p[2]/text()'))[3:-4]   
 
-            # songList = ReturnFunction.songList(Data=[], songdir=songdir, artistsdir=artistsdir, iddir=iddir, page=page)
-            # songList.buidingSongList()
+                
+                list1 = []
+                keys = ['music_name','id','artists']
+                for i in range(int(total)):
+                    values = [songdir[i],iddir[i],artistsdir[i]]
+                    dict1 = dict(zip(keys,values))
+                    list1.append(dict1) 
+    
 
-            dissname = str(resp.xpath('//div [@class="s_img"]/a/@title'))[2:-2]
-            dissid = list_id
-            info = str(resp.xpath('//*[@id="intro"]/text()'))[33:-2]
-            image1 = str(resp.xpath('//div [@id="bdshare"]/@data')).find("pic")
-            image2 = str(resp.xpath('//div [@id="bdshare"]/@data')).find("jpg")
-            image = str(resp.xpath('//div [@id="bdshare"]/@data'))[image1+6:image2+3]
-            total = str(resp.xpath('//*[@id="content"]/div/div[2]/div[4]/form/div[1]/p[2]/text()'))[3:-4]
+                re_dict = {'nickname':'', 'code':code, 'status':status, 'dissid':dissid, 'info':info, 'dissname':dissname, 'image': image, 'song':{'totalnum':total, 'curnum':total, 'list':list1}} 
 
-            # re_dict  = re_dict_class.RetDataModCdlist(dissname, "", info, "", "", 
-            #                 songList, int(total), int(total), code, status)
-            
-            list1 = []
-            keys = ['music_name','id','artists']
-            for i in range(int(total)):
-                values = [songdir[i],iddir[i],artistsdir[i]]
-                dict1 = dict(zip(keys,values))
-                list1.append(dict1)
+            except:
+                code = ReturnStatus.DATA_ERROR
+                status = "ReturnStatus.DATA_ERROR"
+                return ReturnStatus.DATA_ERROR
+            else:
+                re_dict['code']   = ReturnStatus.SUCCESS
 
-
-            re_dict = {'nickname':'', 'code':code, 'status':status, 'dissid':dissid, 'info':info, 'dissname':dissname, 'image': image, 'song':{'totalnum':total, 'curnum':total, 'list':list1}}
-
-        # except:
-        #     code = ReturnStatus.DATA_ERROR
-        #     status = "ReturnStatus.DATA_ERROR"
-        #     return ReturnStatus.DATA_ERROR
-        # else:
-        #     re_dict['code']   = ReturnStatus.SUCCESS
-
-            return re_dict
+        return re_dict
 
 
 
