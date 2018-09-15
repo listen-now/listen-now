@@ -2,6 +2,7 @@
 # @File:setup.py
 # @Date:2018/07/15
 # @Update:2018/09/01
+# 
 # Author:Cat.1
 
 import os
@@ -25,7 +26,6 @@ except:
     print("[-]请手动初始化终端命令功能\n")
     print("参考指令 -> " + path2)
     print("参考指令 -> " + path1)
-    raise BaseException
 else:
     print("[+]终端命令初始化成功!")
 
@@ -54,9 +54,8 @@ else:
             raise BaseException
     except:
         print("[-]安装环境出现错误，请手动执行")
-        print("请手动安装 ffmpeg, mpg123")
-        raise BaseException
-
+        print("请手动安装 ffmpeg, mpg123\n\n")
+        
 
 # 关于判断用户的Python版本中pip的构建问题
 pip = {"1":"pip", "2":"pip3", "3":"other"}
@@ -75,7 +74,6 @@ try:
 except:
     print("[-]pip依赖包安装失败")
     print("请手动安装requirements.txt")
-    raise BaseException
 
 try:
     print(subprocess.check_output("touch error.log && touch access.log", shell=True).decode("UTF-8"))
