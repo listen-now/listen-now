@@ -16,9 +16,9 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 # print(app1.search_by_id("0026dJ8k47cwSU"))
 # print(app1.get_cdlist(3644190836, page=2))
 
-from project.Scrawl.BaiduMusic import BaiduMusic
-app = BaiduMusic.BaiduMusic()
-print(app.search_by_keyword('张学友'))
+# from project.Scrawl.BaiduMusic import BaiduMusic
+# app = BaiduMusic.BaiduMusic()
+# print(app.search_by_keyword('张学友'))
 
 # from project.Scrawl.XiamiMusic.XiamiMusic import Search_xiami
 # app3 = Search_xiami()
@@ -34,10 +34,10 @@ print(app.search_by_keyword('张学友'))
 # print(app1.get_hot_itemidlist())
 
 
-# from project.Scrawl.NeteasyMusic import NeteasyMusic
-# app2 = NeteasyMusic.Netmusic()
-# # print(app2.pre_response_neteasymusic('浮夸'))
-# print(app2.music_id_requests(471411438))
+from project.Scrawl.NeteasyMusic import NeteasyMusic
+app2 = NeteasyMusic.Netmusic()
+print(app2.pre_response_neteasymusic('浮夸'))
+# print(app2.music_id_requests(29463661))
 # print(app2.requests_comment("413812448"))
 
 

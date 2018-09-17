@@ -59,6 +59,12 @@ class QQMusic(object):
                 code   = ReturnStatus.ERROR_SEVER
                 status = 'ReturnStatus.ERROR_SEVER'
                 return ReturnStatus.ERROR_SEVER
+
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
+
         except:
             code = ReturnStatus.ERROR_UNKNOWN
             status = 'ReturnStatus.ERROR_UNKNOWN'
@@ -229,7 +235,6 @@ class QQMusic(object):
             response = self.session.request('GET', _url, headers = self.headers)
             retjson = response.json()
 
-
             if retjson.get('code', -1) == 0:
 
                 code = ReturnStatus.SUCCESS
@@ -249,7 +254,7 @@ class QQMusic(object):
                 code   = ReturnStatus.ERROR_SEVER
                 status = 'ReturnStatus.ERROR_SEVER'
                 return ReturnStatus.ERROR_SEVER
-        except:
+        except KeyError:
             code = ReturnStatus.ERROR_UNKNOWN
             status = 'ReturnStatus.ERROR_UNKNOWN'
             return ReturnStatus.ERROR_UNKNOWN    

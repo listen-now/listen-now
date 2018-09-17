@@ -150,7 +150,6 @@ class RetDataModuleFunc(object):
     def RetDataModCdlist(self, dissname: str, nickname: str, info: str, dissid: str, image_url: str, 
                          songList: songList, totalnum: int, curnum: int, code=200, status="Success") -> dict:
 
-        assert songList.count            == totalnum, "songList.totalnum != totalnum"
         assert type(code)                == int, "code type is int ?"
 
         self.re_dict                     = copy.deepcopy(RetDataModule.mod_cdlist)
