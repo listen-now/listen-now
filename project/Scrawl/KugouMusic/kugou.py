@@ -46,10 +46,16 @@ class Kugou(object):
                 before_page, next_page = page-1, page+1
                 totalnum               = songList.count
                 re_dict                = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=code, status=status)
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
+
         except:
             code   = ReturnStatus.ERROR_UNKNOWN
             status = 'ReturnStatus.ERROR_UNKNOWN'
             return ReturnStatus.ERROR_UNKNOWN
+
         else:
             return re_dict
 

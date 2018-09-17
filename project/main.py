@@ -235,6 +235,9 @@ def search_json():
         finally:
             if re_dict == "":
                 re_dict = _Return_Error_Post(code=ReturnStatus.NOT_SAFE, status="Failed", detail = "NOT_SAFE")
+            elif re_dict = ReturnStatus.NO_EXISTS:
+                re_dict = _Return_Error_Post(code=ReturnStatus.NO_EXISTS, status="Failed", detail = "NO_EXISTS")
+                
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')
             response.headers['Access-Control-Allow-Origin'] = '*'

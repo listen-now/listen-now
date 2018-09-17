@@ -62,9 +62,15 @@ class BaiduMusic(object):
             else:
                 re_dict['code'] = ReturnStatus.ERROR_SEVER
                 re_dict['status'] = 'ERROR_SEVER'
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS  
         except:
-                re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
-                re_dict['status'] = 'ERROR_UNKNOWN'
+            re_dict['code'] = ReturnStatus.ERROR_UNKNOWN
+            re_dict['status'] = 'ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN
+
         return re_dict
 
 
@@ -108,7 +114,7 @@ class BaiduMusic(object):
         song_id : 歌曲识别码
         返回值 : 歌曲地址
         '''
-        print(self.cache_path)
+        # print(self.cache_path)
         try:
             _url = 'http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&'\
             'method=baidu.ting.song.playAAC&songid={}'.format(song_id)
@@ -169,7 +175,7 @@ class BaiduMusic(object):
         _url = 'http://musicapi.taihe.com/v1/restserver/ting?from=webapp_music&format=json&'\
         'param={}&timestamp={}&sign={}&method=baidu.ting.ugcdiy.getBaseInfo'.format(_param, _timestamp, _sign)
         response = self.session.request('GET', _url, headers = self.headers)
-        print(response.json())
+        # print(response.json())
 
 
 

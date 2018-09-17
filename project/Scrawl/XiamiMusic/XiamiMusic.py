@@ -2,10 +2,13 @@
 # @File:Scrawl_Xiamimusic.py
 # @Date:2018/5/10
 # Author:Cat.1
+import sys
+sys.path.append('..')
 
-import Config
+import project.Config.config 
 import project.Scrawl.XiamiMusic.XiamiHelper
-
+from project.Module import ReturnStatus
+from project.Module import RetDataModule
 import requests, re, json
 
 
@@ -54,12 +57,11 @@ class Search_xiami(object):
     def get_search_url(self, music_name, page_num):
         return xiami_search_url_first+music_name+xiami_search_url_index+str(page_num)+xiami_search_url_last
 
-    def search_xiami(self, title, page = 1):
+    def search_xiami(self, title, page=1):
         global requ_date, music_data
         url          = self.get_search_url(title, page)
         c            = requests.get(url = url, headers = xiami_header)
         result       = c.json()
-        print(result)
         music_id     = result['data']['songs'][0]['song_id']
         music_name   = result['data']['songs'][0]['song_name']
         artists      = result['data']['songs'][0]['artist_name']
@@ -81,7 +83,7 @@ class Search_xiami(object):
             image_url  = result['data']['songs'][i]['album_logo']
             music_data = {}
             count += 1
-            music_data.update({"music_id": music_id, "music_name": music_name, "artists": artists, "image_url":image_url})
+            music_data.update({"id": music_id, "music_name": music_name, "artists": artists})
             requ_date.update({str(count) : music_data})
         return requ_date
 
@@ -102,13 +104,28 @@ class Search_xiami(object):
         play_url   = result['data']['song']['listen_file']
         image_url  = result['data']['song']['logo']
         regex      = re.compile('<.*?>')
-        # print(lyric_url)
         # lyric      = requests.get(lyric_url)
         # lyric      = re.sub(regex, '', lyric.text)
-        music_data = {}
-        music_data.update({"play_url":play_url, "music_id": music_id, "music_name": music_name, "artists": artists, "image_url":image_url})
-        requ_date.update({'0' : music_data})
-        return requ_date
+        music_data = copy.deepcopy(RetDataModule.mod_song)
+
+        try:
+            music_data["play_url"]   = play_url
+            music_data["id"]         = music_id
+            music_data["music_name"] = music_name
+            music_data["artists"]    = artists
+            music_data["image_url"]  = image_url
+            music_data["comment"]    = RetDataModule.MUSIC_NOT_COMMENT
+            music_data["lyric"]      = RetDataModule.MUSIC_NOT_LYRIC
+            music_data["tlyric"]     = RetDataModule.MUSIC_NOT_TLYRIC
+        except:
+            music_data["status"] = "ERROR_UNKNOWN"
+            music_data["code"]   = RetDataModule.ERROR_UNKNOWN
+            return RetDataModule.ERROR_UNKNOWN
+        else:
+            music_data["status"] = "Success"
+            music_data["code"]   = RetDataModule.SUCCESS
+
+        return music_data
 
 def id_search(music_id):
     if request_id(music_id):
