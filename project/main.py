@@ -196,7 +196,7 @@ def search_json():
                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "OVER_MAXPAGE")
             else:
                 if music_title != '' or music_title != None:
-                    if music_platform == "Neteasymusic":
+                    if music_platform == "Neteasemusic":
                         neteasymusic_id = neteasy_scrawl.Netmusic()
                         re_dict         = neteasymusic_id.pre_response_neteasymusic(music_title, music_page)
 
@@ -450,7 +450,7 @@ def Return_User_Song_List():
         except:
             re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="ERROR_PARAMS")
         else:
-            if platform == "Neteasymusic":
+            if platform == "Neteasemusic":
                 check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
                 re_dict     = check_func.Get_User_List(uid, user_id)
             elif platform == "QQmusic":
@@ -497,7 +497,7 @@ def Return_User_Song_List_Detail():
     page                   = dict_data['page']
 
 
-    if song_list_platform == "Neteasymusic":
+    if song_list_platform == "Neteasemusic":
         return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
         re_dict               = return_user_song_list.Download_SongList(song_list_id)
     
@@ -606,7 +606,7 @@ def play_id():
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
         else:
             if music_platform != '' or music_platform != None:
-                if music_platform == "Neteasymusic":
+                if music_platform == "Neteasemusic":
                     
                     neteasymusic_id = neteasy_scrawl.Netmusic()
                     music_id        = dict_data["id"]
