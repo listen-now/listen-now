@@ -1,5 +1,6 @@
 
 .DS_Store
+.vscode
 .env
 .flaskenv
 *.pyc
@@ -16,6 +17,8 @@ _mailinglist
 .pytest_cache/
 .idea/
 docs/_build/
+*.log
+*.ini
 
 # Coverage reports
 htmlcov/
