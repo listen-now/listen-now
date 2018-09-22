@@ -15,11 +15,11 @@ SUCCESS              = 200 # 成功请求数据/服务器处理成功
 VCODESUCCESS         = 201 # V码(邀请码)请求正确，可以提供服务
 VCODEFAILED          = 202 # V码(邀请码)请求失败，不能提供服务，一般由于邀请码错误引起
 
-MUSIC_NOT_LYRIC 	 = 300 # 暂无原文歌词
-MUSIC_NOT_TLYRIC 	 = 301 # 暂无译文歌词
-MUSIC_NOT_COMMENT 	 = 302 # 暂无评论数据
+MUSIC_NOT_LYRIC      = 300 # 暂无原文歌词
+MUSIC_NOT_TLYRIC     = 301 # 暂无译文歌词
+MUSIC_NOT_COMMENT    = 302 # 暂无评论数据
 MUSIC_NOT_PLAY_URL   = 303 # 暂无音乐播放地址
-MUSIC_NOT_DATA 		 = 304 # 暂无任何数据
+MUSIC_NOT_DATA       = 304 # 暂无任何数据
 
 
 ERROR_METHOD         = 400 # 应该为POST请求却使用了GET请求
