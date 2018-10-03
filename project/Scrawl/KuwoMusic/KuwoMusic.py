@@ -10,7 +10,6 @@ from project.Module import RetDataModule
 from project.Module import ReturnFunction
 import requests
 import copy
-import json
 
 class KuwoMusic(object):
     '''
@@ -52,6 +51,11 @@ class KuwoMusic(object):
                 before_page, next_page = page , page +2
                 totalnum               = songList.count
                 re_dict                = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+                for re in re_dict['song']['list']:
+                    re['music_name'].replace('&nbsp;', ' ')
+                    re['artists'].replace('&nbsp;', ' ')
+
+
         except KeyError:
             code   = ReturnStatus.NO_EXISTS
             status = 'ReturnStatus.NO_EXISTS'
@@ -91,9 +95,8 @@ class KuwoMusic(object):
     def get_play_url(self,music_id):
         re_dict  = copy.deepcopy(RetDataModule.mod_song)
 
-        play_url = "http://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=aac|mp3&response=url".format(music_id)
-        return play_url
-
+        res = self.session.request('GET', 'http://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url'.format(music_id), headers=self.headers)
+        return res.text
 
     def get_comment(self,music_id):
         resp    = eval(self.session.get(url=self.commenturl%(music_id),headers=self.headers).text)
@@ -120,6 +123,7 @@ if __name__=="__main__":
 
     test = KuwoMusic()
 
-    rest.Search_List("青花瓷",0)
+    print(test.Search_List("青花瓷",3))
+    # print(test.get_play_url(54237313))
 
     
