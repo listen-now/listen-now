@@ -82,7 +82,7 @@ class XiamiApi(HttpRequest):
 
         with ignored():
             response = json.loads(response[len('jsonp122('):-len(')')])
-
+            print(response)
             data = response['data']
             data['name'] = data['collect_name']
             data['creator'] = {'nickname': data['user_name']}
@@ -102,9 +102,7 @@ class XiamiApi(HttpRequest):
 
     def search(self, keyword):
         keyword = urllib.parse.quote(keyword.encode("utf-8"))
-        url = 'http://api.xiami.com/web?v=2.0&app_key=1&key=' + keyword \
-        + '&page=1&limit=50&_ksTS=1459930568781_153&callback=jsonp154' + \
-        '&r=search/songs'
+        url = 'http://api.xiami.com/web?v=2.0&app_key=1&key=' + keyword + '&page=1&limit=50&_ksTS=1459930568781_153&callback=jsonp154&r=search/songs'
         response = self.httpRequest(url, method='GET')
         response = json.loads(response[len('jsonp154('):-len(')')])
         # songs = response['data']['songs']

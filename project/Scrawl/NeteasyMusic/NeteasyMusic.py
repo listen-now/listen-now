@@ -13,12 +13,7 @@ import threading
 import queue
 from project.Module import ReturnStatus
 from project.Module import RetDataModule
-
-
-# encoding:utf-8
-import io  
-import sys  
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
+from project.Module import ReturnFunction
 
 
 class Netmusic(object):
@@ -54,7 +49,7 @@ class Netmusic(object):
 
     def new_requests_play_url(self, music_id):
         global music_data
-        new_music_id     = []
+        new_music_id = []
 
         if int(config.getConfig("open_database", "redis")) == 1:    
             Search_Db        = "NEM" + str(music_id)
@@ -67,17 +62,8 @@ class Netmusic(object):
                 new_music_id = re.findall(r"url\?id=(\d{1,20})", exist_bool)        
         else:
             play_url = self.url_ %(music_id)
-        music_data = {}
-        try:
-            music_data.update({"play_url": play_url, "music_id":music_id[0]})
-        except:
-            music_data.update({"play_url": play_url, "music_id":music_id}) 
-        print(type(self.requ_date["song"]["list"]))
-        # try:
-        self.requ_date["song"]["list"][0].update(music_data)
-        # except IndexError:
-        #     self.requ_date["song"]["list"][0] = {}
-        #     self.requ_date["song"]["list"][0].update(music_data)
+
+        return play_url
 
 
 
@@ -118,43 +104,32 @@ class Netmusic(object):
             random_int = random.sample(range(0, self.r.dbsize()), 1)
             proxies    = self.r.get(str(random_int[0]))
             self.requests_comment(music_id, eval(proxies))
-        self.requ_date["song"]["comments"] = [{} for i in range(len(resp["hotComments"]))]
-        for num in range(len(resp["hotComments"])):
-            like              = resp["hotComments"][num]["likedCount"]
-            username          = resp["hotComments"][num]['user']["nickname"]
-            comment_content   = resp["hotComments"][num]["content"]
-            comment_timestamp = int(str(resp["hotComments"][num]["time"])[:-3])
+        self.requ_date["song"]["comments"] = []
+
+        for item in resp["hotComments"]:
+            like              = item["likedCount"]
+            username          = item['user']["nickname"]
+            comment_content   = item["content"]
+            comment_timestamp = int(str(item["time"])[:-3])
             dateArray         = datetime.datetime.utcfromtimestamp(comment_timestamp)
             comment_time      = dateArray.strftime("%Y--%m--%d %H:%M:%S")
-            self.requ_date["song"]["comments"][num].update({"comment_time":comment_time, "comment_content":comment_content, "likecount":like, "username":username})
-        # print(self.requ_date)
+            self.requ_date["song"]["comments"].append({"comment_time":comment_time, "comment_content":comment_content, "likecount":like, "username":username})
+        return self.requ_date["song"]["comments"]
 
     def music_id_requests(self, music_id):
-        t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
-        # self.new_requests_play_url 的异步请求
-        t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
-        # self.requests_lyric        的异步请求
-        id_flag = 1
-        t3 = threading.Thread(target=self.music_detail, args=(music_id, id_flag))
-        # self.comment(music_id)     的异步请求
-        t4 = threading.Thread(target=self.requests_comment, args=(music_id,))
-        
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-        t1.join()
-        t2.join()
-        t3.join()
-        t4.join()
 
-        music_id = self.requ_date["song"]["list"][0]["music_id"]
-        # self.requests_play_url(music_id)
-        # 切换到速度较快的备用模式
-        # self.requests_comment(music_id)
-        self.requ_date["song"]["list"]     = self.requ_date["song"]["list"][0]
-        self.requ_date["song"]["totalnum"] = 1
-        return self.requ_date
+
+        id_flag        = 1
+        musicDataiList = self.music_detail(music_id, id_flag)
+        
+        lyric          = self.requests_lyric(music_id)
+        re_dict_class  = ReturnFunction.RetDataModuleFunc()
+        re_dict        = re_dict_class.RetDataModSong(self.new_requests_play_url(music_id), music_id,
+                            musicDataiList['music_name'], musicDataiList['artists'], musicDataiList['image_url'], 
+                            lyric['lyric'], comment=self.requests_comment(music_id),
+                            tlyric=lyric['tlyric'], code=ReturnStatus.SUCCESS, status='Success')
+
+        return re_dict
     
     def music_detail(self, music_id, id_flag=0, proxies=''):
         music_data = {}
@@ -193,116 +168,44 @@ class Netmusic(object):
             except:
                 self.requ_date["song"]["list"] = {}
                 self.requ_date["song"]["list"].append(music_data)
-        return self.requ_date
+        return self.requ_date["song"]["list"][0]
+
+
 
     def pre_response_neteasymusic(self, text, page = 1):
         global count, i, lock
 
         text       = urllib.parse.quote(text)                        
-        data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=0&total=true&limit=100" %(text)
+        data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=%s&total=true&limit=10" %(text, str((page-1)*10))
         resp       = self.session.post(url = self.search_url, data = data, headers = self.headers)
         result     = resp.json()
 
         try:
-            if page == 1:
-                music_id      = result['result']['songs'][0]['id']
+            songList      = ReturnFunction.songList(Data=result['result']['songs'], songdir="[\"name\"]", artistsdir="[\'artists\'][0][\'name\']", iddir="[\"id\"]", page=page)
+            songList.buidingSongList()
+            re_dict_class = ReturnFunction.RetDataModuleFunc()
+            now_page      = page
+            before_page, next_page = page-1, page+1
+            totalnum      = songList.count
+            re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
 
-                self.music_detail(music_id)
-
-            else:
-                music_id      = result['result']['songs'][page * 2 - 9]['id']
-                music_name    = result['result']['songs'][page * 2 - 9]['name']
-                artists       = result['result']['songs'][page * 2 - 9]['artists'][0]['name']
-                music_data    = {}
-                music_data.update({"music_id": music_id, "music_name": music_name, "artists": artists})
-                self.requ_date["song"]["list"].append(music_data)
-            page_end   = page * 10
-            page_start = page_end - 9
-            if page != 1:
-                page_start = page_end - 8
-            q = queue.Queue()
-            i = page_start
-            count = 1
-            while(i<page_end):
-                music_data    = {}
-                music_id_2    = result['result']['songs'][i]['id']
-                music_name_2  = result['result']['songs'][i]['name']
-                artists_2     = result['result']['songs'][i]['artists'][0]['name']
-                Search_Db     = "NEM" + str(music_id_2)
-                exist_bool    = self.r.get(Search_Db)   
-                if not exist_bool :
-                    play_url = self.url_ %(music_id_2)
-                    self.r.set(Search_Db, play_url)
-                else:
-                    play_url = exist_bool
-                music_data.update({"music_id": music_id_2, "play_url":play_url, "artists":artists_2, "music_name":music_name_2})                    
-                try:
-                    self.requ_date["song"]["list"].append(music_data)
-                except KeyError:
-                    self.requ_date["song"]["list"] = {}
-                    self.requ_date["song"]["list"].append(music_data)
-                count += 1
-                i     += 1
-            self.requ_date["song"]["totalnum"] = count
-
-        except EOFError:
-            try:
-                music_id   = result['result']['songs'][0]['id']
-                music_name = result['result']['songs'][0]['name']
-                artists    = result['result']['songs'][0]['artists'][0]['name']
-            except:
-                # print("[-]Platform not The music")
-                return 0
-                # 该平台上没有该音乐任何信息!
-            else:
-                self.requ_date["song"]["list"].update({"music_id":music_id, "music_name":music_name, "artists":artists})
-                # 返回首备选歌曲信息.
-                t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
-                # self.new_requests_play_url 的异步请求
-                t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
-                # self.requests_lyric        的异步请求
-                t1.start()
-                t2.start()
-                t1.join()
-                t2.join()
-
-                music_id = self.requ_date["music_id"]
-                # self.requests_play_url(music_id)
-                # self.requests_comment(music_id)
-                return self.requ_date
-                # 处理首备选歌曲
+        except:
+            code   = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN
         else:
-            t1 = threading.Thread(target=self.new_requests_play_url, args=(music_id,))
-            # self.new_requests_play_url 的异步请求
-            t2 = threading.Thread(target=self.requests_lyric, args=(music_id,))
-            # self.requests_lyric        的异步请求
-            t1.start()
-            t2.start()
-            t1.join()
-            t2.join()
-            # self.requests_play_url(music_id)
-            # self.requests_comment(music_id)
-            return self.requ_date
+            re_dict['code']   = ReturnStatus.SUCCESS
+            re_dict['status'] = 'ReturnStatus.SUCCESS'
+            return re_dict
 
-            # 只返回第一首备选歌曲的详细信息.
+
 
     def requests_lyric(self, music_id):
         self.lyric_data  = self.session.get(url = self.lyric_url %(music_id), headers = self.headers)
-        try:self.lyric   = self.lyric_data.json()["lrc"]["lyric"]
-        except: self.lyric = {"本首歌还没有歌词!"}
-        else:
-            music_data = {}
-            music_data.update({"lyric": self.lyric})
-            self.requ_date["song"]["list"][0].update(music_data)
+        self.lyric  = self.lyric_data.json()["lrc"].get("lyric", "本首歌还没有歌词")
+        self.tlyric = self.lyric_data.json()["tlyric"].get("lyric", "None")
 
-            try: self.tlyric = self.lyric_data.json()["tlyric"]["lyric"]
-            except: 
-                pass
-            else:
-                music_data = {}
-                music_data.update({"tlyric": self.tlyric})
-                self.requ_date["song"]["list"][0].update(music_data)
-        return 1
+        return {"lyric":self.lyric, "tlyric":self.tlyric}
 
 
 if __name__ == '__main__':
@@ -310,3 +213,8 @@ if __name__ == '__main__':
     print(test.music_id_requests(444706287))
     # print(test.pre_response_neteasymusic('大鱼'))
     # test.pre_response_neteasymusic('大鱼')
+
+
+
+
+

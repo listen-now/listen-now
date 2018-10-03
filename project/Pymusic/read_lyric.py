@@ -58,6 +58,10 @@ class Play_Lyric(object):
     parser.add_argument("-id", dest = "id", help = "like 123456")
     args = parser.parse_args()
 
+    headers = {
+        'token': token_message
+        }
+
     music_id   = args.id
 
     music_page = 1
@@ -66,10 +70,9 @@ class Play_Lyric(object):
                  "id":music_id,
                  "platform":"Neteasymusic",
                  "page":music_page,
-                 "token":token_message
                  }
 
-    resp      = requests.post(url="http://zlclclc.cn/id", data=json.dumps(_send_data))
+    resp      = requests.post(url="http://zlclclc.cn/id", data=json.dumps(_send_data),headers=headers)
     _lyric    = resp.json()["song"]["list"]["lyric"].split("\n")
 
 
@@ -82,7 +85,8 @@ class Play_Lyric(object):
             lyric    = _lyric[i]
         TimeList = re.findall(r"\d{1,3}\:\d{1,3}\.\d{1,3}", lyric)
         lyric    = re.sub(r"\d{1,3}\:\d{1,3}\.\d{1,3}", '', lyric)
-        lyric    = lyric.replace('[]','')#
+        lyric    = lyric.replace('[]','')
+
         if len(TimeList) > 1:
             TimeEnd   = TimeList[1].split(':')
             TimeStart = TimeList[0].split(':')
