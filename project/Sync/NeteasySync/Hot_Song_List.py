@@ -78,9 +78,7 @@ class Hot_Song_List(object):
         Raw_Page_Sum   = 0
         for i in range(Raw_Page_Sum, Raw_Page_Sum + len(result)):
             self.r.set(str(i), result[i - Raw_Page_Sum][0] + "user_song_list" + result[i - Raw_Page_Sum][1] + "user_song_list" + result[i - Raw_Page_Sum][2])
-        print("Update")
         Raw_Page_Sum   += len(result)
-        print(Raw_Page_Sum)
         regex          = re.compile(r"<a href=\"(.+)\" class=\"zpgi\">\d{1,3}</a>")
         Page_Url       = regex.findall(resp.text)
 
@@ -153,7 +151,6 @@ class Hot_Song_List(object):
                                                 data=date,
                                                 headers=post_headers,).json()
 
-            print(connection)
         except:
             return 0
         else:

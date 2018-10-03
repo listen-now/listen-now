@@ -22,7 +22,7 @@ class songList(object):
         self.page       = page
 
     def buidingSongList(self):
-        assert(eval("self.Data[0]" + self.songdir), 'PARAMS Error!')
+        assert eval("self.Data[0]" + self.songdir), 'PARAMS Error!'
         self.songList = []
         tmpSongMod    = copy.deepcopy(RetDataModule.mod_search_song)
         self.count    = 0
@@ -64,7 +64,7 @@ class TopSongList(songList):
     """部分请求参数说明
     
     Data是你请求音乐平台得到的json，但是需要自主解包成list后传入，
-    songdir，artistsdir，iddir是对应的键值，即dir地址
+    ItemNameDir，ImageUrlDir，IdDir，InfoDir
 
     """
 
@@ -76,7 +76,7 @@ class TopSongList(songList):
         self.InfoDir     = InfoDir
 
     def buidingSongList(self):
-        assert(eval("self.Data[0]" + self.ItemNameDir), 'PARAMS Error!')
+        assert eval("self.Data[0]" + self.ItemNameDir), 'PARAMS Error!'
         self.songList = []
         tmpSongMod    = copy.deepcopy(RetDataModule.mod_hot_item)
 
@@ -130,14 +130,14 @@ class RetDataModuleFunc(object):
         code -> 请求状态码，参阅ReturnStatus, status -> 详细状态，以str方式提供, 
         play_url -> 音乐地址, music_id -> 音乐唯一识别码, lyric -> 歌词信息, tlyric -> 翻译歌词信息
         """
-        assert(isinstance(comment, list), 'comment type is list ?')
+        assert isinstance(comment, list), 'comment type is list ?'
 
         self.re_dict               = copy.deepcopy(RetDataModule.mod_song)
         self.re_dict['code']       = code
         self.re_dict['status']     = status
         self.re_dict['play_url']   = play_url
         self.re_dict['music_name'] = music_name
-        self.re_dict['music_id']   = music_id
+        self.re_dict['id']         = music_id
         self.re_dict['lyric']      = lyric
         self.re_dict['tlyric']     = tlyric
         self.re_dict['artists']    = artists
@@ -150,8 +150,7 @@ class RetDataModuleFunc(object):
     def RetDataModCdlist(self, dissname: str, nickname: str, info: str, dissid: str, image_url: str, 
                          songList: songList, totalnum: int, curnum: int, code=200, status="Success") -> dict:
 
-        assert(songList.count            == totalnum, "songList.totalnum != totalnum")
-        assert(type(code)                == int, "code type is int ?")
+        assert type(code)                == int, "code type is int ?"
 
         self.re_dict                     = copy.deepcopy(RetDataModule.mod_cdlist)
         self.re_dict['info']             = info
@@ -168,7 +167,7 @@ class RetDataModuleFunc(object):
         return self.re_dict
 
     def RetDataModHotItem(self, item_id: str, item_name: str, item_desc: str, image_url: str, code=200, status='Success') -> dict:
-        assert(type(code)         == int, "code type is int ?")        
+        assert type(code)         == int, "code type is int ?"
 
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item)
         self.re_dict['item_id']   = item_id
@@ -180,8 +179,8 @@ class RetDataModuleFunc(object):
         return self.re_dict
 
     def RetDataModHotItemList(self, ItemList: list, totalitem: int, code=200, status='Success') -> dict:
-        assert(type(code)         == int, "code type is int ?")        
-        assert(ItemList.count     == totalitem, "ItemList.totalnum != totalnum")
+        assert type(code)         == int, "code type is int ?"    
+        assert ItemList.count     == totalitem, "ItemList.totalnum != totalnum"
         self.re_dict              = copy.deepcopy(RetDataModule.mod_hot_item_list)
         self.re_dict['totalitem'] = totalitem
         self.re_dict["itemlist"]  = ItemList.ReturnList()

@@ -43,16 +43,24 @@ class KuwoMusic(object):
         except simplejson.errors.JSONDecodeError:
             code   = ReturnStatus.ERROR_SEVER
             status = "ReturnStatus.ERROR_SEVER"
-            
-        if resp["HIT"] != 0 :
-            songList               = ReturnFunction.songList(Data=resp["abslist"], songdir="[\"SONGNAME\"]",artistsdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]", page=page)
-            songList.buidingSongList()
-            re_dict_class          = ReturnFunction.RetDataModuleFunc()
-            now_page               = page + 1
-            before_page, next_page = page , page +2
-            totalnum               = songList.count
-            re_dict                = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
-            
+        try:
+            if resp["HIT"] != 0 :
+                songList               = ReturnFunction.songList(Data=resp["abslist"], songdir="[\"SONGNAME\"]",artistsdir="[\"ARTIST\"]",iddir="[\"MUSICRID\"][6:]", page=page)
+                songList.buidingSongList()
+                re_dict_class          = ReturnFunction.RetDataModuleFunc()
+                now_page               = page + 1
+                before_page, next_page = page , page +2
+                totalnum               = songList.count
+                re_dict                = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
+        except:
+            code = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN
+        else:
             return re_dict
 
 

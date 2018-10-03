@@ -25,6 +25,7 @@ import json, time
 sys.path.append('..')
 from flask_cors import CORS
 import project.Config.config 
+from project.Log import Logger
 from project.Library import Error
 from project.Helper import bcrypt_hash
 from project.Helper import token_admin 
@@ -59,26 +60,38 @@ from project.Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 
 
 """
->>>以下为部分全局参数设定>>>
+>>>全局设定开始>>>
 
 """
 
 re_dict = {}
+# 返回参数初始化
+
+logger = Logger.Logger('/var/log/Listen-now/Listen-now.log',level='info')
+# 初始化日志函数，返回等级为info及以上
+
 if int(project.Config.config.getConfig("open_database", "redis")) == 1:
     host   = project.Config.config.getConfig("database", "dbhost")
     port   = project.Config.config.getConfig("database", "dbport")
     _redis = redis.Redis(host=host, port=int(port), decode_responses=True, db=6)  
+# 连接token认证数据库
 
 # sp = spotify.Spotify(2) # 必要的全局变量 参数是保持的待用驱动数 一个驱动可以处理一个用户
+# 暂时因为spotify平台问题而没有启用
 
 app = Flask(__name__)
 # 形成flask实例
+
 CORS(app, resources=r'/*')
 # r'/*' 是通配符，让本服务器所有的URL 都允许跨域请求
 
 re_value_, re_value = 0, 0
+# token认证返回的参数
 
+"""
+>>>全局设定结束>>>
 
+"""
 
 @app.route('/')
 def hello_world():
@@ -86,6 +99,7 @@ def hello_world():
     用于测试服务器是否正常工作.
     """
     UA = request.headers['User-Agent']
+    logger.logger.debug("请求测试服务器是否正常工作")
     return UA + 'Hello World!  Listen-now\'s API Working  Cat.1'
     # return 'Hello World!  Listen-now\'s API Working  Cat.1'
 
@@ -100,7 +114,10 @@ def _Return_Error_Post(code, status, detail = "", **kw):
     detail     详细信息
     组装数据包成json格式返回
     """
-    return {"code":code, "status":status, "detail":detail, "other":kw}
+    RetureContent = {"code": code, "status": status, "detail": detail, "other": kw}
+    logger.logger.info("向前端返回请求结果" + RetureContent)
+
+    return RetureContent
 
 
 
@@ -138,13 +155,13 @@ def Contorl_Request(token):
 
 def Test_api(token):
     try:
-        t1 = threading.Thread(target=Simple_Check, args=(token,))
-        t2 = threading.Thread(target=Contorl_Request, args=(token,))
+        Simple_Check = threading.Thread(target=Simple_Check, args=(token,))
+        Contorl_Request = threading.Thread(target=Contorl_Request, args=(token,))
         # 启动异步线程查询数据
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
+        Simple_Check.start()
+        Contorl_Request.start()
+        Simple_Check.join()
+        Contorl_Request.join()
 
         if re_value != 1:
             # token 不合法
@@ -196,7 +213,7 @@ def search_json():
                 re_dict = _Return_Error_Post(code=ReturnStatus.OVER_MAXPAGE, status="Failed", detail = "OVER_MAXPAGE")
             else:
                 if music_title != '' or music_title != None:
-                    if music_platform == "Neteasymusic":
+                    if music_platform == "Neteasemusic":
                         neteasymusic_id = neteasy_scrawl.Netmusic()
                         re_dict         = neteasymusic_id.pre_response_neteasymusic(music_title, music_page)
 
@@ -228,13 +245,18 @@ def search_json():
                         re_dict      = baidu_search.search_by_keyword(keyword=music_title, page_no=music_page, page_num=10)
 
                     else:
+                        logger.logger.warning("用户请求了一个不被支持的平台")
                         re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "NO_SUPPORT")
 
                 else:
+                    logger.logger.warning("用户的请求有参数错误" + dict_data)
                     re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
         finally:
             if re_dict == "":
                 re_dict = _Return_Error_Post(code=ReturnStatus.NOT_SAFE, status="Failed", detail = "NOT_SAFE")
+            elif re_dict == ReturnStatus.NO_EXISTS:
+                re_dict = _Return_Error_Post(code=ReturnStatus.NO_EXISTS, status="Failed", detail = "NO_EXISTS")
+                logger.logger.warning("用户的请求不存在。" + dict_data)
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')
             response.headers['Access-Control-Allow-Origin'] = '*'
@@ -243,6 +265,7 @@ def search_json():
             return response
 
     else:
+        logger.logger.warning("请求search接口使用了错误的方法")
         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_METHOD, status="Failed", detail = "ERROR_METHOD")
         response = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')     
@@ -268,7 +291,7 @@ def Return_Random_User_Song_List():
 
         KugouTopSongList = kugou_scrawl.Kugou()
         re_dict          = KugouTopSongList.TopSongList()
-        print(re_dict)
+        logger.logger.info("向前端返回的热门歌单列" + re_dict)
 
         response         = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
@@ -356,6 +379,7 @@ def get_token():
         response.headers['Access-Control-Allow-Origin']      = '*'
         response.headers['Access-Control-Allow-Methods']     = 'OPTIONS,HEAD,GET,POST'
         response.headers['Access-Control-Allow-Headers']     = 'x-requested-with'
+        logger.logger.info("注册新token" + str(Token[0]))
         return response
     else:
         ua          = request.headers.get('User-Agent')
@@ -368,7 +392,8 @@ def get_token():
         response.set_cookie('token', Token[0], expires=outdate)
         response.headers['Access-Control-Allow-Origin']      = '*'
         response.headers['Access-Control-Allow-Methods']     = 'OPTIONS,HEAD,GET,POST'
-        response.headers['Access-Control-Allow-Headers']     = 'x-requested-with'        
+        response.headers['Access-Control-Allow-Headers']     = 'x-requested-with'    
+        logger.logger.info("注册新token" + str(Token[0]))    
         return response
 
 
@@ -427,7 +452,8 @@ def Return_User_Song_List():
     except:
         re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="ERROR_PSOT_DATA")
     
-    if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
+    if re.findall(r"wechat", request.headers.get("User-Agent")): 
+        # 如果判断用户请求是来自微信小程序
         try:
             user_id = dict_data["open_id"]
         except:
@@ -447,7 +473,7 @@ def Return_User_Song_List():
         except:
             re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail="ERROR_PARAMS")
         else:
-            if platform == "Neteasymusic":
+            if platform == "Neteasemusic":
                 check_func  = Neteasymusic_Sync.Neteasymusic_Sync()
                 re_dict     = check_func.Get_User_List(uid, user_id)
             elif platform == "QQmusic":
@@ -472,12 +498,12 @@ def Return_User_Song_List():
 def Return_User_Song_List_Detail():
     """
     用于向前端返回某一个歌单的详细信息(
-                                包括歌单的名称，
-                                歌单id，
-                                每首歌曲id，
-                                歌曲名称，
-                                歌曲演唱者
-                                )
+        包括歌单的名称，
+        歌单id，
+        每首歌曲id，
+        歌曲名称，
+        歌曲演唱者
+        )
     """
     global re_dict
     data = request.get_data()     
@@ -494,10 +520,10 @@ def Return_User_Song_List_Detail():
     page                   = dict_data['page']
 
 
-    if song_list_platform == "Neteasymusic":
+    if song_list_platform == "Neteasemusic":
         return_user_song_list = neteasy_Hot_Song_List.Hot_Song_List()
         re_dict               = return_user_song_list.Download_SongList(song_list_id)
-    
+
     elif song_list_platform == "Xiamimusic":
         return_song_list = xiami_Song_List.XiamiApi()
         re_dict          = retrun_song_list.getPlaylist(song_list_id)
@@ -510,10 +536,12 @@ def Return_User_Song_List_Detail():
 
 
     if re_dict:
+        logger.logger.info("请求歌单详细数据" + re_dict)
         re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="SUCCESS"))
     else:
+        logger.logger.info("请求歌单错误，song_list_id: " + song_list_id, + "platform: " + song_list_platform)        
         re_dict.update(_Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="ERROR_SEVER"))
-    
+
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
     response.headers.add('Server','python flask')     
     response.headers['Access-Control-Allow-Origin']   = '*'
@@ -552,7 +580,8 @@ def check_user():
             response.headers['Access-Control-Allow-Headers']  = 'x-requested-with'              
             return response
 
-        if re.findall(r"wechat", request.headers.get("User-Agent")): # 如果判断用户请求是来自微信小程序
+        if re.findall(r"wechat", request.headers.get("User-Agent")): 
+            # 如果判断用户请求是来自微信小程序
             try:
                 user_id = dict_data["open_id"]
                 passwd  = "Wechat_Mini_Program"
@@ -564,7 +593,8 @@ def check_user():
             passwd  = dict_data["passwd"]
         try:
             flag = dict_data["flag"]
-        except:flag = 1 # 默认flag为登录的意思，而不是注册
+        except:flag = 1 
+        # 默认flag为登录的意思，而不是注册
         if flag:
             status = bcrypt_hash.Sign_In_Check(user_id, passwd)
             if status["code"] == ReturnStatus.USER_SUCCESS_SIGN_IN or status["code"] == ReturnStatus.USER_WECHAT_SIGN:
@@ -603,7 +633,7 @@ def play_id():
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
         else:
             if music_platform != '' or music_platform != None:
-                if music_platform == "Neteasymusic":
+                if music_platform == "Neteasemusic":
                     
                     neteasymusic_id = neteasy_scrawl.Netmusic()
                     music_id        = dict_data["id"]
@@ -619,7 +649,7 @@ def play_id():
                         re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
                     else:
                         re_dict  = xiami_scrawl.Search_xiami.id_req(music_id)
-                        print(re_dict)
+
                         if re_dict:
                             re_dict.update({"code":ReturnStatus.SUCCESS, "status":"Success"})
                         else:
@@ -667,6 +697,7 @@ def play_id():
 
 
                 else:
+                    logger.logger.warning("平台不受支持，请求的平台是: " + music_platform)
                     re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "NO_SUPPORT")
         finally:
                 response = Response(json.dumps(re_dict), mimetype = 'application/json')    
