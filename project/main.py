@@ -67,7 +67,7 @@ from project.Sync.NeteasySync import Hot_Song_List as neteasy_Hot_Song_List
 re_dict = {}
 # 返回参数初始化
 
-logger = Logger.Logger('/var/log/Listen-now/Listen-now.log',level='info')
+logger = Logger.Logger('/var/log/listen-now/listen-now.log',level='info')
 # 初始化日志函数，返回等级为info及以上
 
 if int(project.Config.config.getConfig("open_database", "redis")) == 1:
@@ -115,7 +115,7 @@ def _Return_Error_Post(code, status, detail = "", **kw):
     组装数据包成json格式返回
     """
     RetureContent = {"code": code, "status": status, "detail": detail, "other": kw}
-    logger.logger.info("向前端返回请求结果" + RetureContent)
+    logger.logger.info("向前端返回请求结果", RetureContent)
 
     return RetureContent
 
@@ -155,13 +155,13 @@ def Contorl_Request(token):
 
 def Test_api(token):
     try:
-        Simple_Check = threading.Thread(target=Simple_Check, args=(token,))
-        Contorl_Request = threading.Thread(target=Contorl_Request, args=(token,))
+        Simple_Check_instance = threading.Thread(target=Simple_Check, args=(token,))
+        Contorl_Request_instance = threading.Thread(target=Contorl_Request, args=(token,))
         # 启动异步线程查询数据
-        Simple_Check.start()
-        Contorl_Request.start()
-        Simple_Check.join()
-        Contorl_Request.join()
+        Simple_Check_instance.start()
+        Contorl_Request_instance.start()
+        Simple_Check_instance.join()
+        Contorl_Request_instance.join()
 
         if re_value != 1:
             # token 不合法
@@ -195,7 +195,9 @@ def search_json():
         re_dict = {}
         data    = request.get_data()      # 获得json数据包.
         try:
-            dict_data = json.loads(data)        # 解析json数据包.
+            dict_data = json.loads(data.decode('utf-8'))        # 解析json数据包.
+            logger.logger.info("请求search接口", dict_data)
+
         except:
             re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail = "ERROR_PSOT_DATA")
         try:
@@ -249,14 +251,14 @@ def search_json():
                         re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "NO_SUPPORT")
 
                 else:
-                    logger.logger.warning("用户的请求有参数错误" + dict_data)
+                    logger.logger.warning("用户的请求有参数错误", dict_data)
                     re_dict = _Return_Error_Post(code=ReturnStatus.ERROR_PARAMS, status="Failed", detail = "ERROR_PARAMS")
         finally:
             if re_dict == "":
                 re_dict = _Return_Error_Post(code=ReturnStatus.NOT_SAFE, status="Failed", detail = "NOT_SAFE")
             elif re_dict == ReturnStatus.NO_EXISTS:
                 re_dict = _Return_Error_Post(code=ReturnStatus.NO_EXISTS, status="Failed", detail = "NO_EXISTS")
-                logger.logger.warning("用户的请求不存在。" + dict_data)
+                logger.logger.warning("用户的请求不存在。", dict_data)
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
             response.headers.add('Server','python flask')
             response.headers['Access-Control-Allow-Origin'] = '*'
@@ -288,10 +290,11 @@ def Return_Random_User_Song_List():
         pass
         # 暂时重新修改代码
     else:
+        logger.logger.info("请求TopSongList接口-GET方式")
 
         KugouTopSongList = kugou_scrawl.Kugou()
         re_dict          = KugouTopSongList.TopSongList()
-        logger.logger.info("向前端返回的热门歌单列" + re_dict)
+        logger.logger.info("向前端返回的热门歌单列", re_dict)
 
         response         = Response(json.dumps(re_dict), mimetype = 'application/json')    
         response.headers.add('Server','python flask')       
@@ -315,7 +318,9 @@ def login():
 
     data            = request.get_data()     
     try:
-        dict_data   = json.loads(data)      
+        dict_data   = json.loads(data.decode('utf-8'))
+        logger.logger.info("请求login接口", dict_data)
+
     except:
         re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="ERROR_PSOT_DATA")
 
@@ -363,7 +368,7 @@ def get_token():
     if request.method == "POST":
         data            = request.get_data()     
         try:
-            dict_data   = json.loads(data)      
+            dict_data   = json.loads(data.decode('utf-8'))    
         except:
             re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="ERROR_PSOT_DATA")
 
@@ -405,7 +410,9 @@ def exist_token():
     outdate=datetime.datetime.today() + datetime.timedelta(days=2)
     data            = request.get_data()     
     try:
-        dict_data   = json.loads(data)      
+        dict_data   = json.loads(data.decode('utf-8'))      
+        logger.logger.info("请求exist_token接口", dict_data)
+
     except:
         re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="ERROR_PSOT_DATA")
     if dict_data["sign_valid"] == 1: # 证明签名有效
@@ -448,7 +455,9 @@ def Return_User_Song_List():
     user_id = None
     data            = request.get_data()     
     try:
-        dict_data   = json.loads(data)      
+        dict_data   = json.loads(data.decode('utf-8'))    
+        logger.logger.info("请求user_song_list接口", dict_data)
+
     except:
         re_dict     = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail="ERROR_PSOT_DATA")
     
@@ -508,7 +517,9 @@ def Return_User_Song_List_Detail():
     global re_dict
     data = request.get_data()     
     try:
-        dict_data          = json.loads(data)      
+        dict_data          = json.loads(data.decode('utf-8'))  
+        logger.logger.info("请求song_list_requests接口", dict_data)
+    
     except:
         re_dict            = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail = "ERROR_PSOT_DATA")
     try:
@@ -536,10 +547,10 @@ def Return_User_Song_List_Detail():
 
 
     if re_dict:
-        logger.logger.info("请求歌单详细数据" + re_dict)
+        logger.logger.info("请求歌单详细数据", re_dict)
         re_dict.update(_Return_Error_Post(code=ReturnStatus.SUCCESS, status="Success", detail="SUCCESS"))
     else:
-        logger.logger.info("请求歌单错误，song_list_id: " + song_list_id, + "platform: " + song_list_platform)        
+        logger.logger.info("请求歌单错误，song_list_id: ", song_list_id, "platform: ", song_list_platform)        
         re_dict.update(_Return_Error_Post(code=ReturnStatus.ERROR_SEVER, status="Failed", detail="ERROR_SEVER"))
 
     response = Response(json.dumps(re_dict), mimetype = 'application/json')    
@@ -570,7 +581,9 @@ def check_user():
         data = request.get_data()  
 
         try:
-            dict_data = json.loads(data)      
+            dict_data = json.loads(data.decode('utf-8'))      
+            logger.logger.info("请求check_user接口", dict_data)
+
         except:
             re_dict  = _Return_Error_Post(code=ReturnStatus.ERROR_PSOT_DATA, status="Failed", detail = "ERROR_PSOT_DATA")
             response = Response(json.dumps(re_dict), mimetype = 'application/json')    
@@ -625,8 +638,9 @@ def play_id():
     global re_dict
     if request.method == 'POST':
         data      = request.get_data()
-        dict_data = json.loads(data)  
-        
+        dict_data = json.loads(data.decode('utf-8'))  
+        logger.logger.info("请求id接口", dict_data)
+
         try:
             music_platform = dict_data['platform']
         except:
@@ -697,7 +711,7 @@ def play_id():
 
 
                 else:
-                    logger.logger.warning("平台不受支持，请求的平台是: " + music_platform)
+                    logger.logger.warning("平台不受支持，请求的平台是: ", music_platform)
                     re_dict = _Return_Error_Post(code=ReturnStatus.NO_SUPPORT, status="Failed", detail = "NO_SUPPORT")
         finally:
                 response = Response(json.dumps(re_dict), mimetype = 'application/json')    

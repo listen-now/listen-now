@@ -5,6 +5,8 @@
 
 import sys
 sys.path.append('..') # 必须要, 设置project为源程序的包顶
+from project.Log import Logger
+
 import copy
 from Module import RetDataModule
 
@@ -22,18 +24,18 @@ class LRUCache(object):
         def __init__(self, key, value):
 
             self.key                = key
-
             self.value              = copy.deepcopy(value)
             self.next               = None
             self.prev               = None
 
         def print_value(self):
             print(self.value)
+
             # for item in self.value:
             #     print(item, self.value[item])
 
     def __init__(self, capacity=10000):
-
+        self.logger = Logger.Logger('/var/log/Listen-now/Listen-now.log',level='info')
         self.head       = self.Node(None, None)
         self.tail       = self.Node(None, None)
         self.head.next  = self.tail
