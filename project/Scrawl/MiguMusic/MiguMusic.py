@@ -19,6 +19,7 @@ class Migu(object):
     global null
     null=''
     re_dict = copy.deepcopy(RetDataModule.mod_search)
+    
     def __init__(self):
         self.session = requests.session()
         self.headers = {
@@ -41,17 +42,24 @@ class Migu(object):
         except simplejson.errors.JSONDecodeError:
             code   = ReturnStatus.ERROR_SEVER
             status = "ReturnStatus.ERROR_SEVER"
-        print(resp)
-        if resp["pgt"] != 0 :
-            songList = ReturnFunction.songList(Data=resp["musics"], songdir="[\"songName\"]",artistsdir="[\"artist\"]",iddir="[\"copyrightId\"]", page=page)
-            songList.buidingSongList()
-            re_dict_class = ReturnFunction.RetDataModuleFunc()
-            now_page      = page 
-            before_page, next_page = page -1 , page +1
-            totalnum      = songList.count
-            re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
-            
-            return re_dict
+        try:
+            if resp["pgt"] != 0 :
+                songList = ReturnFunction.songList(Data=resp["musics"], songdir="[\"songName\"]",artistsdir="[\"artist\"]",iddir="[\"copyrightId\"]", page=page)
+                songList.buidingSongList()
+                re_dict_class = ReturnFunction.RetDataModuleFunc()
+                now_page      = page 
+                before_page, next_page = page -1 , page +1
+                totalnum      = songList.count
+                re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+                return re_dict
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
+        except:
+            code   = ReturnStatus.ERROR_UNKNOWN
+            status = 'ReturnStatus.ERROR_UNKNOWN'
+            return ReturnStatus.ERROR_UNKNOWN
 
     
     def search_details(self,music_id):

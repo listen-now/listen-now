@@ -179,7 +179,6 @@ class Netmusic(object):
         data       = "hlpretag=&hlposttag=&s=%s&type=1&offset=%s&total=true&limit=10" %(text, str((page-1)*10))
         resp       = self.session.post(url = self.search_url, data = data, headers = self.headers)
         result     = resp.json()
-
         try:
             songList      = ReturnFunction.songList(Data=result['result']['songs'], songdir="[\"name\"]", artistsdir="[\'artists\'][0][\'name\']", iddir="[\"id\"]", page=page)
             songList.buidingSongList()
@@ -188,6 +187,10 @@ class Netmusic(object):
             before_page, next_page = page-1, page+1
             totalnum      = songList.count
             re_dict       = re_dict_class.RetDataModSearch(now_page, next_page, before_page, songList, totalnum, code=ReturnStatus.SUCCESS, status='Success')
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
 
         except:
             code   = ReturnStatus.ERROR_UNKNOWN

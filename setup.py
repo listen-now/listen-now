@@ -1,31 +1,44 @@
 #!/usr/bin/env python3
 # @File:setup.py
-# @Date:2018/07/15
-# @Update:2018/09/01
+# @Date:2018/07/15 Cat.1
+# @Update:2018/09/01 Cat.1
+# @Update:2018/09/22 Cat.1
 # Author:Cat.1
+
 
 import os
 import sys
 import platform
 import subprocess
 
-path1 = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/music.py " + "/usr/local/bin/pymusic" 
-path2 = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/read_lyric.py " + "/usr/local/bin/read_lyric" 
+
+
+path1    = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/music.py " + "/usr/local/bin/pymusic" 
+path2    = "sudo ln -s " + os.path.abspath('.') + "/project/Pymusic/read_lyric.py " + "/usr/local/bin/read_lyric" 
+command1 = "mkdir /var/log/Listen-now/"
+chmodCommand = "sudo chmod 777 /var/log/Listen-now"
+command2 = "touch /var/log/Listen-now/Listen-now.log"
+            
 
 
 try:
     try:
         print("Hello " + os.getlogin()+" 我们正在为您执行listen-now的后端自动化部署")
     except FileNotFoundError:
+        # 无法判断用户身份，无法得到用户的用户名，使用默认用户名来输出
         print("Hello Listen-now用户, 我们正在为您执行listen-now的后端自动化部署")
+    # 执行相关操作，包括建立pymusic的软链接和在/var/log/下建立日志文件用于后端错误分析
+    subprocess.check_output(path1, shell=True).decode("UTF-8")
+    subprocess.check_output(path2, shell=True).decode("UTF-8")
+    subprocess.check_output(command1, shell=True).decode("UTF-8"))
+    subprocess.check_output(chmodCommand, shell=True).decode("UTF-8"))
+    subprocess.check_output(command2, shell=True).decode("UTF-8"))
 
-    print(subprocess.check_output(path1, shell=True).decode("UTF-8"))
-    print(subprocess.check_output(path2, shell=True).decode("UTF-8"))
 except:
-    print("[-]请手动初始化终端命令功能\n")
-    print("参考指令 -> " + path2)
-    print("参考指令 -> " + path1)
-    raise BaseException
+    print("[-]请手动初始化以下内容\n")
+    print("参考指令列表：\n")
+    print(path1 + "\n" +path2 + "\n" + command1 + "\n" + command2 + "\n" + chmodCommand)
+
 else:
     print("[+]终端命令初始化成功!")
 
@@ -44,19 +57,18 @@ else:
             platform = {"1":"基于Redhat的发行版及centos", "2":"debian及基于debian的发行版"}
             platform = platform[input("请选择你的linux版本\n1.)基于Redhat的发行版及centos\n2.)debian及基于debian的发行版\n->")]
             if platform == "基于Redhat的发行版及centos":
-                print(subprocess.check_output("sudo yum install mpg123", shell=True).decode("UTF-8"))
-                print(subprocess.check_output("sudo yum install ffmpeg", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo yum -y install mpg123", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo yum -y install ffmpeg", shell=True).decode("UTF-8"))
             elif platform == "debian及基于debian的发行版":
-                print(subprocess.check_output("sudo apt-get install mpg123", shell=True).decode("UTF-8"))
-                print(subprocess.check_output("sudo apt-get install ffmpeg", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo apt-get -y install mpg123", shell=True).decode("UTF-8"))
+                print(subprocess.check_output("sudo apt-get -y install ffmpeg", shell=True).decode("UTF-8"))
         else:
             print("暂时不支持Win平台")
             raise BaseException
     except:
         print("[-]安装环境出现错误，请手动执行")
-        print("请手动安装 ffmpeg, mpg123")
-        raise BaseException
-
+        print("请手动安装 ffmpeg, mpg123\n\n")
+        
 
 # 关于判断用户的Python版本中pip的构建问题
 pip = {"1":"pip", "2":"pip3", "3":"other"}
@@ -75,13 +87,15 @@ try:
 except:
     print("[-]pip依赖包安装失败")
     print("请手动安装requirements.txt")
-    raise BaseException
 
 try:
     print(subprocess.check_output("touch error.log && touch access.log", shell=True).decode("UTF-8"))
+    # nginx的日志文件直接放在了当前目录下，并做映射到Log目录中的NginxAccess.log & NginxError.log
+    subprocess.check_output("ln -s access.log ./project/Log/NginxAccess.log && ln -s error.log ./project/Log/NginxError.log")
     fp = open("config.ini", "w+")
     fp.write("[uwsgi]\n\nsocket = 127.0.0.1:5051\nchdir = /root/listen-now/\nwsgi-file = main.py\ncallable = app\nprocesses = 4\nthreads = 2\nstats = 127.0.0.1:9191\n")
     fp.close()
+
     content = """
     events {
         worker_connections  1024;
@@ -147,6 +161,8 @@ except:
     raise BaseException
 else:
     print("[+]成功安装依赖环境!")
+
+
 
 
 

@@ -59,6 +59,12 @@ class QQMusic(object):
                 code   = ReturnStatus.ERROR_SEVER
                 status = 'ReturnStatus.ERROR_SEVER'
                 return ReturnStatus.ERROR_SEVER
+
+        except KeyError:
+            code   = ReturnStatus.NO_EXISTS
+            status = 'ReturnStatus.NO_EXISTS'
+            return ReturnStatus.NO_EXISTS
+
         except:
             code = ReturnStatus.ERROR_UNKNOWN
             status = 'ReturnStatus.ERROR_UNKNOWN'
@@ -83,7 +89,7 @@ class QQMusic(object):
                 re_dict_class = ReturnFunction.RetDataModuleFunc()
                 music_id = info['mid']
                 re_dict = re_dict_class.RetDataModSong(self.get_play_url(music_id, self.get_music_vkey(music_id)), 
-                    music_id, info['name'], info['singer'][0]['name'], self.get_image_url(music_id), 
+                    music_id, info['name'], info['singer'][0]['name'], self.get_image_url(info['album']['mid']),
                     self.get_music_lyric(music_id), comment=['暂无评论数据'], tlyric='None', code=ReturnStatus.SUCCESS, status='Success')
             else:
                 code   = ReturnStatus.ERROR_SEVER
@@ -229,7 +235,6 @@ class QQMusic(object):
             response = self.session.request('GET', _url, headers = self.headers)
             retjson = response.json()
 
-
             if retjson.get('code', -1) == 0:
 
                 code = ReturnStatus.SUCCESS
@@ -249,7 +254,7 @@ class QQMusic(object):
                 code   = ReturnStatus.ERROR_SEVER
                 status = 'ReturnStatus.ERROR_SEVER'
                 return ReturnStatus.ERROR_SEVER
-        except:
+        except KeyError:
             code = ReturnStatus.ERROR_UNKNOWN
             status = 'ReturnStatus.ERROR_UNKNOWN'
             return ReturnStatus.ERROR_UNKNOWN    
@@ -374,7 +379,7 @@ if __name__ == '__main__':
     app = QQMusic()
     #qquin = '447231743' #qq登陆即为qq号
     print(app.search_by_keyword('纸短情长'))
-    #print(app.search_by_id('0015H75B1NvYzl'))
+    # print(app.search_by_id('000C0joK1H4ZMY'))
     #print(app.get_user_profile_dissidlist(qquin))
     #print(app.get_hot_itemidlist())
     #print(app.get_hot_playlist('71'))
