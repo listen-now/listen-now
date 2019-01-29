@@ -58,16 +58,12 @@ Nginx
 
 ## 使用指南
 
-[1. pymusic 使用指南](https://github.com/listen-now/listen-now/docs/pymusic-readme.md)
+[1. pymusic 使用指南](docs/pymusic-readme.md)
 
-[2. API搭建版本](https://github.com/listen-now/listen-now/docs/API-readme.me)
+[2. API搭建版本](docs/API-readme.md)
 
-[3. docker免配置版本](https://github.com/listen-now/listen-now/docs/docker-readme.me)
+[3. docker免配置版本](docs/docker-readme.md)
 
 ## 如何参与贡献？
 
-[参与贡献指南](https://github.com/listen-now/listen-now/docs/CONTRIBUTING.md)
-
-
-
-
+[参与贡献指南](docs/CONTRIBUTING.md)
