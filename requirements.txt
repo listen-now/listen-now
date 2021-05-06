@@ -24,7 +24,7 @@ urllib3==1.22
 Werkzeug==0.14.1
 argparse==1.4.0
 redis==2.10.6
-flask-cors==3.0.6
+flask-cors==3.0.9
 PyExecJS==1.5.1
 rsa==3.4.2
 Crypto==1.4.1 
